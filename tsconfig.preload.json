@@ -7,5 +7,5 @@
     "types": ["node"],
     "composite": true
   },
-  "include": ["src/preload/**/*.ts"]
+  "include": ["src/preload/**/*.ts", "src/shared/**/*.ts"]
 }

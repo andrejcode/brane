@@ -1,8 +1,8 @@
-import './llama'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import started from 'electron-squirrel-startup'
+import { registerLlamaHandlers } from './llama'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -32,7 +32,7 @@ function createWindow() {
 }
 
 void app.whenReady().then(() => {
-  ipcMain.handle('ping', () => 'pong')
+  registerLlamaHandlers()
 
   createWindow()
 

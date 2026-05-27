@@ -14,9 +14,3 @@ createRoot(rootElement).render(
     <App />
   </StrictMode>,
 )
-
-// Console pong to test the API
-void (async (): Promise<void> => {
-  const response = await window.electronApi.ping()
-  console.log(response)
-})()

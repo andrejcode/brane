@@ -14,6 +14,10 @@
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@shared/types": ["./src/shared/types/index.ts"],
+      "@shared/*": ["./src/shared/*"]
+    }
   }
 }
