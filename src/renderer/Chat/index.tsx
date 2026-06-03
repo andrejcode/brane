@@ -109,15 +109,21 @@ export function Chat() {
   }
 
   return (
-    <main className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+    <main className="relative flex min-h-0 w-full flex-1">
       <Messages messages={messages} />
 
-      <ChatInput
-        input={input}
-        isSending={isSending}
-        onSubmit={handleSubmit}
-        setInput={setInput}
-      />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0">
+        <div className="relative mx-auto w-full max-w-4xl px-4 pb-4">
+          <div className="pointer-events-auto relative">
+            <ChatInput
+              input={input}
+              isSending={isSending}
+              onSubmit={handleSubmit}
+              setInput={setInput}
+            />
+          </div>
+        </div>
+      </div>
     </main>
   )
 }
