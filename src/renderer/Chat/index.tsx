@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import { type SubmitEventHandler, useEffect, useRef, useState } from 'react'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
@@ -112,15 +113,27 @@ export function Chat() {
     <main className="relative flex min-h-0 w-full flex-1">
       <Messages messages={messages} />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0">
-        <div className="relative mx-auto w-full max-w-4xl px-4 pb-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-4">
+        <div className="mx-auto w-full max-w-4xl">
           <div className="pointer-events-auto relative">
-            <ChatInput
-              input={input}
-              isSending={isSending}
-              onSubmit={handleSubmit}
-              setInput={setInput}
+            <div
+              className={clsx(
+                'pointer-events-none absolute inset-x-0 bottom-0',
+                'h-24 translate-y-4',
+                'bg-white/1 dark:bg-black/1',
+                'backdrop-blur-[3px]',
+                'mask-[linear-gradient(to_top,black_0%,black_55%,transparent_100%)]',
+              )}
             />
+
+            <div className="relative z-10">
+              <ChatInput
+                input={input}
+                isSending={isSending}
+                onSubmit={handleSubmit}
+                setInput={setInput}
+              />
+            </div>
           </div>
         </div>
       </div>
