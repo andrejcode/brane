@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.renderer.json",
+  "compilerOptions": {
+    "composite": false,
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": [
+    "src/test/**/*.ts",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx"
+  ],
+  "exclude": []
+}

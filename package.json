@@ -18,10 +18,13 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc -b --noEmit",
     "typecheck:main": "tsc -p tsconfig.main.json --noEmit",
     "typecheck:preload": "tsc -p tsconfig.preload.json --noEmit",
-    "typecheck:renderer": "tsc -p tsconfig.renderer.json --noEmit"
+    "typecheck:renderer": "tsc -p tsconfig.renderer.json --noEmit",
+    "typecheck:test": "tsc -p tsconfig.vitest.json --noEmit"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -36,6 +39,10 @@
     "@eslint/js": "^9.39.4",
     "@rolldown/plugin-babel": "^0.2.2",
     "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
@@ -50,11 +57,13 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.8.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "clsx": "^2.1.1",

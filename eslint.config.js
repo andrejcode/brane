@@ -126,5 +126,12 @@ export default defineConfig(
     },
   ),
   createProjectConfig(['src/shared/**/*.ts'], './tsconfig.renderer.json', {}),
+  createProjectConfig(
+    ['src/test/**/*.ts', 'src/**/*.{test,spec}.{ts,tsx}'],
+    './tsconfig.vitest.json',
+    {
+      ...globals.browser,
+    },
+  ),
   prettierConfig,
 )
