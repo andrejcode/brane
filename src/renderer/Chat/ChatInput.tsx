@@ -1,6 +1,12 @@
 import { clsx } from 'clsx'
 import { ArrowUp } from 'lucide-react'
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import type {
   Dispatch,
   KeyboardEventHandler,
@@ -72,6 +78,38 @@ export function ChatInput({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- DOM measurement
     setIsMultiline(resize())
   }, [input, resize])
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      const textarea = textareaRef.current
+      if (!textarea || document.activeElement === textarea) {
+        return
+      }
+
+      // Let shortcuts and non-printable keys pass through untouched.
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return
+      }
+      if (event.key.length !== 1) {
+        return
+      }
+
+      // Don't steal focus from another editable element.
+      const active = document.activeElement
+      if (
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLElement && active.isContentEditable)
+      ) {
+        return
+      }
+
+      textarea.focus()
+    }
+
+    document.addEventListener('keydown', handleGlobalKeyDown)
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown)
+  }, [])
 
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
     if (
