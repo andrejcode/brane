@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import started from 'electron-squirrel-startup'
+import { IpcChannels } from '@shared/types'
 import { registerLlamaHandlers } from './llama'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -13,13 +14,23 @@ if (started) {
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
-    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
-    width: 800,
-    height: 600,
+    // Hide title bar on macOS and position traffic lights
+    ...(process.platform === 'darwin'
+      ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 16, y: 16 } }
+      : {}),
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
     },
+  })
+
+  mainWindow.on('enter-full-screen', () => {
+    mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, true)
+  })
+
+  mainWindow.on('leave-full-screen', () => {
+    mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, false)
   })
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -34,6 +45,10 @@ function createWindow() {
 }
 
 void app.whenReady().then(() => {
+  ipcMain.handle(IpcChannels.windowIsFullScreen, (event) => {
+    return BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false
+  })
+
   registerLlamaHandlers()
 
   createWindow()

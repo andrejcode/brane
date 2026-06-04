@@ -1,5 +1,11 @@
 import { clsx } from 'clsx'
-import { type SubmitEventHandler, useEffect, useRef, useState } from 'react'
+import {
+  type SubmitEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 
@@ -21,7 +27,27 @@ export function Chat() {
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
+  // The composer floats over messages, so messages need matching bottom padding
+  const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
+  const bottomOverlayRef = useRef<HTMLDivElement>(null)
+  const bottomFadeRef = useRef<HTMLDivElement>(null)
   const streamingAssistantMessageId = useRef<string | null>(null)
+
+  const updateBottomOverlayInset = useCallback(() => {
+    const bottomOverlay = bottomOverlayRef.current
+
+    if (!bottomOverlay) {
+      return
+    }
+
+    const bottomEdge = window.innerHeight
+    const overlayTop = bottomOverlay.getBoundingClientRect().top
+    const fadeTop = bottomFadeRef.current?.getBoundingClientRect().top
+    // Include the fade because it visually covers messages above the input
+    const visualTop = Math.min(overlayTop, fadeTop ?? overlayTop)
+
+    setBottomOverlayInset(bottomEdge - visualTop)
+  }, [])
 
   useEffect(() => {
     const unsubscribe = window.electronApi.streamResponse((event) => {
@@ -68,6 +94,28 @@ export function Chat() {
     }
   }, [])
 
+  useEffect(() => {
+    const bottomOverlay = bottomOverlayRef.current
+
+    if (!bottomOverlay) {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(updateBottomOverlayInset)
+    const animationFrame = requestAnimationFrame(updateBottomOverlayInset)
+
+    resizeObserver.observe(bottomOverlay)
+
+    if (bottomFadeRef.current) {
+      resizeObserver.observe(bottomFadeRef.current)
+    }
+
+    return () => {
+      cancelAnimationFrame(animationFrame)
+      resizeObserver.disconnect()
+    }
+  }, [updateBottomOverlayInset])
+
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
@@ -111,12 +159,17 @@ export function Chat() {
 
   return (
     <main className="relative flex min-h-0 w-full flex-1">
-      <Messages messages={messages} />
+      <Messages messages={messages} bottomInset={bottomOverlayInset} />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-4">
+      {/* This overlay is outside normal layout, so we measure it above */}
+      <div
+        ref={bottomOverlayRef}
+        className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-4"
+      >
         <div className="mx-auto w-full max-w-4xl">
           <div className="pointer-events-auto relative">
             <div
+              ref={bottomFadeRef}
               className={clsx(
                 'pointer-events-none absolute inset-x-0 bottom-0',
                 'h-24 translate-y-4',
