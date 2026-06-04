@@ -292,8 +292,11 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     <div className="relative min-h-0 flex-1">
       <div
         ref={scrollContainerRef}
+        // Opt out of Chromium's keyboard-focusable scrollers so the pane isn't
+        // a Tab stop that paints a focus ring around the whole message area
+        tabIndex={-1}
         // Native scrollbars start at the viewport top. This pane uses an aligned custom one
-        className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="h-full overflow-y-auto outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onScroll={handleScroll}
       >
         <div
