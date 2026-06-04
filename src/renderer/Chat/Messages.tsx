@@ -310,7 +310,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       {scrollbar.isVisible && (
         <div
           ref={scrollbarTrackRef}
-          className={`absolute top-12 right-1 bottom-0 z-20 w-2 transition-opacity duration-150 ${
+          className={`absolute top-12 right-0.5 bottom-0 z-20 w-2 transition-opacity duration-150 ${
             isScrollbarActive ? 'opacity-100' : 'opacity-0'
           }`}
           onPointerDown={handleTrackPointerDown}
