@@ -47,12 +47,23 @@ export function ChatInput({
         onKeyDown={handleKeyDown}
         placeholder="Ask anything"
         rows={1}
-        className="ml-2 max-h-[200px] min-h-6 flex-1 resize-none overflow-y-auto bg-transparent text-neutral-800 focus:outline-none dark:text-neutral-100"
+        className={clsx(
+          'ml-2 max-h-[200px] min-h-6 flex-1 resize-none overflow-y-auto',
+          'bg-transparent text-neutral-800 focus:outline-none dark:text-neutral-100',
+        )}
       />
       <button
         type="submit"
+        title="Send message"
         disabled={isSending || input.trim().length === 0}
-        className="shrink-0 cursor-pointer rounded-full bg-neutral-800 p-1 text-neutral-100 shadow-md transition-shadow hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:cursor-not-allowed dark:bg-neutral-100 dark:text-neutral-800 dark:hover:bg-neutral-200"
+        aria-label="Send message"
+        className={clsx(
+          'shrink-0 cursor-pointer rounded-full p-1 shadow-md transition-shadow hover:shadow-xl',
+          'bg-neutral-800 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-800',
+          'hover:bg-neutral-700 dark:hover:bg-neutral-200',
+          'disabled:bg-neutral-300 dark:disabled:bg-neutral-600',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:cursor-not-allowed',
+        )}
       >
         <ArrowUp />
       </button>
