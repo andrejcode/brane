@@ -45,7 +45,7 @@ export function Header() {
 
       <div
         className={clsx(
-          'relative z-10 flex h-full items-center justify-between mr-4',
+          'relative z-10 flex h-full items-center justify-between mr-4 transition-[margin-left] duration-200 ease-out',
           isMac && !isFullScreen ? 'ml-24' : 'ml-4',
         )}
       >
