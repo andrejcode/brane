@@ -2,6 +2,7 @@ import {
   type PointerEventHandler,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -30,6 +31,8 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   const tailMessagesRef = useRef<HTMLDivElement>(null)
   const tailSpacerUpdateAnimationFrameRef = useRef<number | null>(null)
   const scrollbarHideTimeoutRef = useRef<number | null>(null)
+  const lastUserMessageRef = useRef<HTMLElement | null>(null)
+  const scrolledUserMessageIdRef = useRef<string | null>(null)
   const [scrollbar, setScrollbar] = useState({
     isVisible: false,
     thumbHeight: minimumThumbHeight,
@@ -41,6 +44,17 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   const tailStartIndex = Math.max(messages.length - messageTailCount, 0)
   const earlierMessages = messages.slice(0, tailStartIndex)
   const tailMessages = messages.slice(tailStartIndex)
+  const lastUserMessageId = useMemo(() => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index]
+
+      if (message?.role === 'user') {
+        return message.id
+      }
+    }
+
+    return null
+  }, [messages])
 
   const updateScrollbar = useCallback(() => {
     const scrollContainer = scrollContainerRef.current
@@ -141,6 +155,53 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   useEffect(() => {
     scheduleTailSpacerUpdate()
   }, [messages, scheduleTailSpacerUpdate])
+
+  // Bring a freshly sent message to the top, just below the header
+  useEffect(() => {
+    if (!lastUserMessageId) {
+      return
+    }
+
+    if (lastUserMessageId === scrolledUserMessageIdRef.current) {
+      return
+    }
+
+    scrolledUserMessageIdRef.current = lastUserMessageId
+
+    let secondFrame: number | null = null
+
+    const scrollUserMessageToTop = () => {
+      const scrollContainer = scrollContainerRef.current
+      const userMessage = lastUserMessageRef.current
+
+      if (!scrollContainer || !userMessage) {
+        return
+      }
+
+      const containerRect = scrollContainer.getBoundingClientRect()
+      const messageRect = userMessage.getBoundingClientRect()
+
+      scrollContainer.scrollTo({
+        top:
+          scrollContainer.scrollTop +
+          (messageRect.top - containerRect.top - headerHeight),
+        behavior: 'smooth',
+      })
+    }
+
+    // Wait two frames so the tail spacer commits and leaves room to scroll
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(scrollUserMessageToTop)
+    })
+
+    return () => {
+      cancelAnimationFrame(firstFrame)
+
+      if (secondFrame !== null) {
+        cancelAnimationFrame(secondFrame)
+      }
+    }
+  }, [lastUserMessageId])
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current
@@ -278,6 +339,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   const renderMessage = (message: ChatMessage) => (
     <article
       key={message.id}
+      ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
       className={
         message.role === 'user'
           ? 'self-end rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700'
