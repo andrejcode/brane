@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
-import { Settings, Sidebar } from 'lucide-react'
+import { ChevronDown, Settings, Sidebar } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Button } from './ui/Button'
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
 // Also icons are positioned differently on macOS because of the traffic lights
@@ -48,8 +49,31 @@ export function Header() {
           isMac && !isFullScreen ? 'ml-24' : 'ml-4',
         )}
       >
-        <Sidebar size={20} />
-        <Settings size={20} />
+        <div className="flex items-center gap-2">
+          <Button
+            className="[app-region:no-drag]"
+            title="Toggle sidebar"
+            aria-label="Toggle sidebar"
+          >
+            <Sidebar size={20} />
+          </Button>
+
+          <Button
+            className="[app-region:no-drag] flex items-center gap-0.5 px-2"
+            title="Select model"
+            aria-label="Select model"
+          >
+            Select model
+            <ChevronDown size={18} />
+          </Button>
+        </div>
+        <Button
+          className="[app-region:no-drag]"
+          title="Open settings"
+          aria-label="Open settings"
+        >
+          <Settings size={20} />
+        </Button>
       </div>
     </header>
   )
