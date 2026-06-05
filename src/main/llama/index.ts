@@ -19,7 +19,10 @@ function getSession() {
 async function createSession() {
   const llama = await getLlama()
   const model = await llama.loadModel({
-    modelPath: path.join(process.cwd(), 'models', 'Qwen3-0.6B-Q8_0.gguf'),
+    // Available models:
+    // Qwen3-4B-Q5_K_M.gguf
+    // Qwen3-0.6B-Q8_0.gguf
+    modelPath: path.join(process.cwd(), 'models', 'Qwen3-4B-Q5_K_M.gguf'),
   })
   const context = await model.createContext()
   const session = new LlamaChatSession({

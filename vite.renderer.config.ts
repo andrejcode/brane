@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': path.resolve('src/shared'),
+      '@': path.resolve('src/renderer'),
     },
   },
   plugins: [

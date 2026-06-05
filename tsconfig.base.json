@@ -17,7 +17,9 @@
     "skipLibCheck": true,
     "paths": {
       "@shared/types": ["./src/shared/types/index.ts"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@/*": ["./src/renderer/*"],
+      "@test/*": ["./src/test/*"]
     }
   }
 }

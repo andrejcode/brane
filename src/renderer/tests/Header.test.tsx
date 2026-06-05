@@ -1,11 +1,11 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { Header } from './Header'
+import { Header } from '@/Header'
 import {
   clearMockElectronApi,
   installMockElectronApi,
   type MockElectronApi,
-} from '../test/electronApi'
+} from '@test/electronApi'
 
 let mock: MockElectronApi
 

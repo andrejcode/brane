@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import type { ChatMessage } from '@/Chat'
 import { Messages } from '..'
-import type { ChatMessage } from '../..'
 
 const conversation: ChatMessage[] = [
   { id: '1', role: 'user', content: 'first user' },
@@ -69,5 +69,19 @@ describe('Messages', () => {
     const { container } = render(<Messages messages={[]} bottomInset={0} />)
 
     expect(container.querySelectorAll('article')).toHaveLength(0)
+  })
+
+  it('shows a loading spinner for an assistant turn awaiting its first chunk', () => {
+    render(
+      <Messages
+        messages={[
+          { id: '1', role: 'user', content: 'hello' },
+          { id: '2', role: 'assistant', content: '' },
+        ]}
+        bottomInset={0}
+      />,
+    )
+
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument()
   })
 })

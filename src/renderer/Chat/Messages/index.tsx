@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import type { ChatMessage } from '..'
 import {
   clamp,
@@ -334,19 +335,29 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     window.addEventListener('pointerup', handlePointerUp)
   }
 
-  const renderMessage = (message: ChatMessage) => (
-    <article
-      key={message.id}
-      ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
-      className={
-        message.role === 'user'
-          ? 'self-end rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700'
-          : 'self-start whitespace-pre-wrap'
-      }
-    >
-      {message.content}
-    </article>
-  )
+  const renderMessage = (message: ChatMessage) => {
+    // An assistant turn with no content yet is awaiting the first stream chunk
+    const isAwaitingResponse =
+      message.role === 'assistant' && message.content.length === 0
+
+    return (
+      <article
+        key={message.id}
+        ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
+        className={
+          message.role === 'user'
+            ? 'self-end rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700'
+            : 'self-start whitespace-pre-wrap'
+        }
+      >
+        {isAwaitingResponse ? (
+          <LoadingSpinner isLoading className="text-neutral-500" />
+        ) : (
+          message.content
+        )}
+      </article>
+    )
+  }
 
   return (
     <div className="relative min-h-0 flex-1">
