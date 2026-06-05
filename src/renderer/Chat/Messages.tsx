@@ -6,6 +6,11 @@ import {
   useRef,
   useState,
 } from 'react'
+import {
+  clamp,
+  computeScrollbarMetrics,
+  computeTailBottomInset,
+} from './messagesLayout'
 import type { ChatMessage } from '.'
 
 interface MessagesProps {
@@ -19,10 +24,6 @@ const messageTailCount = 2
 const minimumThumbHeight = 20
 const scrollbarThumbScale = 0.85
 const scrollbarHideDelay = 900
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
 
 export function Messages({ bottomInset, messages }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -63,11 +64,16 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       return
     }
 
-    const maxScrollTop =
-      scrollContainer.scrollHeight - scrollContainer.clientHeight
-    const trackHeight = scrollContainer.clientHeight - headerHeight
+    const metrics = computeScrollbarMetrics({
+      scrollHeight: scrollContainer.scrollHeight,
+      clientHeight: scrollContainer.clientHeight,
+      scrollTop: scrollContainer.scrollTop,
+      headerHeight,
+      minimumThumbHeight,
+      thumbScale: scrollbarThumbScale,
+    })
 
-    if (maxScrollTop <= 0 || trackHeight <= 0) {
+    if (!metrics.isVisible) {
       setScrollbar((currentScrollbar) => ({
         ...currentScrollbar,
         isVisible: false,
@@ -76,20 +82,10 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       return
     }
 
-    const proportionalThumbHeight =
-      (scrollContainer.clientHeight / scrollContainer.scrollHeight) *
-      trackHeight
-    const thumbHeight = Math.max(
-      minimumThumbHeight,
-      proportionalThumbHeight * scrollbarThumbScale,
-    )
-    const maxThumbTop = trackHeight - thumbHeight
-    const thumbTop = (scrollContainer.scrollTop / maxScrollTop) * maxThumbTop
-
     setScrollbar({
       isVisible: true,
-      thumbHeight,
-      thumbTop,
+      thumbHeight: metrics.thumbHeight,
+      thumbTop: metrics.thumbTop,
     })
   }, [])
 
@@ -113,11 +109,13 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       return
     }
 
-    const availableHeight = scrollContainer.clientHeight - headerHeight
-    const tailMessagesHeight =
-      tailMessagesElement.getBoundingClientRect().height
-
-    setTailBottomInset(Math.max(0, availableHeight - tailMessagesHeight))
+    setTailBottomInset(
+      computeTailBottomInset({
+        clientHeight: scrollContainer.clientHeight,
+        headerHeight,
+        tailHeight: tailMessagesElement.getBoundingClientRect().height,
+      }),
+    )
   }, [messages.length])
 
   const scheduleTailSpacerUpdate = useCallback(() => {

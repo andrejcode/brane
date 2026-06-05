@@ -13,6 +13,7 @@ import type {
   SetStateAction,
   SubmitEventHandler,
 } from 'react'
+import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
 
 const MAX_ROWS = 8
 // Right padding (px) of the textarea
@@ -42,7 +43,6 @@ export function ChatInput({
     }
 
     const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 24
-    const maxHeight = lineHeight * MAX_ROWS
 
     const startPaddingRight = textarea.style.paddingRight
     const startHeight = textarea.style.height
@@ -50,16 +50,18 @@ export function ChatInput({
     textarea.style.transition = 'none'
     textarea.style.paddingRight = `${SINGLE_ROW_PADDING_RIGHT}px`
     textarea.style.height = 'auto'
-    const multiline = textarea.scrollHeight > lineHeight * 1.5
+    const multiline = isMultilineHeight(textarea.scrollHeight, lineHeight)
 
     const targetPaddingRight = multiline
       ? MULTI_ROW_PADDING_RIGHT
       : SINGLE_ROW_PADDING_RIGHT
     textarea.style.paddingRight = `${targetPaddingRight}px`
     textarea.style.height = 'auto'
-    const { scrollHeight } = textarea
-    const nextHeight = Math.min(scrollHeight, maxHeight)
-    const overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden'
+    const { height: nextHeight, overflowY } = resolveTextareaHeight({
+      scrollHeight: textarea.scrollHeight,
+      lineHeight,
+      maxRows: MAX_ROWS,
+    })
 
     textarea.style.paddingRight = startPaddingRight
     textarea.style.height = startHeight

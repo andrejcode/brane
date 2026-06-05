@@ -19,7 +19,7 @@ function createMessageId() {
   return crypto.randomUUID()
 }
 
-function getErrorMessage(error: unknown) {
+export function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'An unknown error occurred'
 }
 
@@ -51,10 +51,12 @@ export function Chat() {
 
   useEffect(() => {
     const unsubscribe = window.electronApi.streamResponse((event) => {
+      const activeMessageId = streamingAssistantMessageId.current
+
       if (event.type === 'chunk') {
         setMessages((currentMessages) =>
           currentMessages.map((message) =>
-            message.id === streamingAssistantMessageId.current
+            message.id === activeMessageId
               ? { ...message, content: message.content + event.text }
               : message,
           ),
@@ -66,8 +68,7 @@ export function Chat() {
       if (event.type === 'done') {
         setMessages((currentMessages) =>
           currentMessages.map((message) =>
-            message.id === streamingAssistantMessageId.current &&
-            message.content.length === 0
+            message.id === activeMessageId && message.content.length === 0
               ? { ...message, content: event.response }
               : message,
           ),
@@ -80,7 +81,7 @@ export function Chat() {
 
       setMessages((currentMessages) =>
         currentMessages.map((message) =>
-          message.id === streamingAssistantMessageId.current
+          message.id === activeMessageId
             ? { ...message, content: `Error: ${event.message}` }
             : message,
         ),
