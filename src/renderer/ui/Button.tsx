@@ -7,7 +7,7 @@ interface ButtonProps {
   disabled?: boolean
   title?: string
   ariaLabel?: string
-  onClick?: () => void
+  onClick?: (() => void) | undefined
 }
 
 export function Button({
