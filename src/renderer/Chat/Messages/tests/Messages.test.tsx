@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { Messages } from './Messages'
-import type { ChatMessage } from '.'
+import { Messages } from '..'
+import type { ChatMessage } from '../..'
 
 const conversation: ChatMessage[] = [
   { id: '1', role: 'user', content: 'first user' },

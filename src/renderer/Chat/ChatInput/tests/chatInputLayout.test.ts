@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
+import { isMultilineHeight, resolveTextareaHeight } from '../chatInputLayout'
 
 describe('isMultilineHeight', () => {
   it('is single line at or below the 1.5x line-height guard', () => {

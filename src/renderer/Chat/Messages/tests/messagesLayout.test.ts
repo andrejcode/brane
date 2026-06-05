@@ -3,7 +3,7 @@ import {
   clamp,
   computeScrollbarMetrics,
   computeTailBottomInset,
-} from './messagesLayout'
+} from '../messagesLayout'
 
 describe('clamp', () => {
   it('returns the value when within range', () => {

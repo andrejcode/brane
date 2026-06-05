@@ -5,8 +5,8 @@ import {
   clearMockElectronApi,
   installMockElectronApi,
   type MockElectronApi,
-} from '../../test/electronApi'
-import { Chat, getErrorMessage } from '.'
+} from '../../../test/electronApi'
+import { Chat, getErrorMessage } from '../index'
 
 let mock: MockElectronApi
 

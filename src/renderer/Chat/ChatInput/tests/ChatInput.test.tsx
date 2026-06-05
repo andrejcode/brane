@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ChatInput } from './ChatInput'
+import { ChatInput } from '..'
 
 function renderChatInput(
   overrides: Partial<Parameters<typeof ChatInput>[0]> = {},

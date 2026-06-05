@@ -6,12 +6,12 @@ import {
   useRef,
   useState,
 } from 'react'
+import type { ChatMessage } from '..'
 import {
   clamp,
   computeScrollbarMetrics,
   computeTailBottomInset,
 } from './messagesLayout'
-import type { ChatMessage } from '.'
 
 interface MessagesProps {
   bottomInset: number
