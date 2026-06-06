@@ -23,10 +23,29 @@ export function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'An unknown error occurred'
 }
 
+export const introMessages = [
+  'How can I help you today?',
+  'What can I do for you?',
+  'What are you working on?',
+  'Where should we start?',
+  "What's on your mind?",
+  'Ready when you are.',
+  "Let's dig in. What's the task?",
+  'What can we tackle together?',
+  "What's next on your list?",
+  'Ask me anything.',
+]
+
+function pickIntroMessage() {
+  return introMessages[Math.floor(Math.random() * introMessages.length)]
+}
+
 export function Chat() {
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [introMessage] = useState(pickIntroMessage)
+  const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
   const bottomOverlayRef = useRef<HTMLDivElement>(null)
@@ -117,6 +136,27 @@ export function Chat() {
     }
   }, [updateBottomOverlayInset])
 
+  // While the composer slides from center to the bottom, its measured position
+  // changes every frame, so keep the message inset in sync for the transition.
+  useEffect(() => {
+    if (isEmpty) {
+      return
+    }
+
+    const start = performance.now()
+    let animationFrame = requestAnimationFrame(function tick() {
+      updateBottomOverlayInset()
+
+      if (performance.now() - start < 600) {
+        animationFrame = requestAnimationFrame(tick)
+      }
+    })
+
+    return () => {
+      cancelAnimationFrame(animationFrame)
+    }
+  }, [isEmpty, updateBottomOverlayInset])
+
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
@@ -165,10 +205,28 @@ export function Chat() {
       {/* This overlay is outside normal layout, so we measure it above */}
       <div
         ref={bottomOverlayRef}
-        className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-4"
+        data-testid="composer"
+        className={clsx(
+          'pointer-events-none absolute inset-x-0 px-4 pb-4',
+          'transition-[bottom,transform] duration-500 ease-out',
+          // Center the composer until the first message, then dock it
+          isEmpty ? 'bottom-1/2 translate-y-1/2' : 'bottom-0 translate-y-0',
+        )}
       >
         <div className="mx-auto w-full max-w-4xl">
           <div className="pointer-events-auto relative">
+            <h1
+              data-testid="intro-greeting"
+              className={clsx(
+                'pointer-events-none absolute inset-x-0 bottom-full mb-10 text-center',
+                'text-2xl font-normal',
+                'transition-opacity duration-300 ease-out',
+                isEmpty ? 'opacity-100' : 'opacity-0',
+              )}
+            >
+              {introMessage}
+            </h1>
+
             <div
               ref={bottomFadeRef}
               className={clsx(
@@ -177,6 +235,8 @@ export function Chat() {
                 'bg-white/1 dark:bg-black/1',
                 'backdrop-blur-[3px]',
                 'mask-[linear-gradient(to_top,black_0%,black_55%,transparent_100%)]',
+                'transition-opacity duration-300 ease-out',
+                isEmpty ? 'opacity-0' : 'opacity-100',
               )}
             />
 

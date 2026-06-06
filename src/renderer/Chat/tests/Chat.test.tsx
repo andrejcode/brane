@@ -6,7 +6,7 @@ import {
   installMockElectronApi,
   type MockElectronApi,
 } from '@test/electronApi'
-import { Chat, getErrorMessage } from '../index'
+import { Chat, getErrorMessage, introMessages } from '../index'
 
 let mock: MockElectronApi
 
@@ -32,6 +32,35 @@ describe('getErrorMessage', () => {
 
   it('falls back for non-Error values', () => {
     expect(getErrorMessage('nope')).toBe('An unknown error occurred')
+  })
+})
+
+describe('Chat intro greeting', () => {
+  it('shows a random intro greeting centered when there are no messages', () => {
+    render(<Chat />)
+
+    const greeting = screen.getByTestId('intro-greeting')
+    const composer = screen.getByTestId('composer')
+
+    expect(introMessages).toContain(greeting.textContent)
+    expect(greeting).toHaveClass('opacity-100')
+    expect(greeting).not.toHaveClass('opacity-0')
+    expect(composer).toHaveClass('bottom-1/2')
+    expect(composer).not.toHaveClass('bottom-0')
+  })
+
+  it('fades out the greeting and docks the composer after the first message', async () => {
+    render(<Chat />)
+
+    await submitPrompt('hello')
+
+    const greeting = screen.getByTestId('intro-greeting')
+    const composer = screen.getByTestId('composer')
+
+    expect(greeting).toHaveClass('opacity-0')
+    expect(greeting).not.toHaveClass('opacity-100')
+    expect(composer).toHaveClass('bottom-0')
+    expect(composer).not.toHaveClass('bottom-1/2')
   })
 })
 
