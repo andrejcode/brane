@@ -1,34 +1,56 @@
 import { clsx } from 'clsx'
 import { useCallback, useState } from 'react'
 import { Chat } from './Chat'
+import { ModalProvider } from './contexts/ModalContext'
 import { Header } from './Header'
+import { SettingsModal } from './SettingsModal'
 import { Sidebar } from './ui/Sidebar'
 
 export function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+
+  const openSettingsModal = useCallback(() => {
+    setIsSettingsModalOpen(true)
+  }, [])
+
+  const closeSettingsModal = useCallback(() => {
+    setIsSettingsModalOpen(false)
+  }, [])
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((open) => !open)
   }, [])
 
   return (
-    <div
-      className={clsx(
-        'relative flex h-dvh flex-col overflow-hidden',
-        'bg-neutral-50 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100',
-      )}
-    >
-      <Header isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
-      <div className="flex min-h-0 w-full flex-1">
-        <Sidebar isSidebarOpen={isSidebarOpen}>
-          <div className="flex h-full flex-col pt-12">
-            <div className="px-4 py-3 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-              Chats
+    <ModalProvider>
+      <div
+        className={clsx(
+          'relative flex h-dvh flex-col overflow-hidden',
+          'bg-neutral-50 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100',
+        )}
+      >
+        <Header
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={toggleSidebar}
+          openSettingsModal={openSettingsModal}
+        />
+        <div className="flex min-h-0 w-full flex-1">
+          <Sidebar isSidebarOpen={isSidebarOpen}>
+            <div className="flex h-full flex-col pt-12">
+              <div className="px-4 py-3 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                Chats
+              </div>
             </div>
-          </div>
-        </Sidebar>
-        <Chat />
+          </Sidebar>
+          <Chat />
+        </div>
       </div>
-    </div>
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
+      />
+    </ModalProvider>
   )
 }

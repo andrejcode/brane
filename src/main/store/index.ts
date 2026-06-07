@@ -1,4 +1,5 @@
 import Store from 'electron-store'
+import type { Theme } from '@shared/types'
 
 interface WindowSettings {
   width: number
@@ -10,6 +11,7 @@ interface WindowSettings {
 
 interface StoreSchema {
   window: WindowSettings
+  theme: Theme
 }
 
 const defaults: StoreSchema = {
@@ -20,6 +22,7 @@ const defaults: StoreSchema = {
     y: null,
     isMaximized: false,
   },
+  theme: 'system',
 }
 
 const store = new Store<StoreSchema>({

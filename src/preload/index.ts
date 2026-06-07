@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
+import { IpcChannels, type LlamaStreamEvent, type Theme } from '@shared/types'
 
 const electronApi: ElectronApi = {
   isMac: process.platform === 'darwin',
@@ -37,6 +37,13 @@ const electronApi: ElectronApi = {
     return () => {
       ipcRenderer.removeListener(IpcChannels.llamaStreamResponse, listener)
     }
+  },
+  getTheme: async () => {
+    const theme: unknown = await ipcRenderer.invoke(IpcChannels.getTheme)
+    return theme as Theme
+  },
+  setTheme: async (theme: Theme) => {
+    await ipcRenderer.invoke(IpcChannels.setTheme, theme)
   },
 }
 

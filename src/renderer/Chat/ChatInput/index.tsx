@@ -14,6 +14,7 @@ import type {
   SubmitEventHandler,
 } from 'react'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
+import { useIsAnyModalOpen } from '../../contexts/ModalContext'
 
 const MAX_ROWS = 8
 // Right padding (px) of the textarea
@@ -35,6 +36,7 @@ export function ChatInput({
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isMultiline, setIsMultiline] = useState(false)
+  const isModalOpen = useIsAnyModalOpen()
 
   const resize = useCallback(() => {
     const textarea = textareaRef.current
@@ -82,6 +84,11 @@ export function ChatInput({
   }, [input, resize])
 
   useEffect(() => {
+    // While a modal is open, don't steal focus into the chat input.
+    if (isModalOpen) {
+      return
+    }
+
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       const textarea = textareaRef.current
       if (!textarea || document.activeElement === textarea) {
@@ -111,13 +118,14 @@ export function ChatInput({
 
     document.addEventListener('keydown', handleGlobalKeyDown)
     return () => document.removeEventListener('keydown', handleGlobalKeyDown)
-  }, [])
+  }, [isModalOpen])
 
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
     if (
       event.key !== 'Enter' ||
       event.shiftKey ||
-      event.nativeEvent.isComposing
+      event.nativeEvent.isComposing ||
+      isModalOpen
     ) {
       return
     }
@@ -152,7 +160,7 @@ export function ChatInput({
       <button
         type="submit"
         title="Send message"
-        disabled={isSending || input.trim().length === 0}
+        disabled={isSending || isModalOpen || input.trim().length === 0}
         aria-label="Send message"
         className={clsx(
           'absolute right-2 bottom-2 cursor-pointer rounded-full p-1 shadow-md',

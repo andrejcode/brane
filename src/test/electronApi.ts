@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { LlamaStreamEvent } from '@shared/types'
+import type { LlamaStreamEvent, Theme } from '@shared/types'
 
 export interface MockElectronApi {
   electronApi: ElectronApi
@@ -7,6 +7,8 @@ export interface MockElectronApi {
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
+  getTheme: ReturnType<typeof vi.fn>
+  setTheme: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
@@ -16,6 +18,7 @@ export interface MockElectronApi {
 export interface MockElectronApiOptions {
   isMac?: boolean
   isFullScreen?: boolean
+  theme?: Theme
 }
 
 // Installs a fake `window.electronApi` so renderer components that talk to the
@@ -24,7 +27,7 @@ export interface MockElectronApiOptions {
 export function installMockElectronApi(
   options: MockElectronApiOptions = {},
 ): MockElectronApi {
-  const { isMac = false, isFullScreen = false } = options
+  const { isMac = false, isFullScreen = false, theme = 'system' } = options
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
   const fullScreenListeners = new Set<(isFullScreen: boolean) => void>()
@@ -36,6 +39,8 @@ export function installMockElectronApi(
   const getIsFullScreen = vi.fn(
     (): Promise<boolean> => Promise.resolve(isFullScreen),
   )
+  const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
+  const setTheme = vi.fn((): Promise<void> => Promise.resolve())
 
   const streamResponse = vi.fn(
     (callback: (event: LlamaStreamEvent) => void): (() => void) => {
@@ -65,6 +70,8 @@ export function installMockElectronApi(
     onFullScreenChange,
     sendPrompt,
     streamResponse,
+    getTheme,
+    setTheme,
   }
 
   window.electronApi = electronApi
@@ -75,6 +82,8 @@ export function installMockElectronApi(
     getIsFullScreen,
     streamResponse,
     onFullScreenChange,
+    getTheme,
+    setTheme,
     streamUnsubscribe,
     fullScreenUnsubscribe,
     emitStream: (event) => {

@@ -11,11 +11,16 @@ import { Button } from './ui/Button'
 interface HeaderProps {
   isSidebarOpen?: boolean
   onToggleSidebar?: () => void
+  openSettingsModal: () => void
 }
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
 // Also icons are positioned differently on macOS because of the traffic lights
-export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
+export function Header({
+  isSidebarOpen,
+  onToggleSidebar,
+  openSettingsModal,
+}: HeaderProps) {
   const isMac = window.electronApi.isMac
   const [isFullScreen, setIsFullScreen] = useState(false)
 
@@ -89,6 +94,7 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
             className="[app-region:no-drag]"
             title="Open settings"
             aria-label="Open settings"
+            onClick={openSettingsModal}
           >
             <Settings size={20} />
           </Button>
