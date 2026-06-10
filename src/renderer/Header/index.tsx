@@ -6,7 +6,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Button } from './ui/Button'
+import { HeaderButton } from './HeaderButton'
 
 interface HeaderProps {
   isSidebarOpen?: boolean
@@ -67,10 +67,9 @@ export function Header({
           isMac && !isFullScreen ? 'ml-24' : 'ml-4',
         )}
       >
-        <Button
-          className="[app-region:no-drag]"
+        <HeaderButton
           title="Toggle sidebar"
-          aria-label="Toggle sidebar"
+          ariaLabel="Toggle sidebar"
           onClick={onToggleSidebar}
         >
           {isSidebarOpen ? (
@@ -78,26 +77,25 @@ export function Header({
           ) : (
             <PanelLeftOpen size={20} />
           )}
-        </Button>
+        </HeaderButton>
         <div className="flex items-center gap-3">
-          <Button
-            className="[app-region:no-drag] flex items-center gap-0.5 px-2"
+          <HeaderButton
+            className="flex items-center gap-0.5 px-2"
             title="Select model"
-            aria-label="Select model"
+            ariaLabel="Select model"
           >
             {/* TODO: Limit the length of the model name */}
             Select model
             <ChevronDown size={18} />
-          </Button>
+          </HeaderButton>
 
-          <Button
-            className="[app-region:no-drag]"
+          <HeaderButton
             title="Open settings"
-            aria-label="Open settings"
+            ariaLabel="Open settings"
             onClick={openSettingsModal}
           >
             <Settings size={20} />
-          </Button>
+          </HeaderButton>
         </div>
       </div>
     </header>

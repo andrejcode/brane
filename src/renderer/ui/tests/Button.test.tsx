@@ -5,13 +5,17 @@ import { Button } from '../Button'
 
 describe('Button', () => {
   it('renders its children', () => {
-    render(<Button>Send</Button>)
+    render(<Button type="button">Send</Button>)
 
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument()
   })
 
   it('uses ariaLabel as its accessible name', () => {
-    render(<Button ariaLabel="Send message">→</Button>)
+    render(
+      <Button type="button" ariaLabel="Send message">
+        →
+      </Button>,
+    )
 
     expect(
       screen.getByRole('button', { name: 'Send message' }),
@@ -20,7 +24,11 @@ describe('Button', () => {
 
   it('calls onClick when clicked', async () => {
     const onClick = vi.fn()
-    render(<Button onClick={onClick}>Send</Button>)
+    render(
+      <Button type="button" onClick={onClick}>
+        Send
+      </Button>,
+    )
 
     await userEvent.click(screen.getByRole('button', { name: 'Send' }))
 
@@ -30,7 +38,7 @@ describe('Button', () => {
   it('does not fire onClick while disabled', async () => {
     const onClick = vi.fn()
     render(
-      <Button onClick={onClick} disabled>
+      <Button type="button" onClick={onClick} disabled>
         Send
       </Button>,
     )

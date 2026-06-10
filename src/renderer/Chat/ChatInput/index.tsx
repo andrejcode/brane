@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Square } from 'lucide-react'
 import {
   useCallback,
   useEffect,
@@ -13,6 +13,7 @@ import type {
   SetStateAction,
   SubmitEventHandler,
 } from 'react'
+import { ChatActionButton } from './ChatActionButton'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
 import { useIsAnyModalOpen } from '../../contexts/ModalContext'
 
@@ -24,6 +25,7 @@ const MULTI_ROW_PADDING_RIGHT = 16
 interface ChatInputProps {
   input: string
   isSending: boolean
+  onStop: () => void
   onSubmit: SubmitEventHandler<HTMLFormElement>
   setInput: Dispatch<SetStateAction<string>>
 }
@@ -31,6 +33,7 @@ interface ChatInputProps {
 export function ChatInput({
   input,
   isSending,
+  onStop,
   onSubmit,
   setInput,
 }: ChatInputProps) {
@@ -157,22 +160,26 @@ export function ChatInput({
           'bg-transparent text-neutral-800 focus:outline-none dark:text-neutral-100',
         )}
       />
-      <button
-        type="submit"
-        title="Send message"
-        disabled={isSending || isModalOpen || input.trim().length === 0}
-        aria-label="Send message"
-        className={clsx(
-          'absolute right-2 bottom-2 cursor-pointer rounded-full p-1 shadow-md',
-          'transition-all duration-200 ease-out hover:shadow-xl',
-          'bg-neutral-800 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-800',
-          'hover:bg-neutral-700 dark:hover:bg-neutral-200',
-          'disabled:bg-neutral-300 dark:disabled:bg-neutral-600',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 disabled:cursor-not-allowed',
-        )}
-      >
-        <ArrowUp />
-      </button>
+      {isSending ? (
+        <ChatActionButton
+          type="button"
+          title="Stop generating"
+          ariaLabel="Stop generating"
+          disabled={isModalOpen}
+          onClick={onStop}
+        >
+          <Square size={16} className="fill-current" />
+        </ChatActionButton>
+      ) : (
+        <ChatActionButton
+          type="submit"
+          title="Send message"
+          ariaLabel="Send message"
+          disabled={isModalOpen || input.trim().length === 0}
+        >
+          <ArrowUp size={20} />
+        </ChatActionButton>
+      )}
     </form>
   )
 }

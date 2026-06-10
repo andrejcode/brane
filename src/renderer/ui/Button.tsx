@@ -2,11 +2,11 @@ import { clsx } from 'clsx'
 
 interface ButtonProps {
   children: React.ReactNode
-  className?: string
-  type?: 'button' | 'submit' | 'reset'
-  disabled?: boolean
-  title?: string
-  ariaLabel?: string
+  className?: string | undefined
+  type: 'button' | 'submit' | 'reset'
+  disabled?: boolean | undefined
+  title?: string | undefined
+  ariaLabel?: string | undefined
   onClick?: (() => void) | undefined
 }
 
@@ -20,11 +20,8 @@ export function Button({
   onClick,
 }: ButtonProps) {
   const buttonClassName = clsx(
-    'rounded-lg p-1 transition-colors duration-200',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-    'focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500',
-    'hover:bg-neutral-300 dark:hover:bg-neutral-600',
-    disabled ? 'cursor-default' : 'cursor-pointer',
+    'focus:outline-none focus-visible:ring-2',
+    'cursor-pointer disabled:cursor-not-allowed',
     className,
   )
 

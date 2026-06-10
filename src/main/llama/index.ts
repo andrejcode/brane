@@ -9,6 +9,7 @@ import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
 let isGenerating = false
+let activeAbortController: AbortController | undefined
 
 function getSession() {
   sessionPromise ??= createSession()
@@ -73,11 +74,15 @@ export function registerLlamaHandlers() {
       }
 
       isGenerating = true
+      const abortController = new AbortController()
+      activeAbortController = abortController
 
       try {
         const responseChunks: string[] = []
         const session = await getSession()
         const response = await session.promptWithMeta(prompt, {
+          signal: abortController.signal,
+          stopOnAbortSignal: true,
           onResponseChunk(chunk) {
             const text = formatResponseChunk(chunk)
 
@@ -92,6 +97,7 @@ export function registerLlamaHandlers() {
         sendStreamEvent(event.sender, {
           type: 'done',
           response: responseChunks.join('') || response.responseText,
+          stopped: response.stopReason === 'abort',
         })
       } catch (error) {
         sendStreamEvent(event.sender, {
@@ -99,8 +105,13 @@ export function registerLlamaHandlers() {
           message: getErrorMessage(error),
         })
       } finally {
+        activeAbortController = undefined
         isGenerating = false
       }
     },
   )
+
+  ipcMain.handle(IpcChannels.llamaStopGeneration, () => {
+    activeAbortController?.abort()
+  })
 }

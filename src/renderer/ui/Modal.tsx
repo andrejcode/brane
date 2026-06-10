@@ -32,7 +32,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       >
         <div className="flex shrink-0 items-center justify-between">
           <h2 className="text-xl">{title}</h2>
-          <Button onClick={onClose} title="Close modal">
+          <Button type="button" onClick={onClose} title="Close modal">
             <X />
           </Button>
         </div>

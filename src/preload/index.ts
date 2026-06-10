@@ -24,6 +24,9 @@ const electronApi: ElectronApi = {
   sendPrompt: async (prompt: string) => {
     await ipcRenderer.invoke(IpcChannels.llamaSendPrompt, prompt)
   },
+  stopGeneration: async () => {
+    await ipcRenderer.invoke(IpcChannels.llamaStopGeneration)
+  },
   streamResponse: (callback: (event: LlamaStreamEvent) => void) => {
     const listener = (
       _event: IpcRendererEvent,

@@ -157,6 +157,10 @@ export function Chat() {
     }
   }, [isEmpty, updateBottomOverlayInset])
 
+  const handleStop = useCallback(() => {
+    void window.electronApi.stopGeneration()
+  }, [])
+
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
@@ -244,6 +248,7 @@ export function Chat() {
               <ChatInput
                 input={input}
                 isSending={isSending}
+                onStop={handleStop}
                 onSubmit={handleSubmit}
                 setInput={setInput}
               />

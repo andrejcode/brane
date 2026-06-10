@@ -8,6 +8,7 @@ function renderChatInput(
   const props = {
     input: '',
     isSending: false,
+    onStop: vi.fn(),
     onSubmit: vi.fn((event: { preventDefault: () => void }) => {
       event.preventDefault()
     }),
@@ -39,10 +40,19 @@ describe('ChatInput send button', () => {
     expect(screen.getByRole('button', { name: 'Send message' })).toBeEnabled()
   })
 
-  it('is disabled while a message is sending', () => {
-    renderChatInput({ input: 'hello', isSending: true })
+  it('shows a stop button while a message is sending', () => {
+    const { onStop } = renderChatInput({ input: 'hello', isSending: true })
 
-    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled()
+    const stopButton = screen.getByRole('button', { name: 'Stop generating' })
+
+    expect(stopButton).toBeEnabled()
+    expect(
+      screen.queryByRole('button', { name: 'Send message' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(stopButton)
+
+    expect(onStop).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -128,6 +138,7 @@ describe('ChatInput global focus stealing', () => {
         <ChatInput
           input=""
           isSending={false}
+          onStop={vi.fn()}
           onSubmit={vi.fn()}
           setInput={vi.fn()}
         />

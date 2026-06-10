@@ -1,5 +1,6 @@
 export const IpcChannels = {
   llamaSendPrompt: 'llama:send-prompt',
+  llamaStopGeneration: 'llama:stop-generation',
   llamaStreamResponse: 'llama:stream-response',
 
   windowFullscreenChanged: 'window:fullscreen-changed',
@@ -19,6 +20,7 @@ export type LlamaStreamEvent =
   | {
       type: 'done'
       response: string
+      stopped?: boolean
     }
   | {
       type: 'error'

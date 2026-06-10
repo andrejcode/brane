@@ -4,6 +4,7 @@ import type { LlamaStreamEvent, Theme } from '@shared/types'
 export interface MockElectronApi {
   electronApi: ElectronApi
   sendPrompt: ReturnType<typeof vi.fn>
+  stopGeneration: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
@@ -36,6 +37,7 @@ export function installMockElectronApi(
   const fullScreenUnsubscribe = vi.fn()
 
   const sendPrompt = vi.fn((): Promise<void> => Promise.resolve())
+  const stopGeneration = vi.fn((): Promise<void> => Promise.resolve())
   const getIsFullScreen = vi.fn(
     (): Promise<boolean> => Promise.resolve(isFullScreen),
   )
@@ -69,6 +71,7 @@ export function installMockElectronApi(
     getIsFullScreen,
     onFullScreenChange,
     sendPrompt,
+    stopGeneration,
     streamResponse,
     getTheme,
     setTheme,
@@ -79,6 +82,7 @@ export function installMockElectronApi(
   return {
     electronApi,
     sendPrompt,
+    stopGeneration,
     getIsFullScreen,
     streamResponse,
     onFullScreenChange,

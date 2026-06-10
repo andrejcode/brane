@@ -136,6 +136,39 @@ describe('Chat error handling', () => {
   })
 })
 
+describe('Chat stop generation', () => {
+  it('calls stopGeneration when the stop button is clicked', async () => {
+    render(<Chat />)
+    await submitPrompt('hi')
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Stop generating' }))
+
+    expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+  })
+
+  it('ends the sending state when a stopped done event arrives', async () => {
+    render(<Chat />)
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({ type: 'chunk', text: 'partial' })
+      mock.emitStream({
+        type: 'done',
+        response: 'partial',
+        stopped: true,
+      })
+    })
+
+    expect(screen.getByText('partial')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Stop generating' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled()
+  })
+})
+
 describe('Chat lifecycle', () => {
   it('unsubscribes from the stream on unmount', () => {
     const { unmount } = render(<Chat />)
