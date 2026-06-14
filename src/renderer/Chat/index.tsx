@@ -86,11 +86,23 @@ export function Chat() {
 
       if (event.type === 'done') {
         setMessages((currentMessages) =>
-          currentMessages.map((message) =>
-            message.id === activeMessageId && message.content.length === 0
-              ? { ...message, content: event.response }
-              : message,
-          ),
+          currentMessages.flatMap((message) => {
+            if (message.id !== activeMessageId) {
+              return [message]
+            }
+
+            // Stopped before any text streamed: drop the empty placeholder so
+            // its loading spinner doesn't linger forever.
+            if (message.content.length === 0 && event.response.length === 0) {
+              return []
+            }
+
+            return [
+              message.content.length === 0
+                ? { ...message, content: event.response }
+                : message,
+            ]
+          }),
         )
         streamingAssistantMessageId.current = null
         setIsSending(false)

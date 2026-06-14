@@ -100,10 +100,20 @@ export function registerLlamaHandlers() {
           stopped: response.stopReason === 'abort',
         })
       } catch (error) {
-        sendStreamEvent(event.sender, {
-          type: 'error',
-          message: getErrorMessage(error),
-        })
+        // Aborting before generation starts streaming rejects instead of
+        // resolving with a partial response, so treat it as a normal stop.
+        if (abortController.signal.aborted) {
+          sendStreamEvent(event.sender, {
+            type: 'done',
+            response: '',
+            stopped: true,
+          })
+        } else {
+          sendStreamEvent(event.sender, {
+            type: 'error',
+            message: getErrorMessage(error),
+          })
+        }
       } finally {
         activeAbortController = undefined
         isGenerating = false

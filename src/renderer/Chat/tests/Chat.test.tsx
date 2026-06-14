@@ -167,6 +167,24 @@ describe('Chat stop generation', () => {
     ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled()
   })
+
+  it('removes the loading spinner when stopped before any text streamed', async () => {
+    render(<Chat />)
+    await submitPrompt('hi')
+
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument()
+
+    act(() => {
+      mock.emitStream({ type: 'done', response: '', stopped: true })
+    })
+
+    expect(
+      screen.queryByRole('status', { name: 'Loading' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Stop generating' }),
+    ).not.toBeInTheDocument()
+  })
 })
 
 describe('Chat lifecycle', () => {
