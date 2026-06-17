@@ -6,6 +6,8 @@ import {
   installMockElectronApi,
   type MockElectronApi,
 } from '@test/electronApi'
+import { AlertProvider } from '../../contexts/AlertContext'
+import { GlobalAlert } from '../../GlobalAlert'
 import { Chat, getErrorMessage, introMessages } from '../index'
 
 let mock: MockElectronApi
@@ -17,6 +19,17 @@ beforeEach(() => {
 afterEach(() => {
   clearMockElectronApi()
 })
+
+// Chat raises backend errors through the shared alert, so render it inside the
+// provider alongside the GlobalAlert that displays them.
+function renderChat() {
+  return render(
+    <AlertProvider>
+      <Chat />
+      <GlobalAlert />
+    </AlertProvider>,
+  )
+}
 
 async function submitPrompt(text: string) {
   const user = userEvent.setup()
@@ -37,7 +50,7 @@ describe('getErrorMessage', () => {
 
 describe('Chat intro greeting', () => {
   it('shows a random intro greeting centered when there are no messages', () => {
-    render(<Chat />)
+    renderChat()
 
     const greeting = screen.getByTestId('intro-greeting')
     const composer = screen.getByTestId('composer')
@@ -50,7 +63,7 @@ describe('Chat intro greeting', () => {
   })
 
   it('fades out the greeting and docks the composer after the first message', async () => {
-    render(<Chat />)
+    renderChat()
 
     await submitPrompt('hello')
 
@@ -66,7 +79,7 @@ describe('Chat intro greeting', () => {
 
 describe('Chat submit', () => {
   it('sends the trimmed prompt, shows it, and clears the input', async () => {
-    render(<Chat />)
+    renderChat()
 
     await submitPrompt('  hello  ')
 
@@ -78,7 +91,7 @@ describe('Chat submit', () => {
 
 describe('Chat streaming', () => {
   it('appends streamed chunks to the assistant message', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     act(() => {
@@ -90,7 +103,7 @@ describe('Chat streaming', () => {
   })
 
   it('fills the response on done when nothing streamed', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     act(() => {
@@ -101,7 +114,7 @@ describe('Chat streaming', () => {
   })
 
   it('keeps streamed content when done arrives after chunks', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     act(() => {
@@ -113,32 +126,36 @@ describe('Chat streaming', () => {
     expect(screen.queryByText('ignored fallback')).not.toBeInTheDocument()
   })
 
-  it('renders an error event in the assistant message', async () => {
-    render(<Chat />)
+  it('surfaces an error event through the global alert', async () => {
+    renderChat()
     await submitPrompt('hi')
 
     act(() => {
       mock.emitStream({ type: 'error', message: 'kaboom' })
     })
 
-    expect(screen.getByText('Error: kaboom')).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('kaboom')
+    // The empty assistant placeholder (and its spinner) should be removed.
+    expect(
+      screen.queryByRole('status', { name: 'Loading' }),
+    ).not.toBeInTheDocument()
   })
 })
 
 describe('Chat error handling', () => {
-  it('shows an error when sendPrompt rejects', async () => {
+  it('shows an alert when sendPrompt rejects', async () => {
     mock.sendPrompt.mockRejectedValueOnce(new Error('network down'))
-    render(<Chat />)
+    renderChat()
 
     await submitPrompt('hi')
 
-    expect(await screen.findByText('Error: network down')).toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toHaveTextContent('network down')
   })
 })
 
 describe('Chat stop generation', () => {
   it('calls stopGeneration when the stop button is clicked', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     await userEvent
@@ -149,7 +166,7 @@ describe('Chat stop generation', () => {
   })
 
   it('ends the sending state when a stopped done event arrives', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     act(() => {
@@ -169,7 +186,7 @@ describe('Chat stop generation', () => {
   })
 
   it('removes the loading spinner when stopped before any text streamed', async () => {
-    render(<Chat />)
+    renderChat()
     await submitPrompt('hi')
 
     expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument()
@@ -189,7 +206,7 @@ describe('Chat stop generation', () => {
 
 describe('Chat lifecycle', () => {
   it('unsubscribes from the stream on unmount', () => {
-    const { unmount } = render(<Chat />)
+    const { unmount } = renderChat()
 
     unmount()
 

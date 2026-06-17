@@ -12,7 +12,12 @@ let isGenerating = false
 let activeAbortController: AbortController | undefined
 
 function getSession() {
-  sessionPromise ??= createSession()
+  // Don't cache a rejected promise: if loading the model/context fails, clear
+  // it so the next prompt can retry instead of reusing the failed attempt.
+  sessionPromise ??= createSession().catch((error: unknown) => {
+    sessionPromise = undefined
+    throw error
+  })
 
   return sessionPromise
 }

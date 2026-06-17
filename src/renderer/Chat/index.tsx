@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
+import { useAlert } from '../contexts/AlertContext'
 
 export interface ChatMessage {
   id: string
@@ -41,6 +42,7 @@ function pickIntroMessage() {
 }
 
 export function Chat() {
+  const { showAlert } = useAlert()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -110,11 +112,13 @@ export function Chat() {
         return
       }
 
+      // Surface backend errors through the global alert rather than inline, and
+      // drop the empty placeholder so its loading spinner doesn't linger.
+      showAlert(event.message, 'error')
       setMessages((currentMessages) =>
-        currentMessages.map((message) =>
-          message.id === activeMessageId
-            ? { ...message, content: `Error: ${event.message}` }
-            : message,
+        currentMessages.filter(
+          (message) =>
+            !(message.id === activeMessageId && message.content.length === 0),
         ),
       )
       streamingAssistantMessageId.current = null
@@ -124,7 +128,7 @@ export function Chat() {
     return () => {
       unsubscribe()
     }
-  }, [])
+  }, [showAlert])
 
   useEffect(() => {
     const bottomOverlay = bottomOverlayRef.current
@@ -202,12 +206,9 @@ export function Chat() {
     ])
 
     void window.electronApi.sendPrompt(prompt).catch((error: unknown) => {
+      showAlert(getErrorMessage(error), 'error')
       setMessages((currentMessages) =>
-        currentMessages.map((message) =>
-          message.id === assistantMessageId
-            ? { ...message, content: `Error: ${getErrorMessage(error)}` }
-            : message,
-        ),
+        currentMessages.filter((message) => message.id !== assistantMessageId),
       )
       streamingAssistantMessageId.current = null
       setIsSending(false)

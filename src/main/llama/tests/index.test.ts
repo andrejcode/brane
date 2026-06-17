@@ -124,7 +124,7 @@ describe('llama send-prompt handler', () => {
     )
   })
 
-  it('sends an error event when generation fails without an abort', async () => {
+  it('sends an error event with the raw message when generation fails without an abort', async () => {
     promptWithMeta.mockRejectedValueOnce(new Error('boom'))
 
     const { event, send } = createEvent()
