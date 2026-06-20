@@ -9,6 +9,9 @@
   "license": "MIT",
   "main": ".vite/build/main.mjs",
   "type": "module",
+  "engines": {
+    "node": "^22.0.0"
+  },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
