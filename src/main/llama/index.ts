@@ -1,4 +1,5 @@
 import { ipcMain, type WebContents } from 'electron'
+import os from 'node:os'
 import path from 'node:path'
 import {
   getLlama,
@@ -6,6 +7,8 @@ import {
   type LlamaChatResponseChunk,
 } from 'node-llama-cpp'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
+
+const modelsDir = path.join(os.homedir(), '.brane', 'models')
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
 let isGenerating = false
@@ -28,7 +31,7 @@ async function createSession() {
     // Available models:
     // Qwen3-4B-Q5_K_M.gguf
     // Qwen3-0.6B-Q8_0.gguf
-    modelPath: path.join(process.cwd(), 'models', 'Qwen3-4B-Q5_K_M.gguf'),
+    modelPath: path.join(modelsDir, 'Qwen3-4B-Q5_K_M.gguf'),
   })
   const context = await model.createContext()
   const session = new LlamaChatSession({
