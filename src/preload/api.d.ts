@@ -12,6 +12,9 @@ declare global {
     streamResponse: (callback: (event: LlamaStreamEvent) => void) => () => void
     getTheme: () => Promise<Theme>
     setTheme: (theme: Theme) => Promise<void>
+    listModels: () => Promise<string[]>
+    getSelectedModel: () => Promise<string | null>
+    setSelectedModel: (model: string) => Promise<string | null>
   }
 
   interface Window {

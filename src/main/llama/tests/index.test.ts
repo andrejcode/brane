@@ -17,6 +17,10 @@ vi.mock('electron', () => ({
   },
 }))
 
+vi.mock('../../model', () => ({
+  getSelectedModelPath: vi.fn(() => '/fake/models/model.gguf'),
+}))
+
 vi.mock('node-llama-cpp', () => ({
   getLlama: vi.fn(() =>
     Promise.resolve({

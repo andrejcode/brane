@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -7,13 +7,17 @@ import {
   type MockElectronApi,
 } from '@test/electronApi'
 import { AlertProvider } from '../../contexts/AlertContext'
+import { ModelProvider } from '../../contexts/ModelContext'
 import { GlobalAlert } from '../../GlobalAlert'
 import { Chat, getErrorMessage, introMessages } from '../index'
 
 let mock: MockElectronApi
 
 beforeEach(() => {
-  mock = installMockElectronApi()
+  mock = installMockElectronApi({
+    models: ['test-model.gguf'],
+    selectedModel: 'test-model.gguf',
+  })
 })
 
 afterEach(() => {
@@ -21,18 +25,27 @@ afterEach(() => {
 })
 
 // Chat raises backend errors through the shared alert, so render it inside the
-// provider alongside the GlobalAlert that displays them.
+// provider alongside the GlobalAlert that displays them. The ModelProvider
+// supplies the selected model that gates sending.
 function renderChat() {
   return render(
     <AlertProvider>
-      <Chat />
-      <GlobalAlert />
+      <ModelProvider>
+        <Chat />
+        <GlobalAlert />
+      </ModelProvider>
     </AlertProvider>,
   )
 }
 
 async function submitPrompt(text: string) {
   const user = userEvent.setup()
+
+  // Wait for the ModelProvider to load the selected model before sending,
+  // otherwise the send guard would block the prompt.
+  await waitFor(() => {
+    expect(mock.getSelectedModel).toHaveBeenCalled()
+  })
 
   await user.type(screen.getByPlaceholderText('Ask anything'), text)
   await user.click(screen.getByRole('button', { name: 'Send message' }))
@@ -139,6 +152,23 @@ describe('Chat streaming', () => {
     expect(
       screen.queryByRole('status', { name: 'Loading' }),
     ).not.toBeInTheDocument()
+  })
+})
+
+describe('Chat without a selected model', () => {
+  it('blocks sending and shows an info alert', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({ models: [], selectedModel: null })
+    const user = userEvent.setup()
+    renderChat()
+
+    await user.type(screen.getByPlaceholderText('Ask anything'), 'hello')
+    await user.click(screen.getByRole('button', { name: 'Send message' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Please select a model to send a message',
+    )
+    expect(mock.sendPrompt).not.toHaveBeenCalled()
   })
 })
 

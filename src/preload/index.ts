@@ -48,6 +48,23 @@ const electronApi: ElectronApi = {
   setTheme: async (theme: Theme) => {
     await ipcRenderer.invoke(IpcChannels.setTheme, theme)
   },
+  listModels: async () => {
+    const models: unknown = await ipcRenderer.invoke(IpcChannels.listModels)
+    return Array.isArray(models) ? (models as string[]) : []
+  },
+  getSelectedModel: async () => {
+    const model: unknown = await ipcRenderer.invoke(
+      IpcChannels.getSelectedModel,
+    )
+    return typeof model === 'string' ? model : null
+  },
+  setSelectedModel: async (model: string) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setSelectedModel,
+      model,
+    )
+    return typeof saved === 'string' ? saved : null
+  },
 }
 
 contextBridge.exposeInMainWorld('electronApi', electronApi)

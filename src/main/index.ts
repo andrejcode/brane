@@ -1,7 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
-import { registerLlamaHandlers } from './llama'
+import { registerLlamaHandlers, resetLlamaSession } from './llama'
+import { registerModelHandlers } from './model'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
 
@@ -19,6 +20,9 @@ void app.whenReady().then(() => {
 
   registerThemeHandlers()
   registerLlamaHandlers()
+  // Switching models invalidates the cached chat session so the next prompt
+  // loads the newly selected model.
+  registerModelHandlers({ onSelectedModelChange: resetLlamaSession })
 
   createWindow()
 

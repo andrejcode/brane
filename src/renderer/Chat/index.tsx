@@ -9,6 +9,7 @@ import {
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
+import { useModel } from '../contexts/ModelContext'
 
 export interface ChatMessage {
   id: string
@@ -43,6 +44,7 @@ function pickIntroMessage() {
 
 export function Chat() {
   const { showAlert } = useAlert()
+  const { selectedModel } = useModel()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -183,6 +185,11 @@ export function Chat() {
     const prompt = input.trim()
 
     if (prompt.length === 0 || isSending) {
+      return
+    }
+
+    if (!selectedModel) {
+      showAlert('Please select a model to send a message', 'info')
       return
     }
 

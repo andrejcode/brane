@@ -6,12 +6,14 @@ import {
   Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { HeaderButton } from './HeaderButton'
+import { useModel } from '../contexts/ModelContext'
+import { GhostButton } from '../ui/GhostButton'
 
 interface HeaderProps {
   isSidebarOpen?: boolean
   onToggleSidebar?: () => void
   openSettingsModal: () => void
+  openModelModal: () => void
 }
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
@@ -20,8 +22,10 @@ export function Header({
   isSidebarOpen,
   onToggleSidebar,
   openSettingsModal,
+  openModelModal,
 }: HeaderProps) {
   const isMac = window.electronApi.isMac
+  const { selectedModel } = useModel()
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
@@ -67,7 +71,7 @@ export function Header({
           isMac && !isFullScreen ? 'ml-24' : 'ml-4',
         )}
       >
-        <HeaderButton
+        <GhostButton
           title="Toggle sidebar"
           ariaLabel="Toggle sidebar"
           onClick={onToggleSidebar}
@@ -77,25 +81,27 @@ export function Header({
           ) : (
             <PanelLeftOpen size={20} />
           )}
-        </HeaderButton>
+        </GhostButton>
         <div className="flex items-center gap-3">
-          <HeaderButton
+          <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title="Select model"
+            title={selectedModel ?? 'Select model'}
             ariaLabel="Select model"
+            onClick={openModelModal}
           >
-            {/* TODO: Limit the length of the model name */}
-            Select model
-            <ChevronDown size={18} />
-          </HeaderButton>
+            <span className="max-w-48 truncate">
+              {selectedModel ?? 'Select model'}
+            </span>
+            <ChevronDown size={18} className="shrink-0" />
+          </GhostButton>
 
-          <HeaderButton
+          <GhostButton
             title="Open settings"
             ariaLabel="Open settings"
             onClick={openSettingsModal}
           >
             <Settings size={20} />
-          </HeaderButton>
+          </GhostButton>
         </div>
       </div>
     </header>

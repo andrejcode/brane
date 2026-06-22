@@ -8,6 +8,10 @@ export const IpcChannels = {
 
   getTheme: 'theme:get',
   setTheme: 'theme:set',
+
+  listModels: 'model:list',
+  getSelectedModel: 'model:get-selected',
+  setSelectedModel: 'model:set-selected',
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'

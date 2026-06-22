@@ -10,6 +10,9 @@ export interface MockElectronApi {
   onFullScreenChange: ReturnType<typeof vi.fn>
   getTheme: ReturnType<typeof vi.fn>
   setTheme: ReturnType<typeof vi.fn>
+  listModels: ReturnType<typeof vi.fn>
+  getSelectedModel: ReturnType<typeof vi.fn>
+  setSelectedModel: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
@@ -20,6 +23,8 @@ export interface MockElectronApiOptions {
   isMac?: boolean
   isFullScreen?: boolean
   theme?: Theme
+  models?: string[]
+  selectedModel?: string | null
 }
 
 // Installs a fake `window.electronApi` so renderer components that talk to the
@@ -28,7 +33,13 @@ export interface MockElectronApiOptions {
 export function installMockElectronApi(
   options: MockElectronApiOptions = {},
 ): MockElectronApi {
-  const { isMac = false, isFullScreen = false, theme = 'system' } = options
+  const {
+    isMac = false,
+    isFullScreen = false,
+    theme = 'system',
+    models = [],
+    selectedModel = null,
+  } = options
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
   const fullScreenListeners = new Set<(isFullScreen: boolean) => void>()
@@ -43,6 +54,13 @@ export function installMockElectronApi(
   )
   const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
+  const listModels = vi.fn((): Promise<string[]> => Promise.resolve(models))
+  const getSelectedModel = vi.fn(
+    (): Promise<string | null> => Promise.resolve(selectedModel),
+  )
+  const setSelectedModel = vi.fn(
+    (model: string): Promise<string | null> => Promise.resolve(model),
+  )
 
   const streamResponse = vi.fn(
     (callback: (event: LlamaStreamEvent) => void): (() => void) => {
@@ -75,6 +93,9 @@ export function installMockElectronApi(
     streamResponse,
     getTheme,
     setTheme,
+    listModels,
+    getSelectedModel,
+    setSelectedModel,
   }
 
   window.electronApi = electronApi
@@ -88,6 +109,9 @@ export function installMockElectronApi(
     onFullScreenChange,
     getTheme,
     setTheme,
+    listModels,
+    getSelectedModel,
+    setSelectedModel,
     streamUnsubscribe,
     fullScreenUnsubscribe,
     emitStream: (event) => {

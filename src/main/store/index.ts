@@ -12,6 +12,9 @@ interface WindowSettings {
 interface StoreSchema {
   window: WindowSettings
   theme: Theme
+  // Filename (e.g. "Qwen3-4B-Q5_K_M.gguf") of the last selected model, or null
+  // when no model has been chosen yet.
+  selectedModel: string | null
 }
 
 const defaults: StoreSchema = {
@@ -23,6 +26,7 @@ const defaults: StoreSchema = {
     isMaximized: false,
   },
   theme: 'system',
+  selectedModel: null,
 }
 
 const store = new Store<StoreSchema>({

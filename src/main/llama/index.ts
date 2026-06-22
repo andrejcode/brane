@@ -1,16 +1,15 @@
 import { ipcMain, type WebContents } from 'electron'
-import os from 'node:os'
-import path from 'node:path'
 import {
   getLlama,
   LlamaChatSession,
   type LlamaChatResponseChunk,
+  type LlamaModel,
 } from 'node-llama-cpp'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
-
-const modelsDir = path.join(os.homedir(), '.brane', 'models')
+import { getSelectedModelPath } from '../model'
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
+let loadedModel: LlamaModel | undefined
 let isGenerating = false
 let activeAbortController: AbortController | undefined
 
@@ -25,14 +24,29 @@ function getSession() {
   return sessionPromise
 }
 
+// Tears down the active session so the next prompt loads a fresh one. Used when
+// the selected model changes; the previous model is disposed to free its memory.
+export function resetLlamaSession() {
+  sessionPromise = undefined
+
+  const modelToDispose = loadedModel
+  loadedModel = undefined
+
+  if (modelToDispose) {
+    void modelToDispose.dispose()
+  }
+}
+
 async function createSession() {
+  const modelPath = getSelectedModelPath()
+
+  if (modelPath === null) {
+    throw new Error('No model selected')
+  }
+
   const llama = await getLlama()
-  const model = await llama.loadModel({
-    // Available models:
-    // Qwen3-4B-Q5_K_M.gguf
-    // Qwen3-0.6B-Q8_0.gguf
-    modelPath: path.join(modelsDir, 'Qwen3-4B-Q5_K_M.gguf'),
-  })
+  const model = await llama.loadModel({ modelPath })
+  loadedModel = model
   const context = await model.createContext()
   const session = new LlamaChatSession({
     contextSequence: context.getSequence(),
