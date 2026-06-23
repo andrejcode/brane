@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import {
-  ChevronDown,
+  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
+import { formatModelName } from '../utils/formatModelName'
 
 interface HeaderProps {
   isSidebarOpen?: boolean
@@ -26,6 +27,9 @@ export function Header({
 }: HeaderProps) {
   const isMac = window.electronApi.isMac
   const { selectedModel } = useModel()
+  const selectedModelLabel = selectedModel
+    ? formatModelName(selectedModel)
+    : 'Select model'
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
@@ -85,14 +89,12 @@ export function Header({
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title={selectedModel ?? 'Select model'}
+            title={selectedModelLabel}
             ariaLabel="Select model"
             onClick={openModelModal}
           >
-            <span className="max-w-48 truncate">
-              {selectedModel ?? 'Select model'}
-            </span>
-            <ChevronDown size={18} className="shrink-0" />
+            <span className="max-w-64 truncate">{selectedModelLabel}</span>
+            <ChevronRight size={18} className="shrink-0" />
           </GhostButton>
 
           <GhostButton
