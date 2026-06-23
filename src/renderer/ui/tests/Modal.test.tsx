@@ -57,7 +57,24 @@ describe('Modal closing', () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()
 
-    await user.click(screen.getByRole('button', { name: 'Close modal' }))
+    await user.click(screen.getByRole('button', { name: 'Close settings' }))
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('derives the close button title from the modal title', () => {
+    renderModal({ title: 'Models' })
+
+    expect(
+      screen.getByRole('button', { name: 'Close models' }),
+    ).toBeInTheDocument()
+  })
+
+  it('calls onClose when Escape is pressed', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderModal()
+
+    await user.keyboard('{Escape}')
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })
@@ -80,6 +97,22 @@ describe('Modal closing', () => {
     await user.click(screen.getByText('Modal body'))
 
     expect(onClose).not.toHaveBeenCalled()
+  })
+})
+
+describe('Modal accessibility', () => {
+  it('exposes the panel as a labelled modal dialog', () => {
+    renderModal()
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(dialog).toHaveAccessibleName('Settings')
+  })
+
+  it('moves focus into the dialog when opened', () => {
+    renderModal()
+
+    expect(screen.getByRole('dialog')).toHaveFocus()
   })
 })
 
