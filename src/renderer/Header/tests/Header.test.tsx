@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import { Header } from '@/Header'
 import {
@@ -11,13 +12,23 @@ import {
 
 let mock: MockElectronApi
 
+// Surfaces the currently active modal so tests can assert that the header
+// triggers the right modal through the shared context.
+function ActiveModalProbe() {
+  const { activeModal } = useModals()
+  return <div data-testid="active-modal">{activeModal ?? 'none'}</div>
+}
+
 function renderHeader(
   props: Partial<React.ComponentProps<typeof Header>> = {},
 ) {
   return render(
-    <ModelProvider>
-      <Header openSettingsModal={vi.fn()} openModelModal={vi.fn()} {...props} />
-    </ModelProvider>,
+    <ModalProvider>
+      <ModelProvider>
+        <Header {...props} />
+        <ActiveModalProbe />
+      </ModelProvider>
+    </ModalProvider>,
   )
 }
 
@@ -58,22 +69,20 @@ describe('Header on non-mac', () => {
 
   it('opens settings when the settings button is clicked', async () => {
     const user = userEvent.setup()
-    const openSettingsModal = vi.fn()
-    renderHeader({ openSettingsModal })
+    renderHeader()
 
     await user.click(screen.getByRole('button', { name: 'Open settings' }))
 
-    expect(openSettingsModal).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('active-modal')).toHaveTextContent('settings')
   })
 
   it('opens the model modal when the model button is clicked', async () => {
     const user = userEvent.setup()
-    const openModelModal = vi.fn()
-    renderHeader({ openModelModal })
+    renderHeader()
 
     await user.click(screen.getByRole('button', { name: 'Select model' }))
 
-    expect(openModelModal).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('active-modal')).toHaveTextContent('models')
   })
 
   it('shows the selected model name on the button', async () => {
@@ -85,7 +94,7 @@ describe('Header on non-mac', () => {
     })
     renderHeader()
 
-    expect(await screen.findByText('my-model.gguf')).toBeInTheDocument()
+    expect(await screen.findByText('my-model')).toBeInTheDocument()
   })
 })
 

@@ -1,51 +1,48 @@
-import {
-  createContext,
-  use,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { createContext, use, useCallback, useMemo, useState } from 'react'
+
+export type ModalName = 'settings' | 'models'
 
 interface ModalContextValue {
-  openModalCount: number
-  registerModal: () => () => void
+  activeModal: ModalName | null
+  openModal: (modal: ModalName) => void
+  closeModal: () => void
 }
 
 const ModalContext = createContext<ModalContextValue | null>(null)
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-  const [openModalCount, setOpenModalCount] = useState(0)
+  // Only a single modal can be open at a time, so tracking the active one (or null)
+  // inherently prevents two modals from showing at once.
+  const [activeModal, setActiveModal] = useState<ModalName | null>(null)
 
-  const registerModal = useCallback(() => {
-    setOpenModalCount((count) => count + 1)
-    return () => setOpenModalCount((count) => count - 1)
+  const openModal = useCallback((modal: ModalName) => {
+    setActiveModal(modal)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    setActiveModal(null)
   }, [])
 
   const value = useMemo(
-    () => ({ openModalCount, registerModal }),
-    [openModalCount, registerModal],
+    () => ({ activeModal, openModal, closeModal }),
+    [activeModal, openModal, closeModal],
   )
 
   return <ModalContext value={value}>{children}</ModalContext>
 }
 
-// Tracks an open modal in the shared context for the duration it is open, so
-// the rest of the app (e.g. the chat input) can react to modals globally.
-export function useTrackModalOpen(isOpen: boolean) {
+export function useModals() {
   const context = use(ModalContext)
 
-  useEffect(() => {
-    if (!context || !isOpen) {
-      return
-    }
+  if (!context) {
+    throw new Error('useModals must be used within a ModalProvider')
+  }
 
-    return context.registerModal()
-  }, [context, isOpen])
+  return context
 }
 
 export function useIsAnyModalOpen() {
   const context = use(ModalContext)
 
-  return context ? context.openModalCount > 0 : false
+  return context ? context.activeModal !== null : false
 }

@@ -1,6 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useEffect } from 'react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import {
+  type ModalName,
+  ModalProvider,
+  useModals,
+} from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import {
   clearMockElectronApi,
@@ -22,13 +28,22 @@ afterEach(() => {
   clearMockElectronApi()
 })
 
-function renderModal(
-  props: Partial<React.ComponentProps<typeof ModelsModal>> = {},
-) {
+// Opens a modal through the shared context as soon as it mounts, mirroring how
+// the header triggers modals in the real app.
+function OpenOnMount({ modal }: { modal: ModalName }) {
+  const { openModal } = useModals()
+  useEffect(() => openModal(modal), [openModal, modal])
+  return null
+}
+
+function renderModal({ open = true } = {}) {
   return render(
-    <ModelProvider>
-      <ModelsModal isOpen onClose={vi.fn()} {...props} />
-    </ModelProvider>,
+    <ModalProvider>
+      <ModelProvider>
+        {open && <OpenOnMount modal="models" />}
+        <ModelsModal />
+      </ModelProvider>
+    </ModalProvider>,
   )
 }
 
@@ -36,11 +51,7 @@ describe('ModelsModal', () => {
   it('does not render its contents when closed', () => {
     mock = installMockElectronApi({ models: ['a.gguf'] })
 
-    render(
-      <ModelProvider>
-        <ModelsModal isOpen={false} onClose={vi.fn()} />
-      </ModelProvider>,
-    )
+    renderModal({ open: false })
 
     expect(
       screen.queryByRole('heading', { name: 'Models' }),
@@ -65,11 +76,9 @@ describe('ModelsModal', () => {
     renderModal()
 
     expect(
-      await screen.findByRole('button', { name: 'alpha.gguf' }),
+      await screen.findByRole('button', { name: 'alpha' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'beta.gguf' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'beta' })).toBeInTheDocument()
   })
 
   it('marks the selected model as active', async () => {
@@ -80,7 +89,7 @@ describe('ModelsModal', () => {
 
     renderModal()
 
-    const selected = await screen.findByRole('button', { name: 'beta.gguf' })
+    const selected = await screen.findByRole('button', { name: 'beta' })
 
     expect(selected.className).toContain('bg-neutral-300')
   })
@@ -90,16 +99,17 @@ describe('ModelsModal', () => {
       models: ['alpha.gguf', 'beta.gguf'],
       selectedModel: null,
     })
-    const onClose = vi.fn()
     const user = userEvent.setup()
 
-    renderModal({ onClose })
+    renderModal()
 
-    await user.click(await screen.findByRole('button', { name: 'alpha.gguf' }))
+    await user.click(await screen.findByRole('button', { name: 'alpha' }))
 
     await waitFor(() => {
       expect(mock.setSelectedModel).toHaveBeenCalledWith('alpha.gguf')
     })
-    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(
+      screen.queryByRole('heading', { name: 'Models' }),
+    ).not.toBeInTheDocument()
   })
 })

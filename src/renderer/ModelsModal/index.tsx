@@ -1,17 +1,15 @@
 import { Check } from 'lucide-react'
 import { useEffect } from 'react'
+import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
 import { Modal } from '../ui/Modal'
 import { formatModelName } from '../utils/formatModelName'
 
-interface ModelsModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
-
-export function ModelsModal({ isOpen, onClose }: ModelsModalProps) {
+export function ModelsModal() {
+  const { activeModal, closeModal } = useModals()
   const { models, selectedModel, refreshModels, selectModel } = useModel()
+  const isOpen = activeModal === 'models'
 
   // Re-scan the models directory each time the modal opens so newly added
   // files show up without restarting the app.
@@ -23,11 +21,11 @@ export function ModelsModal({ isOpen, onClose }: ModelsModalProps) {
 
   const handleSelect = (model: string) => {
     void selectModel(model)
-    onClose()
+    closeModal()
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Models">
+    <Modal isOpen={isOpen} onClose={closeModal} title="Models">
       {models.length === 0 ? (
         <p className="text-neutral-500 dark:text-neutral-400">
           No models found. Add{' '}

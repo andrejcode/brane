@@ -6,6 +6,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
 import { formatModelName } from '../utils/formatModelName'
@@ -13,19 +14,13 @@ import { formatModelName } from '../utils/formatModelName'
 interface HeaderProps {
   isSidebarOpen?: boolean
   onToggleSidebar?: () => void
-  openSettingsModal: () => void
-  openModelModal: () => void
 }
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
 // Also icons are positioned differently on macOS because of the traffic lights
-export function Header({
-  isSidebarOpen,
-  onToggleSidebar,
-  openSettingsModal,
-  openModelModal,
-}: HeaderProps) {
+export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   const isMac = window.electronApi.isMac
+  const { openModal } = useModals()
   const { selectedModel } = useModel()
   const selectedModelLabel = selectedModel
     ? formatModelName(selectedModel)
@@ -91,7 +86,7 @@ export function Header({
             className="flex items-center gap-0.5 px-2"
             title={selectedModelLabel}
             ariaLabel="Select model"
-            onClick={openModelModal}
+            onClick={() => openModal('models')}
           >
             <span className="max-w-64 truncate">{selectedModelLabel}</span>
             <ChevronRight size={18} className="shrink-0" />
@@ -100,7 +95,7 @@ export function Header({
           <GhostButton
             title="Open settings"
             ariaLabel="Open settings"
-            onClick={openSettingsModal}
+            onClick={() => openModal('settings')}
           >
             <Settings size={20} />
           </GhostButton>

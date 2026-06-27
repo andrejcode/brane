@@ -3,7 +3,6 @@ import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from './Button'
-import { useTrackModalOpen } from '../contexts/ModalContext'
 
 interface ModalProps {
   isOpen: boolean
@@ -22,7 +21,6 @@ const FOCUSABLE_SELECTOR = [
 ].join(', ')
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  useTrackModalOpen(isOpen)
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Move focus into the dialog when it opens, and restore it to whatever was
