@@ -10,8 +10,7 @@ export interface MockElectronApi {
   onFullScreenChange: ReturnType<typeof vi.fn>
   getTheme: ReturnType<typeof vi.fn>
   setTheme: ReturnType<typeof vi.fn>
-  listModels: ReturnType<typeof vi.fn>
-  getSelectedModel: ReturnType<typeof vi.fn>
+  getModelState: ReturnType<typeof vi.fn>
   setSelectedModel: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
@@ -54,10 +53,7 @@ export function installMockElectronApi(
   )
   const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
-  const listModels = vi.fn((): Promise<string[]> => Promise.resolve(models))
-  const getSelectedModel = vi.fn(
-    (): Promise<string | null> => Promise.resolve(selectedModel),
-  )
+  const getModelState = vi.fn(() => Promise.resolve({ models, selectedModel }))
   const setSelectedModel = vi.fn(
     (model: string): Promise<string | null> => Promise.resolve(model),
   )
@@ -93,8 +89,7 @@ export function installMockElectronApi(
     streamResponse,
     getTheme,
     setTheme,
-    listModels,
-    getSelectedModel,
+    getModelState,
     setSelectedModel,
   }
 
@@ -109,8 +104,7 @@ export function installMockElectronApi(
     onFullScreenChange,
     getTheme,
     setTheme,
-    listModels,
-    getSelectedModel,
+    getModelState,
     setSelectedModel,
     streamUnsubscribe,
     fullScreenUnsubscribe,

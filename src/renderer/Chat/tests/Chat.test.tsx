@@ -44,7 +44,7 @@ async function submitPrompt(text: string) {
   // Wait for the ModelProvider to load the selected model before sending,
   // otherwise the send guard would block the prompt.
   await waitFor(() => {
-    expect(mock.getSelectedModel).toHaveBeenCalled()
+    expect(mock.getModelState).toHaveBeenCalled()
   })
 
   await user.type(screen.getByPlaceholderText('Ask anything'), text)

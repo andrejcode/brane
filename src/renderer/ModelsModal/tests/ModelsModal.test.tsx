@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -13,7 +13,7 @@ import {
   installMockElectronApi,
   type MockElectronApi,
 } from '@test/electronApi'
-import { ModelsModal } from '..'
+import { ModelsModal, SEARCH_DEBOUNCE_MS } from '..'
 
 let mock: MockElectronApi
 
@@ -111,5 +111,97 @@ describe('ModelsModal', () => {
     expect(
       screen.queryByRole('heading', { name: 'Models' }),
     ).not.toBeInTheDocument()
+  })
+})
+
+describe('ModelsModal search', () => {
+  const getSearchBox = () =>
+    screen.getByRole('textbox', { name: 'Search models' })
+
+  it('disables the search box when there are no models', async () => {
+    mock = installMockElectronApi({ models: [], selectedModel: null })
+
+    renderModal()
+
+    expect(await screen.findByText(/No models found/i)).toBeInTheDocument()
+    expect(getSearchBox()).toBeDisabled()
+  })
+
+  it('filters the model list by the query', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf', 'beta.gguf'],
+      selectedModel: null,
+    })
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await user.type(await screen.findByRole('textbox'), 'alph')
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: 'beta' }),
+      ).not.toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: 'alpha' })).toBeInTheDocument()
+  })
+
+  it('shows a no-match message when nothing matches', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf'],
+      selectedModel: null,
+    })
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await user.type(await screen.findByRole('textbox'), 'zzz')
+
+    expect(await screen.findByText(/No models match/i)).toBeInTheDocument()
+  })
+
+  it('focuses the search box when the user starts typing', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf'],
+      selectedModel: null,
+    })
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await screen.findByRole('button', { name: 'alpha' })
+    const search = getSearchBox()
+    expect(search).not.toHaveFocus()
+
+    await user.keyboard('a')
+
+    expect(search).toHaveFocus()
+  })
+
+  it('debounces the filter so it applies only after the user pauses', async () => {
+    expect(SEARCH_DEBOUNCE_MS).toBeGreaterThan(0)
+
+    mock = installMockElectronApi({
+      models: ['alpha.gguf', 'beta.gguf'],
+      selectedModel: null,
+    })
+
+    renderModal()
+
+    await screen.findByRole('button', { name: 'beta' })
+
+    fireEvent.change(getSearchBox(), { target: { value: 'alpha' } })
+
+    // Immediately after the change the debounce timer is still pending, so the
+    // non-matching model has not been filtered out yet.
+    expect(screen.getByRole('button', { name: 'beta' })).toBeInTheDocument()
+
+    // Once the debounce window elapses, the filter is applied.
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: 'beta' }),
+      ).not.toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: 'alpha' })).toBeInTheDocument()
   })
 })

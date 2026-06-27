@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import { IpcChannels, type LlamaStreamEvent, type Theme } from '@shared/types'
+import {
+  IpcChannels,
+  type LlamaStreamEvent,
+  type ModelState,
+  type Theme,
+} from '@shared/types'
 
 const electronApi: ElectronApi = {
   isMac: process.platform === 'darwin',
@@ -48,15 +53,18 @@ const electronApi: ElectronApi = {
   setTheme: async (theme: Theme) => {
     await ipcRenderer.invoke(IpcChannels.setTheme, theme)
   },
-  listModels: async () => {
-    const models: unknown = await ipcRenderer.invoke(IpcChannels.listModels)
-    return Array.isArray(models) ? (models as string[]) : []
-  },
-  getSelectedModel: async () => {
-    const model: unknown = await ipcRenderer.invoke(
-      IpcChannels.getSelectedModel,
-    )
-    return typeof model === 'string' ? model : null
+  getModelState: async () => {
+    const state: unknown = await ipcRenderer.invoke(IpcChannels.getModelState)
+
+    if (state && typeof state === 'object' && 'models' in state) {
+      const { models, selectedModel } = state as ModelState
+      return {
+        models: Array.isArray(models) ? models : [],
+        selectedModel: typeof selectedModel === 'string' ? selectedModel : null,
+      }
+    }
+
+    return { models: [], selectedModel: null }
   },
   setSelectedModel: async (model: string) => {
     const saved: unknown = await ipcRenderer.invoke(

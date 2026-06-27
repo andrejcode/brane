@@ -9,12 +9,18 @@ export const IpcChannels = {
   getTheme: 'theme:get',
   setTheme: 'theme:set',
 
-  listModels: 'model:list',
-  getSelectedModel: 'model:get-selected',
+  getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'
+
+// The available models and the persisted selection (validated against disk),
+// fetched together in a single round-trip.
+export interface ModelState {
+  models: string[]
+  selectedModel: string | null
+}
 
 export type LlamaStreamEvent =
   | {

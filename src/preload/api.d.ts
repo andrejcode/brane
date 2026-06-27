@@ -1,4 +1,4 @@
-import type { LlamaStreamEvent, Theme } from '@shared/types'
+import type { LlamaStreamEvent, ModelState, Theme } from '@shared/types'
 
 declare global {
   interface ElectronApi {
@@ -12,8 +12,7 @@ declare global {
     streamResponse: (callback: (event: LlamaStreamEvent) => void) => () => void
     getTheme: () => Promise<Theme>
     setTheme: (theme: Theme) => Promise<void>
-    listModels: () => Promise<string[]>
-    getSelectedModel: () => Promise<string | null>
+    getModelState: () => Promise<ModelState>
     setSelectedModel: (model: string) => Promise<string | null>
   }
 

@@ -16,23 +16,12 @@ interface ModelContextValue {
 
 const ModelContext = createContext<ModelContextValue | null>(null)
 
-// Reads the available models and the persisted selection (which the main
-// process validates against disk) in a single round-trip.
-async function fetchModelState() {
-  const [models, selectedModel] = await Promise.all([
-    window.electronApi.listModels(),
-    window.electronApi.getSelectedModel(),
-  ])
-
-  return { models, selectedModel }
-}
-
 export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [models, setModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
 
   const refreshModels = useCallback(async () => {
-    const state = await fetchModelState()
+    const state = await window.electronApi.getModelState()
     setModels(state.models)
     setSelectedModel(state.selectedModel)
   }, [])
@@ -40,7 +29,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true
 
-    void fetchModelState().then((state) => {
+    void window.electronApi.getModelState().then((state) => {
       if (isMounted) {
         setModels(state.models)
         setSelectedModel(state.selectedModel)

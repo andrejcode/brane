@@ -1,6 +1,11 @@
 import fs from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getSelectedModel, getSelectedModelPath, listModels } from '../model'
+import {
+  getModelState,
+  getSelectedModel,
+  getSelectedModelPath,
+  listModels,
+} from '../model'
 
 const { storeValues } = vi.hoisted(() => ({
   storeValues: new Map<string, unknown>(),
@@ -26,6 +31,19 @@ function mockDir(names: string[]) {
   vi.spyOn(fs, 'readdirSync').mockReturnValue(
     entries as unknown as ReturnType<typeof fs.readdirSync>,
   )
+}
+
+function mockDirAsync(names: string[]) {
+  const entries = names.map((name) => ({
+    name,
+    isFile: () => !name.endsWith('/'),
+  }))
+
+  return vi
+    .spyOn(fs.promises, 'readdir')
+    .mockResolvedValue(
+      entries as unknown as Awaited<ReturnType<typeof fs.promises.readdir>>,
+    )
 }
 
 beforeEach(() => {
@@ -79,6 +97,37 @@ describe('getSelectedModel', () => {
     mockDir(['a.gguf'])
 
     expect(getSelectedModel()).toBeNull()
+  })
+})
+
+describe('getModelState', () => {
+  it('returns the sorted models and the validated selection together', async () => {
+    storeValues.set('selectedModel', 'a.gguf')
+    mockDirAsync(['b.gguf', 'a.gguf', 'notes.txt'])
+
+    await expect(getModelState()).resolves.toEqual({
+      models: ['a.gguf', 'b.gguf'],
+      selectedModel: 'a.gguf',
+    })
+  })
+
+  it('clears a stale selection that is no longer on disk', async () => {
+    storeValues.set('selectedModel', 'gone.gguf')
+    mockDirAsync(['a.gguf'])
+
+    const state = await getModelState()
+
+    expect(state.selectedModel).toBeNull()
+    expect(storeValues.get('selectedModel')).toBeNull()
+  })
+
+  it('scans the directory only once per call', async () => {
+    storeValues.set('selectedModel', 'a.gguf')
+    const readdir = mockDirAsync(['a.gguf'])
+
+    await getModelState()
+
+    expect(readdir).toHaveBeenCalledTimes(1)
   })
 })
 
