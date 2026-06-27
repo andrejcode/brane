@@ -10,6 +10,7 @@ import {
 interface ModelContextValue {
   models: string[]
   selectedModel: string | null
+  isReady: boolean
   refreshModels: () => Promise<void>
   selectModel: (model: string) => Promise<void>
 }
@@ -19,6 +20,7 @@ const ModelContext = createContext<ModelContextValue | null>(null)
 export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [models, setModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
+  const [isReady, setIsReady] = useState(false)
 
   const refreshModels = useCallback(async () => {
     const state = await window.electronApi.getModelState()
@@ -29,12 +31,19 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true
 
-    void window.electronApi.getModelState().then((state) => {
-      if (isMounted) {
-        setModels(state.models)
-        setSelectedModel(state.selectedModel)
-      }
-    })
+    void window.electronApi
+      .getModelState()
+      .then((state) => {
+        if (isMounted) {
+          setModels(state.models)
+          setSelectedModel(state.selectedModel)
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsReady(true)
+        }
+      })
 
     return () => {
       isMounted = false
@@ -47,8 +56,8 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ models, selectedModel, refreshModels, selectModel }),
-    [models, selectedModel, refreshModels, selectModel],
+    () => ({ models, selectedModel, isReady, refreshModels, selectModel }),
+    [models, selectedModel, isReady, refreshModels, selectModel],
   )
 
   return <ModelContext value={value}>{children}</ModelContext>

@@ -7,6 +7,7 @@ import {
   ModalProvider,
   useModals,
 } from '@/contexts/ModalContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
 import { SettingsModal } from '..'
 
@@ -33,8 +34,10 @@ function OpenOnMount({ modal }: { modal: ModalName }) {
 function renderSettings({ open = true } = {}) {
   return render(
     <ModalProvider>
-      {open && <OpenOnMount modal="settings" />}
-      <SettingsModal />
+      <ThemeProvider>
+        {open && <OpenOnMount modal="settings" />}
+        <SettingsModal />
+      </ThemeProvider>
     </ModalProvider>,
   )
 }

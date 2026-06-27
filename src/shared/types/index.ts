@@ -6,6 +6,8 @@ export const IpcChannels = {
   windowFullscreenChanged: 'window:fullscreen-changed',
   windowIsFullScreen: 'window:is-full-screen',
 
+  appReady: 'app:ready',
+
   getTheme: 'theme:get',
   setTheme: 'theme:set',
 

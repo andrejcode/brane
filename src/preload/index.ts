@@ -46,6 +46,9 @@ const electronApi: ElectronApi = {
       ipcRenderer.removeListener(IpcChannels.llamaStreamResponse, listener)
     }
   },
+  notifyAppReady: () => {
+    ipcRenderer.send(IpcChannels.appReady)
+  },
   getTheme: async () => {
     const theme: unknown = await ipcRenderer.invoke(IpcChannels.getTheme)
     return theme as Theme

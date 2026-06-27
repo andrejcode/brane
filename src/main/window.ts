@@ -2,6 +2,9 @@ import {
   app,
   BrowserWindow,
   type BrowserWindowConstructorOptions,
+  type IpcMainEvent,
+  ipcMain,
+  nativeTheme,
 } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -9,6 +12,15 @@ import { IpcChannels } from '@shared/types'
 import { getStoreValue, setStoreValue } from './store'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Matches the renderer's neutral-800 / neutral-50 backgrounds so the native
+// window surface never flashes a mismatched color before the UI paints.
+const DARK_BACKGROUND = '#262626'
+const LIGHT_BACKGROUND = '#fafafa'
+
+// If the renderer never signals readiness (e.g. it crashes during startup),
+// show the window anyway so we can't get stuck with a permanently hidden window.
+const READY_FALLBACK_MS = 3000
 
 function saveWindowState(window: BrowserWindow) {
   // getNormalBounds() returns the restorable (un-maximized) bounds, so we keep
@@ -46,6 +58,12 @@ export function createWindow() {
     ...windowOptions,
     minWidth: 800,
     minHeight: 600,
+    // Start hidden and render offscreen so the first frame the user sees is the
+    // fully loaded, correctly-themed UI rather than an empty/white window.
+    show: false,
+    backgroundColor: nativeTheme.shouldUseDarkColors
+      ? DARK_BACKGROUND
+      : LIGHT_BACKGROUND,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       backgroundThrottling: false,
@@ -55,9 +73,36 @@ export function createWindow() {
     },
   })
 
+  // Apply the saved maximized state while the window is still hidden. maximize()
+  // implicitly shows the window, so we immediately hide it again in the same
+  // tick: the window never paints, so there's no empty-window flash and no
+  // visible resize from the restored size to maximized when we later reveal it.
   if (windowState.isMaximized) {
     mainWindow.maximize()
+    mainWindow.hide()
   }
+
+  // Reveal the window only once the renderer reports it has finished loading its
+  // initial state (selected model, theme, etc.), so no placeholder frame shows.
+  const showMainWindow = () => {
+    if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      mainWindow.show()
+    }
+  }
+
+  const handleAppReady = (event: IpcMainEvent) => {
+    if (event.sender === mainWindow.webContents) {
+      showMainWindow()
+    }
+  }
+  ipcMain.on(IpcChannels.appReady, handleAppReady)
+
+  const fallbackTimer = setTimeout(showMainWindow, READY_FALLBACK_MS)
+
+  mainWindow.on('closed', () => {
+    clearTimeout(fallbackTimer)
+    ipcMain.removeListener(IpcChannels.appReady, handleAppReady)
+  })
 
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, true)

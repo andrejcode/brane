@@ -10,6 +10,7 @@ declare global {
     sendPrompt: (prompt: string) => Promise<void>
     stopGeneration: () => Promise<void>
     streamResponse: (callback: (event: LlamaStreamEvent) => void) => () => void
+    notifyAppReady: () => void
     getTheme: () => Promise<Theme>
     setTheme: (theme: Theme) => Promise<void>
     getModelState: () => Promise<ModelState>

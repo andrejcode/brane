@@ -1,27 +1,8 @@
-import { useEffect, useState } from 'react'
-import type { Theme } from '@shared/types'
+import { useTheme } from '@/contexts/ThemeContext'
 import { ThemeButton } from './ThemeButton'
 
 export function ThemeSettings() {
-  const [theme, setTheme] = useState<Theme | null>(null)
-
-  useEffect(() => {
-    const fetchTheme = async () => {
-      try {
-        const currentTheme = await window.electronApi.getTheme()
-        setTheme(currentTheme)
-      } catch {
-        setTheme('system')
-      }
-    }
-
-    void fetchTheme()
-  }, [])
-
-  const handleSetTheme = async (theme: Theme) => {
-    await window.electronApi.setTheme(theme)
-    setTheme(theme)
-  }
+  const { theme, setTheme } = useTheme()
 
   return (
     <div className="flex items-center justify-between">
@@ -29,19 +10,19 @@ export function ThemeSettings() {
       <div className="flex overflow-hidden rounded border border-neutral-300 dark:border-neutral-500">
         <ThemeButton
           active={theme === 'dark'}
-          onClick={() => void handleSetTheme('dark')}
+          onClick={() => void setTheme('dark')}
         >
           Dark
         </ThemeButton>
         <ThemeButton
           active={theme === 'light'}
-          onClick={() => void handleSetTheme('light')}
+          onClick={() => void setTheme('light')}
         >
           Light
         </ThemeButton>
         <ThemeButton
           active={theme === 'system'}
-          onClick={() => void handleSetTheme('system')}
+          onClick={() => void setTheme('system')}
           isLast
         >
           System

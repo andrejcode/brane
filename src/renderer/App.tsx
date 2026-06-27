@@ -1,9 +1,10 @@
 import { clsx } from 'clsx'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chat } from './Chat'
 import { AlertProvider } from './contexts/AlertContext'
 import { ModalProvider } from './contexts/ModalContext'
 import { ModelProvider, useModel } from './contexts/ModelContext'
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { GlobalAlert } from './GlobalAlert'
 import { Header } from './Header'
 import { ModelsModal } from './ModelsModal'
@@ -15,7 +16,9 @@ export function App() {
     <AlertProvider>
       <ModalProvider>
         <ModelProvider>
-          <AppContent />
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
         </ModelProvider>
       </ModalProvider>
     </AlertProvider>
@@ -23,8 +26,20 @@ export function App() {
 }
 
 function AppContent() {
-  const { selectedModel } = useModel()
+  const { selectedModel, isReady: isModelReady } = useModel()
+  const { isReady: isThemeReady } = useTheme()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  // The main process keeps the window hidden until we confirm the initial state
+  // has loaded, so the first visible frame already shows the right model name
+  // and theme instead of placeholder values.
+  const hasSignaledReady = useRef(false)
+  useEffect(() => {
+    if (isModelReady && isThemeReady && !hasSignaledReady.current) {
+      hasSignaledReady.current = true
+      window.electronApi.notifyAppReady()
+    }
+  }, [isModelReady, isThemeReady])
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((open) => !open)
