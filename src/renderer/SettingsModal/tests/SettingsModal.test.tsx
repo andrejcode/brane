@@ -46,12 +46,22 @@ describe('SettingsModal', () => {
     expect(screen.queryByText('Theme')).not.toBeInTheDocument()
   })
 
-  it('renders the theme settings inside the modal when open', async () => {
+  it('renders the general panel by default when open', () => {
     renderSettings()
 
     expect(
       screen.getByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument()
+    expect(screen.getByText('Nothing here yet.')).toBeInTheDocument()
+    expect(screen.queryByText('Theme')).not.toBeInTheDocument()
+  })
+
+  it('renders the theme settings under the appearance tab', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+
     expect(screen.getByText('Theme')).toBeInTheDocument()
 
     await waitFor(() => {
@@ -70,5 +80,55 @@ describe('SettingsModal', () => {
     expect(
       screen.queryByRole('heading', { name: 'Settings' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('exposes the sidebar as a tablist with accessible tabs', () => {
+    renderSettings()
+
+    expect(
+      screen.getByRole('tablist', { name: 'Settings sections' }),
+    ).toBeInTheDocument()
+
+    const generalTab = screen.getByRole('tab', { name: 'General' })
+    const appearanceTab = screen.getByRole('tab', { name: 'Appearance' })
+
+    expect(generalTab).toHaveAttribute('aria-selected', 'true')
+    expect(appearanceTab).toHaveAttribute('aria-selected', 'false')
+
+    const panel = screen.getByRole('tabpanel')
+    expect(panel).toHaveAttribute('aria-labelledby', generalTab.id)
+    expect(generalTab).toHaveAttribute('aria-controls', panel.id)
+  })
+
+  it('switches the active panel when a tab is clicked', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    expect(screen.getByText('Nothing here yet.')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+
+    expect(screen.getByRole('tab', { name: 'Appearance' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    expect(
+      screen.getByRole('heading', { name: 'Appearance' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Nothing here yet.')).not.toBeInTheDocument()
+  })
+
+  it('moves between tabs with the arrow keys', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    const generalTab = screen.getByRole('tab', { name: 'General' })
+    generalTab.focus()
+
+    await user.keyboard('{ArrowDown}')
+
+    const appearanceTab = screen.getByRole('tab', { name: 'Appearance' })
+    expect(appearanceTab).toHaveAttribute('aria-selected', 'true')
+    expect(appearanceTab).toHaveFocus()
   })
 })

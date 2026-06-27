@@ -1,13 +1,11 @@
 import { clsx } from 'clsx'
-import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Button } from './Button'
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
-  title: string
+  ariaLabelledBy?: string
   children: React.ReactNode
 }
 
@@ -20,7 +18,12 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(', ')
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  ariaLabelledBy,
+  children,
+}: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Move focus into the dialog when it opens, and restore it to whatever was
@@ -82,29 +85,16 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={ariaLabelledBy}
         tabIndex={-1}
         className={clsx(
           'bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100',
           'rounded-2xl border border-neutral-200 dark:border-none',
-          'z-40 flex w-2xl h-2/3 flex-col p-6 shadow-lg outline-none',
+          'z-40 flex w-2xl h-2/3 flex-col shadow-lg outline-none',
         )}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between">
-          <h2 className="text-xl">{title}</h2>
-          <Button
-            type="button"
-            onClick={onClose}
-            title={`Close ${title.toLowerCase()}`}
-            className="rounded-lg"
-          >
-            <X />
-          </Button>
-        </div>
-        <hr className="my-4 shrink-0 border-neutral-200 dark:border-neutral-500" />
-
-        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        {children}
       </div>
     </div>,
     document.getElementById('modal-root') as HTMLElement,

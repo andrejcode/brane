@@ -10,6 +10,16 @@ interface GhostButtonProps {
   // mark the active/selected item (e.g. the currently selected model).
   isActive?: boolean
   onClick?: (() => void) | undefined
+  // Optional pass-through attributes for composing ARIA widget patterns such
+  // as a tablist (see the settings dialog).
+  id?: string | undefined
+  role?: string | undefined
+  ariaSelected?: boolean | undefined
+  ariaControls?: string | undefined
+  tabIndex?: number | undefined
+  onKeyDown?:
+    | ((event: React.KeyboardEvent<HTMLButtonElement>) => void)
+    | undefined
 }
 
 // A transparent button that reveals a subtle background on hover. Used for
@@ -21,6 +31,12 @@ export function GhostButton({
   ariaLabel,
   isActive,
   onClick,
+  id,
+  role,
+  ariaSelected,
+  ariaControls,
+  tabIndex,
+  onKeyDown,
 }: GhostButtonProps) {
   return (
     <Button
@@ -37,6 +53,12 @@ export function GhostButton({
       title={title}
       ariaLabel={ariaLabel}
       onClick={onClick}
+      id={id}
+      role={role}
+      ariaSelected={ariaSelected}
+      ariaControls={ariaControls}
+      tabIndex={tabIndex}
+      onKeyDown={onKeyDown}
     >
       {children}
     </Button>

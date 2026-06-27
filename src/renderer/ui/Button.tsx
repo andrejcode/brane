@@ -8,6 +8,16 @@ interface ButtonProps {
   title?: string | undefined
   ariaLabel?: string | undefined
   onClick?: (() => void) | undefined
+  // Optional pass-through attributes, used to compose ARIA widget patterns
+  // (e.g. the tablist in the settings dialog) on top of the base button.
+  id?: string | undefined
+  role?: string | undefined
+  ariaSelected?: boolean | undefined
+  ariaControls?: string | undefined
+  tabIndex?: number | undefined
+  onKeyDown?:
+    | ((event: React.KeyboardEvent<HTMLButtonElement>) => void)
+    | undefined
 }
 
 export function Button({
@@ -18,6 +28,12 @@ export function Button({
   title,
   ariaLabel,
   onClick,
+  id,
+  role,
+  ariaSelected,
+  ariaControls,
+  tabIndex,
+  onKeyDown,
 }: ButtonProps) {
   const buttonClassName = clsx(
     'focus:outline-none focus-visible:ring-2',
@@ -33,6 +49,12 @@ export function Button({
       title={title}
       aria-label={ariaLabel}
       onClick={onClick}
+      id={id}
+      role={role}
+      aria-selected={ariaSelected}
+      aria-controls={ariaControls}
+      tabIndex={tabIndex}
+      onKeyDown={onKeyDown}
     >
       {children}
     </button>

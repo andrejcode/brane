@@ -17,8 +17,13 @@ function renderModal(overrides: Partial<Parameters<typeof Modal>[0]> = {}) {
   const props = {
     isOpen: true,
     onClose: vi.fn(),
-    title: 'Settings',
-    children: <div>Modal body</div>,
+    ariaLabelledBy: 'modal-title',
+    children: (
+      <>
+        <h2 id="modal-title">Settings</h2>
+        <div>Modal body</div>
+      </>
+    ),
     ...overrides,
   }
 
@@ -31,16 +36,12 @@ describe('Modal visibility', () => {
   it('renders nothing when closed', () => {
     renderModal({ isOpen: false })
 
-    expect(screen.queryByText('Settings')).not.toBeInTheDocument()
     expect(screen.queryByText('Modal body')).not.toBeInTheDocument()
   })
 
-  it('renders the title and children when open', () => {
+  it('renders its children when open', () => {
     renderModal()
 
-    expect(
-      screen.getByRole('heading', { name: 'Settings' }),
-    ).toBeInTheDocument()
     expect(screen.getByText('Modal body')).toBeInTheDocument()
   })
 
@@ -53,23 +54,6 @@ describe('Modal visibility', () => {
 })
 
 describe('Modal closing', () => {
-  it('calls onClose when the close button is clicked', async () => {
-    const user = userEvent.setup()
-    const { onClose } = renderModal()
-
-    await user.click(screen.getByRole('button', { name: 'Close settings' }))
-
-    expect(onClose).toHaveBeenCalledTimes(1)
-  })
-
-  it('derives the close button title from the modal title', () => {
-    renderModal({ title: 'Models' })
-
-    expect(
-      screen.getByRole('button', { name: 'Close models' }),
-    ).toBeInTheDocument()
-  })
-
   it('calls onClose when Escape is pressed', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()
@@ -101,7 +85,7 @@ describe('Modal closing', () => {
 })
 
 describe('Modal accessibility', () => {
-  it('exposes the panel as a labelled modal dialog', () => {
+  it('names the dialog from the heading referenced by ariaLabelledBy', () => {
     renderModal()
 
     const dialog = screen.getByRole('dialog')
@@ -113,16 +97,5 @@ describe('Modal accessibility', () => {
     renderModal()
 
     expect(screen.getByRole('dialog')).toHaveFocus()
-  })
-})
-
-describe('Modal scrolling', () => {
-  it('places children in a scrollable region that can shrink', () => {
-    renderModal()
-
-    const scrollRegion = screen.getByText('Modal body').parentElement
-    expect(scrollRegion).toHaveClass('overflow-y-auto')
-    expect(scrollRegion).toHaveClass('min-h-0')
-    expect(scrollRegion).toHaveClass('flex-1')
   })
 })
