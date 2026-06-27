@@ -1,4 +1,8 @@
-import { BrowserWindow, type BrowserWindowConstructorOptions } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  type BrowserWindowConstructorOptions,
+} from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { IpcChannels } from '@shared/types'
@@ -21,6 +25,7 @@ function saveWindowState(window: BrowserWindow) {
 }
 
 export function createWindow() {
+  const isDev = !app.isPackaged
   const windowState = getStoreValue('window')
 
   const windowOptions: BrowserWindowConstructorOptions = {
@@ -46,6 +51,7 @@ export function createWindow() {
       backgroundThrottling: false,
       contextIsolation: true,
       nodeIntegration: false,
+      devTools: isDev,
     },
   })
 
@@ -89,7 +95,9 @@ export function createWindow() {
     )
   }
 
-  mainWindow.webContents.openDevTools()
+  if (isDev) {
+    mainWindow.webContents.openDevTools()
+  }
 
   return mainWindow
 }
