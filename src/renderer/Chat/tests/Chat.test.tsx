@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { getErrorMessage } from '@shared/getErrorMessage'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -9,7 +10,7 @@ import {
 import { AlertProvider } from '../../contexts/AlertContext'
 import { ModelProvider } from '../../contexts/ModelContext'
 import { GlobalAlert } from '../../GlobalAlert'
-import { Chat, getErrorMessage, introMessages } from '../index'
+import { Chat, introMessages } from '../index'
 
 let mock: MockElectronApi
 
@@ -57,7 +58,7 @@ describe('getErrorMessage', () => {
   })
 
   it('falls back for non-Error values', () => {
-    expect(getErrorMessage('nope')).toBe('An unknown error occurred')
+    expect(getErrorMessage('nope')).toBe('An unknown error occurred.')
   })
 })
 
@@ -166,7 +167,7 @@ describe('Chat without a selected model', () => {
     await user.click(screen.getByRole('button', { name: 'Send message' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'Please select a model to send a message',
+      'Please select a model to send a message.',
     )
     expect(mock.sendPrompt).not.toHaveBeenCalled()
   })

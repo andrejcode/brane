@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { getErrorMessage } from '@shared/getErrorMessage'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
@@ -19,10 +20,6 @@ export interface ChatMessage {
 
 function createMessageId() {
   return crypto.randomUUID()
-}
-
-export function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'An unknown error occurred'
 }
 
 export const introMessages = [
@@ -189,7 +186,7 @@ export function Chat() {
     }
 
     if (!selectedModel) {
-      showAlert('Please select a model to send a message', 'info')
+      showAlert('Please select a model to send a message.', 'info')
       return
     }
 

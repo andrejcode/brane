@@ -145,6 +145,6 @@ describe('llama send-prompt handler', () => {
 
     await expect(
       getHandler(IpcChannels.llamaSendPrompt)(event, '   '),
-    ).rejects.toThrow('Prompt must be a non-empty string')
+    ).rejects.toThrow('Prompt must be a non-empty string.')
   })
 })

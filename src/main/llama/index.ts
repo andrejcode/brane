@@ -2,9 +2,11 @@ import { ipcMain, type WebContents } from 'electron'
 import {
   getLlama,
   LlamaChatSession,
+  type Llama,
   type LlamaChatResponseChunk,
   type LlamaModel,
 } from 'node-llama-cpp'
+import { getErrorMessage } from '@shared/getErrorMessage'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
 import { getSelectedModelPath } from '../model'
 
@@ -37,22 +39,53 @@ export function resetLlamaSession() {
   }
 }
 
-async function createSession() {
+async function initLlama() {
+  try {
+    return await getLlama()
+  } catch {
+    throw new Error('Failed to initialize the llama runtime. Please try again.')
+  }
+}
+
+async function loadModel(llama: Llama) {
   const modelPath = getSelectedModelPath()
 
   if (modelPath === null) {
-    throw new Error('No model selected')
+    throw new Error('No model selected. Please select a model in settings.')
   }
 
-  const llama = await getLlama()
-  const model = await llama.loadModel({ modelPath })
-  loadedModel = model
-  const context = await model.createContext()
-  const session = new LlamaChatSession({
-    contextSequence: context.getSequence(),
-  })
+  try {
+    return await llama.loadModel({ modelPath })
+  } catch {
+    throw new Error(
+      'Failed to load the selected model. Make sure the model file exists and is a valid model.',
+    )
+  }
+}
 
-  return session
+async function createContext(model: LlamaModel) {
+  try {
+    return await model.createContext()
+  } catch {
+    throw new Error(
+      'Failed to create a model context. The model may require more memory than is available.',
+    )
+  }
+}
+
+async function createSession() {
+  const llama = await initLlama()
+  const model = await loadModel(llama)
+  loadedModel = model
+  const context = await createContext(model)
+
+  try {
+    return new LlamaChatSession({
+      contextSequence: context.getSequence(),
+    })
+  } catch {
+    throw new Error('Failed to start a chat session. Please try again.')
+  }
 }
 
 function sendStreamEvent(webContents: WebContents, event: LlamaStreamEvent) {
@@ -79,20 +112,16 @@ function formatResponseChunk(chunk: LlamaChatResponseChunk) {
   return text
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'An unknown error occurred'
-}
-
 export function registerLlamaHandlers() {
   ipcMain.handle(
     IpcChannels.llamaSendPrompt,
     async (event, prompt: unknown) => {
       if (typeof prompt !== 'string' || prompt.trim().length === 0) {
-        throw new Error('Prompt must be a non-empty string')
+        throw new Error('Prompt must be a non-empty string.')
       }
 
       if (isGenerating) {
-        throw new Error('A response is already streaming')
+        throw new Error('A response is already streaming.')
       }
 
       isGenerating = true
