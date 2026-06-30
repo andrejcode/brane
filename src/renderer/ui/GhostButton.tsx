@@ -9,6 +9,7 @@ interface GhostButtonProps {
   // Renders the button with its hover background applied permanently, used to
   // mark the active/selected item (e.g. the currently selected model).
   isActive?: boolean
+  disabled?: boolean
   onClick?: (() => void) | undefined
   // Optional pass-through attributes for composing ARIA widget patterns such
   // as a tablist (see the settings dialog).
@@ -30,6 +31,7 @@ export function GhostButton({
   title,
   ariaLabel,
   isActive,
+  disabled,
   onClick,
   id,
   role,
@@ -52,6 +54,7 @@ export function GhostButton({
       )}
       title={title}
       ariaLabel={ariaLabel}
+      disabled={disabled}
       onClick={onClick}
       id={id}
       role={role}

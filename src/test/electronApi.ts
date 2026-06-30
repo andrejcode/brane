@@ -5,6 +5,8 @@ export interface MockElectronApi {
   electronApi: ElectronApi
   sendPrompt: ReturnType<typeof vi.fn>
   stopGeneration: ReturnType<typeof vi.fn>
+  loadModel: ReturnType<typeof vi.fn>
+  unloadModel: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
@@ -49,6 +51,8 @@ export function installMockElectronApi(
 
   const sendPrompt = vi.fn((): Promise<void> => Promise.resolve())
   const stopGeneration = vi.fn((): Promise<void> => Promise.resolve())
+  const loadModel = vi.fn((): Promise<void> => Promise.resolve())
+  const unloadModel = vi.fn((): Promise<void> => Promise.resolve())
   const getIsFullScreen = vi.fn(
     (): Promise<boolean> => Promise.resolve(isFullScreen),
   )
@@ -57,7 +61,7 @@ export function installMockElectronApi(
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
   const getModelState = vi.fn(() => Promise.resolve({ models, selectedModel }))
   const setSelectedModel = vi.fn(
-    (model: string): Promise<string | null> => Promise.resolve(model),
+    (model: string | null): Promise<string | null> => Promise.resolve(model),
   )
 
   const streamResponse = vi.fn(
@@ -88,6 +92,8 @@ export function installMockElectronApi(
     onFullScreenChange,
     sendPrompt,
     stopGeneration,
+    loadModel,
+    unloadModel,
     streamResponse,
     notifyAppReady,
     getTheme,
@@ -102,6 +108,8 @@ export function installMockElectronApi(
     electronApi,
     sendPrompt,
     stopGeneration,
+    loadModel,
+    unloadModel,
     getIsFullScreen,
     streamResponse,
     onFullScreenChange,

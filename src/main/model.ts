@@ -89,7 +89,8 @@ export function registerModelHandlers({
   ipcMain.handle(IpcChannels.getModelState, () => getModelState())
 
   ipcMain.handle(IpcChannels.setSelectedModel, (_event, model: unknown) => {
-    if (typeof model !== 'string' || !modelExists(model)) {
+    // null clears the selection (e.g. when the model is unloaded).
+    if (model !== null && (typeof model !== 'string' || !modelExists(model))) {
       throw new Error('Model not found')
     }
 

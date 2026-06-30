@@ -1,9 +1,10 @@
-import { Check, Search, X } from 'lucide-react'
+import { Check, CircleStop, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/ui/Button'
 import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { Modal } from '../ui/Modal'
 import { formatModelName } from '../utils/formatModelName'
 
@@ -11,7 +12,15 @@ export const SEARCH_DEBOUNCE_MS = 200
 
 export function ModelsModal() {
   const { activeModal, closeModal } = useModals()
-  const { models, selectedModel, refreshModels, selectModel } = useModel()
+  const {
+    models,
+    selectedModel,
+    loadingModel,
+    loadedModel,
+    refreshModels,
+    selectModel,
+    unloadModel,
+  } = useModel()
   const isOpen = activeModal === 'models'
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
@@ -67,9 +76,14 @@ export function ModelsModal() {
     )
   }, [models, debouncedQuery])
 
+  const isLoading = loadingModel !== null
+
   const handleSelect = (model: string) => {
     void selectModel(model)
-    closeModal()
+  }
+
+  const handleUnload = () => {
+    void unloadModel()
   }
 
   return (
@@ -128,20 +142,42 @@ export function ModelsModal() {
           <ul className="flex flex-col gap-1">
             {filteredModels.map((model) => {
               const isSelected = model === selectedModel
+              const isModelLoading = model === loadingModel
+              const isLoaded = model === loadedModel
               const displayName = formatModelName(model)
 
               return (
-                <li key={model}>
+                <li key={model} className="flex items-stretch gap-1">
                   <GhostButton
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left"
+                    className="flex min-w-0 flex-1 items-center justify-between gap-2 px-3 py-2 text-left"
                     isActive={isSelected}
+                    disabled={isLoading}
                     title={displayName}
                     ariaLabel={displayName}
                     onClick={() => handleSelect(model)}
                   >
                     <span className="min-w-0 truncate">{displayName}</span>
-                    {isSelected && <Check size={18} className="shrink-0" />}
+                    {isModelLoading ? (
+                      <LoadingSpinner
+                        isLoading
+                        size={18}
+                        className="shrink-0"
+                      />
+                    ) : (
+                      isLoaded && <Check size={18} className="shrink-0" />
+                    )}
                   </GhostButton>
+                  {isLoaded && !isModelLoading && (
+                    <GhostButton
+                      className="flex shrink-0 items-center justify-center px-2"
+                      disabled={isLoading}
+                      title="Unload model"
+                      ariaLabel="Unload model"
+                      onClick={handleUnload}
+                    >
+                      <CircleStop size={22} />
+                    </GhostButton>
+                  )}
                 </li>
               )
             })}

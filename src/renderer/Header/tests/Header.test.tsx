@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { AlertProvider } from '@/contexts/AlertContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import { Header } from '@/Header'
@@ -23,12 +24,14 @@ function renderHeader(
   props: Partial<React.ComponentProps<typeof Header>> = {},
 ) {
   return render(
-    <ModalProvider>
-      <ModelProvider>
-        <Header {...props} />
-        <ActiveModalProbe />
-      </ModelProvider>
-    </ModalProvider>,
+    <AlertProvider>
+      <ModalProvider>
+        <ModelProvider>
+          <Header {...props} />
+          <ActiveModalProbe />
+        </ModelProvider>
+      </ModalProvider>
+    </AlertProvider>,
   )
 }
 
@@ -95,6 +98,39 @@ describe('Header on non-mac', () => {
     renderHeader()
 
     expect(await screen.findByText('my-model')).toBeInTheDocument()
+  })
+
+  it('shows a loading spinner instead of the name while the model loads', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({
+      isMac: false,
+      models: ['my-model.gguf'],
+      selectedModel: 'my-model.gguf',
+    })
+    // Keep the load in flight so the spinner stays on screen.
+    mock.loadModel.mockReturnValue(new Promise<void>(() => {}))
+
+    renderHeader()
+
+    expect(
+      await screen.findByRole('status', { name: 'Loading' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('my-model')).not.toBeInTheDocument()
+  })
+
+  it('shows the model name once loading finishes', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({
+      isMac: false,
+      models: ['my-model.gguf'],
+      selectedModel: 'my-model.gguf',
+    })
+    renderHeader()
+
+    expect(await screen.findByText('my-model')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('status', { name: 'Loading' }),
+    ).not.toBeInTheDocument()
   })
 })
 

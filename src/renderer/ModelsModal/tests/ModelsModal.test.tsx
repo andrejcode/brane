@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { AlertProvider } from '@/contexts/AlertContext'
 import {
   type ModalName,
   ModalProvider,
@@ -38,12 +39,14 @@ function OpenOnMount({ modal }: { modal: ModalName }) {
 
 function renderModal({ open = true } = {}) {
   return render(
-    <ModalProvider>
-      <ModelProvider>
-        {open && <OpenOnMount modal="models" />}
-        <ModelsModal />
-      </ModelProvider>
-    </ModalProvider>,
+    <AlertProvider>
+      <ModalProvider>
+        <ModelProvider>
+          {open && <OpenOnMount modal="models" />}
+          <ModelsModal />
+        </ModelProvider>
+      </ModalProvider>
+    </AlertProvider>,
   )
 }
 
@@ -94,7 +97,7 @@ describe('ModelsModal', () => {
     expect(selected.className).toContain('bg-neutral-300')
   })
 
-  it('persists the selection and closes when a model is clicked', async () => {
+  it('persists and loads the model when clicked, keeping the modal open', async () => {
     mock = installMockElectronApi({
       models: ['alpha.gguf', 'beta.gguf'],
       selectedModel: null,
@@ -108,9 +111,70 @@ describe('ModelsModal', () => {
     await waitFor(() => {
       expect(mock.setSelectedModel).toHaveBeenCalledWith('alpha.gguf')
     })
+    expect(mock.loadModel).toHaveBeenCalled()
+    // The modal stays open so the user can watch the load settle.
+    expect(screen.getByRole('heading', { name: 'Models' })).toBeInTheDocument()
+  })
+
+  it('shows a spinner while loading then a checkmark once loaded', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf'],
+      selectedModel: null,
+    })
+    let resolveLoad: () => void = () => {}
+    mock.loadModel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveLoad = resolve
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await user.click(await screen.findByRole('button', { name: 'alpha' }))
+
     expect(
-      screen.queryByRole('heading', { name: 'Models' }),
+      await screen.findByRole('status', { name: 'Loading' }),
+    ).toBeInTheDocument()
+
+    act(() => {
+      resolveLoad()
+    })
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('status', { name: 'Loading' }),
+      ).not.toBeInTheDocument()
+    })
+    expect(
+      screen.getByRole('button', { name: 'Unload model' }),
+    ).toBeInTheDocument()
+  })
+
+  it('unloads the loaded model and clears the selection when unloaded', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf'],
+      selectedModel: 'alpha.gguf',
+    })
+    const user = userEvent.setup()
+
+    renderModal()
+
+    const unloadButton = await screen.findByRole('button', {
+      name: 'Unload model',
+    })
+    await user.click(unloadButton)
+
+    await waitFor(() => {
+      expect(mock.unloadModel).toHaveBeenCalledTimes(1)
+    })
+    expect(mock.setSelectedModel).toHaveBeenCalledWith(null)
+    expect(
+      screen.queryByRole('button', { name: 'Unload model' }),
     ).not.toBeInTheDocument()
+
+    const row = await screen.findByRole('button', { name: 'alpha' })
+    expect(row.classList.contains('bg-neutral-300')).toBe(false)
   })
 })
 

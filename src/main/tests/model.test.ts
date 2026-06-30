@@ -1,18 +1,27 @@
 import fs from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { IpcChannels } from '@shared/types'
 import {
   getModelState,
   getSelectedModel,
   getSelectedModelPath,
   listModels,
+  registerModelHandlers,
 } from '../model'
 
-const { storeValues } = vi.hoisted(() => ({
+type IpcHandler = (...args: unknown[]) => unknown
+
+const { storeValues, ipcHandlers } = vi.hoisted(() => ({
   storeValues: new Map<string, unknown>(),
+  ipcHandlers: new Map<string, IpcHandler>(),
 }))
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: vi.fn() },
+  ipcMain: {
+    handle: (channel: string, handler: IpcHandler) => {
+      ipcHandlers.set(channel, handler)
+    },
+  },
 }))
 
 vi.mock('../store', () => ({
@@ -146,5 +155,50 @@ describe('getSelectedModelPath', () => {
     mockDir([])
 
     expect(getSelectedModelPath()).toBeNull()
+  })
+})
+
+describe('registerModelHandlers setSelectedModel', () => {
+  function getSetSelectedModelHandler(
+    onSelectedModelChange: () => void,
+  ): IpcHandler {
+    ipcHandlers.clear()
+    registerModelHandlers({ onSelectedModelChange })
+
+    const handler = ipcHandlers.get(IpcChannels.setSelectedModel)
+
+    if (!handler) {
+      throw new Error('setSelectedModel handler was not registered')
+    }
+
+    return handler
+  }
+
+  it('persists a valid model and notifies the listener', () => {
+    mockDir(['a.gguf'])
+    const onChange = vi.fn()
+    const handler = getSetSelectedModelHandler(onChange)
+
+    expect(handler({}, 'a.gguf')).toBe('a.gguf')
+    expect(storeValues.get('selectedModel')).toBe('a.gguf')
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears the selection and notifies when set to null', () => {
+    mockDir(['a.gguf'])
+    storeValues.set('selectedModel', 'a.gguf')
+    const onChange = vi.fn()
+    const handler = getSetSelectedModelHandler(onChange)
+
+    expect(handler({}, null)).toBeNull()
+    expect(storeValues.get('selectedModel')).toBeNull()
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects an unknown model', () => {
+    mockDir(['a.gguf'])
+    const handler = getSetSelectedModelHandler(vi.fn())
+
+    expect(() => handler({}, 'missing.gguf')).toThrow('Model not found')
   })
 })

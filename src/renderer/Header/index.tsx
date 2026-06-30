@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { formatModelName } from '../utils/formatModelName'
 
 interface HeaderProps {
@@ -21,7 +22,8 @@ interface HeaderProps {
 export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
-  const { selectedModel } = useModel()
+  const { selectedModel, loadingModel } = useModel()
+  const isLoadingModel = loadingModel !== null
   const selectedModelLabel = selectedModel
     ? formatModelName(selectedModel)
     : 'Select model'
@@ -84,11 +86,15 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title={selectedModelLabel}
+            title={isLoadingModel ? 'Loading model' : selectedModelLabel}
             ariaLabel="Select model"
             onClick={() => openModal('models')}
           >
-            <span className="max-w-64 truncate">{selectedModelLabel}</span>
+            {isLoadingModel ? (
+              <LoadingSpinner isLoading size={20} />
+            ) : (
+              <span className="max-w-64 truncate">{selectedModelLabel}</span>
+            )}
             <ChevronRight size={18} className="shrink-0" />
           </GhostButton>
 

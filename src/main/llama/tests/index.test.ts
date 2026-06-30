@@ -4,9 +4,10 @@ import { registerLlamaHandlers } from '../index'
 
 type IpcHandler = (...args: unknown[]) => unknown
 
-const { ipcHandlers, promptWithMeta } = vi.hoisted(() => ({
+const { ipcHandlers, promptWithMeta, dispose } = vi.hoisted(() => ({
   ipcHandlers: new Map<string, IpcHandler>(),
   promptWithMeta: vi.fn(),
+  dispose: vi.fn(() => Promise.resolve()),
 }))
 
 vi.mock('electron', () => ({
@@ -31,6 +32,7 @@ vi.mock('node-llama-cpp', () => ({
               getSequence: vi.fn(() => ({})),
             }),
           ),
+          dispose,
         }),
       ),
     }),
@@ -146,5 +148,72 @@ describe('llama send-prompt handler', () => {
     await expect(
       getHandler(IpcChannels.llamaSendPrompt)(event, '   '),
     ).rejects.toThrow('Prompt must be a non-empty string.')
+  })
+})
+
+describe('llama load/unload handlers', () => {
+  it('loads the model without sending a prompt', async () => {
+    await expect(
+      getHandler(IpcChannels.llamaLoadModel)(),
+    ).resolves.toBeUndefined()
+  })
+
+  it('reuses the loaded session for a subsequent prompt', async () => {
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'hi',
+      stopReason: 'eogToken',
+    })
+
+    await getHandler(IpcChannels.llamaLoadModel)()
+
+    const { event, send } = createEvent()
+    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'done',
+      response: 'hi',
+      stopped: false,
+    })
+  })
+
+  it('unloads without throwing when no generation is in flight', async () => {
+    await getHandler(IpcChannels.llamaLoadModel)()
+
+    await expect(
+      getHandler(IpcChannels.llamaUnloadModel)(),
+    ).resolves.toBeUndefined()
+    expect(dispose).toHaveBeenCalled()
+  })
+
+  it('aborts the in-flight generation and unloads while streaming', async () => {
+    // Resolve with an abort stop reason as soon as the abort signal fires, the
+    // way node-llama-cpp settles a streamed prompt that was stopped mid-flight.
+    promptWithMeta.mockImplementationOnce(
+      (_prompt: string, options: { signal: AbortSignal }) =>
+        new Promise((resolve) => {
+          options.signal.addEventListener('abort', () => {
+            resolve({ responseText: 'partial', stopReason: 'abort' })
+          })
+        }),
+    )
+
+    const { event, send } = createEvent()
+    const prompt = getHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+
+    // Generation only begins once the session resolves, so wait for it to start
+    // before unloading.
+    await vi.waitFor(() => {
+      expect(promptWithMeta).toHaveBeenCalled()
+    })
+
+    await getHandler(IpcChannels.llamaUnloadModel)()
+    await prompt
+
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'done',
+      response: 'partial',
+      stopped: true,
+    })
+    expect(dispose).toHaveBeenCalled()
   })
 })

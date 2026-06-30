@@ -2,6 +2,8 @@ export const IpcChannels = {
   llamaSendPrompt: 'llama:send-prompt',
   llamaStopGeneration: 'llama:stop-generation',
   llamaStreamResponse: 'llama:stream-response',
+  llamaLoadModel: 'llama:load-model',
+  llamaUnloadModel: 'llama:unload-model',
 
   windowFullscreenChanged: 'window:fullscreen-changed',
   windowIsFullScreen: 'window:is-full-screen',

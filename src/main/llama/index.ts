@@ -14,6 +14,7 @@ let sessionPromise: Promise<LlamaChatSession> | undefined
 let loadedModel: LlamaModel | undefined
 let isGenerating = false
 let activeAbortController: AbortController | undefined
+let activeGeneration: Promise<void> | undefined
 
 function getSession() {
   // Don't cache a rejected promise: if loading the model/context fails, clear
@@ -112,6 +113,54 @@ function formatResponseChunk(chunk: LlamaChatResponseChunk) {
   return text
 }
 
+async function streamPrompt(
+  sender: WebContents,
+  prompt: string,
+  abortController: AbortController,
+) {
+  try {
+    const responseChunks: string[] = []
+    const session = await getSession()
+    const response = await session.promptWithMeta(prompt, {
+      signal: abortController.signal,
+      stopOnAbortSignal: true,
+      onResponseChunk(chunk) {
+        const text = formatResponseChunk(chunk)
+
+        responseChunks.push(text)
+        sendStreamEvent(sender, {
+          type: 'chunk',
+          text,
+        })
+      },
+    })
+
+    sendStreamEvent(sender, {
+      type: 'done',
+      response: responseChunks.join('') || response.responseText,
+      stopped: response.stopReason === 'abort',
+    })
+  } catch (error) {
+    // Aborting before generation starts streaming rejects instead of
+    // resolving with a partial response, so treat it as a normal stop.
+    if (abortController.signal.aborted) {
+      sendStreamEvent(sender, {
+        type: 'done',
+        response: '',
+        stopped: true,
+      })
+    } else {
+      sendStreamEvent(sender, {
+        type: 'error',
+        message: getErrorMessage(error),
+      })
+    }
+  } finally {
+    activeAbortController = undefined
+    isGenerating = false
+  }
+}
+
 export function registerLlamaHandlers() {
   ipcMain.handle(
     IpcChannels.llamaSendPrompt,
@@ -127,52 +176,30 @@ export function registerLlamaHandlers() {
       isGenerating = true
       const abortController = new AbortController()
       activeAbortController = abortController
+      activeGeneration = streamPrompt(event.sender, prompt, abortController)
 
       try {
-        const responseChunks: string[] = []
-        const session = await getSession()
-        const response = await session.promptWithMeta(prompt, {
-          signal: abortController.signal,
-          stopOnAbortSignal: true,
-          onResponseChunk(chunk) {
-            const text = formatResponseChunk(chunk)
-
-            responseChunks.push(text)
-            sendStreamEvent(event.sender, {
-              type: 'chunk',
-              text,
-            })
-          },
-        })
-
-        sendStreamEvent(event.sender, {
-          type: 'done',
-          response: responseChunks.join('') || response.responseText,
-          stopped: response.stopReason === 'abort',
-        })
-      } catch (error) {
-        // Aborting before generation starts streaming rejects instead of
-        // resolving with a partial response, so treat it as a normal stop.
-        if (abortController.signal.aborted) {
-          sendStreamEvent(event.sender, {
-            type: 'done',
-            response: '',
-            stopped: true,
-          })
-        } else {
-          sendStreamEvent(event.sender, {
-            type: 'error',
-            message: getErrorMessage(error),
-          })
-        }
+        await activeGeneration
       } finally {
-        activeAbortController = undefined
-        isGenerating = false
+        activeGeneration = undefined
       }
     },
   )
 
   ipcMain.handle(IpcChannels.llamaStopGeneration, () => {
     activeAbortController?.abort()
+  })
+
+  // Warms the session up front so the first prompt isn't delayed by loading.
+  ipcMain.handle(IpcChannels.llamaLoadModel, async () => {
+    await getSession()
+  })
+
+  // Unloading mid-stream aborts the generation first and waits for it to unwind
+  // so the model isn't disposed while native code is still using it.
+  ipcMain.handle(IpcChannels.llamaUnloadModel, async () => {
+    activeAbortController?.abort()
+    await activeGeneration
+    resetLlamaSession()
   })
 }

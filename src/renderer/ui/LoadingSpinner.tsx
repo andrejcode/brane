@@ -5,9 +5,14 @@ import { useEffect, useState } from 'react'
 interface LoadingSpinnerProps {
   isLoading: boolean
   className?: string
+  size?: number
 }
 
-export function LoadingSpinner({ isLoading, className }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  isLoading,
+  className,
+  size,
+}: LoadingSpinnerProps) {
   const [fadeClass, setFadeClass] = useState<'opacity-0' | 'opacity-100'>(
     'opacity-0',
   )
@@ -36,6 +41,7 @@ export function LoadingSpinner({ isLoading, className }: LoadingSpinnerProps) {
     <LoaderCircle
       role="status"
       aria-label="Loading"
+      {...(size === undefined ? {} : { size })}
       className={clsx(
         'animate-spin transition-opacity duration-500 ease-in-out',
         fadeClass,

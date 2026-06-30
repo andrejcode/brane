@@ -32,6 +32,12 @@ const electronApi: ElectronApi = {
   stopGeneration: async () => {
     await ipcRenderer.invoke(IpcChannels.llamaStopGeneration)
   },
+  loadModel: async () => {
+    await ipcRenderer.invoke(IpcChannels.llamaLoadModel)
+  },
+  unloadModel: async () => {
+    await ipcRenderer.invoke(IpcChannels.llamaUnloadModel)
+  },
   streamResponse: (callback: (event: LlamaStreamEvent) => void) => {
     const listener = (
       _event: IpcRendererEvent,
@@ -69,7 +75,7 @@ const electronApi: ElectronApi = {
 
     return { models: [], selectedModel: null }
   },
-  setSelectedModel: async (model: string) => {
+  setSelectedModel: async (model: string | null) => {
     const saved: unknown = await ipcRenderer.invoke(
       IpcChannels.setSelectedModel,
       model,
