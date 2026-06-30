@@ -1,0 +1,6 @@
+---
+description:
+alwaysApply: true
+---
+
+Write code that is self-explanatory through good naming and structure. Do not add inline comments unless they’re necessary to explain non-obvious behavior, workarounds, or important caveats.
