@@ -1,11 +1,9 @@
 import { ipcMain } from 'electron'
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import { IpcChannels, type ModelState } from '@shared/types'
+import { modelsDir } from './paths'
 import { getStoreValue, setStoreValue } from './store'
-
-export const modelsDir = path.join(os.homedir(), '.brane', 'models')
 
 const MODEL_EXTENSION = '.gguf'
 
