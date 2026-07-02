@@ -1,6 +1,63 @@
 ---
-description:
+description: Core clean-code conventions for this project
 alwaysApply: true
 ---
 
-Write code that is self-explanatory through good naming and structure. Do not add inline comments unless they’re necessary to explain non-obvious behavior, workarounds, or important caveats.
+# Clean Code
+
+Write code that is self-explanatory through good naming and structure. Prefer small, single-purpose functions with early-return guard clauses over deep nesting.
+
+## Comments
+
+Comments are the exception, not the rule. Well-named code needs none.
+
+- Only comment to explain **why**: non-obvious intent, trade-offs, caveats, workarounds, or platform/library quirks.
+- Never narrate **what** the code does or restate the code in prose.
+- Never leave comments describing the change you just made (e.g. "added X", "now handles Y").
+- When suppressing a linter rule, justify it inline (`// eslint-disable-next-line ... -- reason`).
+
+```typescript
+// ❌ BAD — narrates the obvious
+// Increment the counter
+counter += 1
+
+// Loop over entries and filter logs
+entries.filter((entry) => entry.endsWith('.log'))
+
+// ✅ GOOD — explains a non-obvious reason
+// Rollovers within the same millisecond would collide on the timestamp.
+while (fs.existsSync(candidate)) { ... }
+
+// Logging must never crash the app, so swallow any filesystem failure.
+try { fs.appendFileSync(getActiveFilePath(), line) } catch {}
+```
+
+## Naming & Structure
+
+- Descriptive verb-first function names (`resolveSelectedModel`, `createLogFilePath`, `getActiveFilePath`).
+- `UPPER_SNAKE_CASE` for module-level constants (`MAX_FILE_SIZE_BYTES`, `MODEL_EXTENSION`).
+- Extract private helpers at module scope; keep the exported/public surface obvious.
+- Pass an options object (with a named `interface`) when a function takes several params.
+
+## Types
+
+- `interface` for object shapes (props, schemas, options); `type` for unions and aliases.
+- Model variants as discriminated unions; use `as const` objects for enum-like maps.
+- Let return types infer when obvious; annotate only when it adds clarity or safety.
+
+## Error Handling
+
+- Swallow-and-fallback for non-critical reads (return `[]`/`null`); rethrow user-facing `Error` messages for actionable failures.
+- Normalize unknown errors with the shared `getErrorMessage` helper rather than assuming `.message`.
+
+## React
+
+- Function components only; name the props interface `<Component>Props`.
+- Stabilize values passed down or into deps with `useCallback`/`useMemo`.
+- Guard effect async work with an `isMounted` flag and clean up listeners on unmount.
+- Context hooks (`useModel`) throw a clear error when used outside their provider.
+- Compose class names with `clsx`; group related Tailwind classes across lines.
+
+## Formatting
+
+No semicolons, single quotes, 2-space indentation — matching the existing Prettier/ESLint setup.
