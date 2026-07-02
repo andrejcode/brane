@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
 import { registerLlamaHandlers, resetLlamaSession } from './llama'
+import { cleanupOldLogs, logger } from './logger'
 import { registerModelHandlers } from './model'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
@@ -12,6 +13,10 @@ if (started) {
 }
 
 void app.whenReady().then(() => {
+  void cleanupOldLogs().catch((error: unknown) => {
+    logger.error('Failed to clean up old logs', error)
+  })
+
   initializeTheme()
 
   ipcMain.handle(IpcChannels.windowIsFullScreen, (event) => {
