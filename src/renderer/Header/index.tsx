@@ -57,14 +57,18 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
       <div
         className={clsx(
           // Offset the blur so it never covers the sidebar, which has its own background
-          'pointer-events-none absolute inset-y-0 right-0',
+          'pointer-events-none absolute top-0 right-0 h-14',
           'transition-[left] duration-500 ease-in-out',
           isSidebarOpen ? 'left-80' : 'left-0',
           'bg-neutral-50/1 dark:bg-neutral-800/1',
-          'backdrop-blur-[3px]',
-          'mask-[linear-gradient(to_bottom,black_0%,black_55%,transparent_100%)]',
         )}
-      />
+      >
+        {/* Progressive blur: each layer adds a stronger blur masked toward the top,
+            so text is heavily blurred at the top of the header and fades to sharp at the bottom */}
+        <div className="absolute inset-0 backdrop-blur-[1.6px] mask-[linear-gradient(to_bottom,black_0%,black_70%,transparent_100%)]" />
+        <div className="absolute inset-0 backdrop-blur-[2px] mask-[linear-gradient(to_bottom,black_0%,black_35%,transparent_70%)]" />
+        <div className="absolute inset-0 backdrop-blur-xs mask-[linear-gradient(to_bottom,black_0%,black_15%,transparent_45%)]" />
+      </div>
 
       <div
         className={clsx(
