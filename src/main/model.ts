@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import { IpcChannels, type ModelState } from '@shared/types'
+import { logger } from './logger'
 import { modelsDir } from './paths'
 import { getStoreValue, setStoreValue } from './store'
 
@@ -89,8 +90,13 @@ export function registerModelHandlers({
   ipcMain.handle(IpcChannels.setSelectedModel, (_event, model: unknown) => {
     // null clears the selection (e.g. when the model is unloaded).
     if (model !== null && (typeof model !== 'string' || !modelExists(model))) {
+      logger.warn('Rejected model selection: model not found', model)
       throw new Error('Model not found')
     }
+
+    logger.info(
+      model === null ? 'Model selection cleared' : `Model selected: ${model}`,
+    )
 
     setStoreValue('selectedModel', model)
     onSelectedModelChange()

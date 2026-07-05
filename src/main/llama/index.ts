@@ -37,6 +37,7 @@ export function resetLlamaSession() {
   loadedModel = undefined
 
   if (modelToDispose) {
+    logger.info(`Disposing model: ${modelToDispose.filename}`)
     void modelToDispose.dispose()
   }
 }
@@ -44,7 +45,8 @@ export function resetLlamaSession() {
 async function initLlama() {
   try {
     return await getLlama()
-  } catch {
+  } catch (error) {
+    logger.error('Failed to initialize the llama runtime', error)
     throw new Error('Failed to initialize the llama runtime. Please try again.')
   }
 }
@@ -53,8 +55,11 @@ async function loadModel(llama: Llama) {
   const modelPath = getSelectedModelPath()
 
   if (modelPath === null) {
+    logger.warn('Prompt attempted with no model selected')
     throw new Error('No model selected. Please select a model in settings.')
   }
+
+  logger.info(`Loading model: ${modelPath}`)
 
   try {
     const model = await llama.loadModel({ modelPath })
@@ -71,7 +76,8 @@ async function loadModel(llama: Llama) {
     }
 
     return model
-  } catch {
+  } catch (error) {
+    logger.error(`Failed to load model: ${modelPath}`, error)
     throw new Error(
       'Failed to load the selected model. Make sure the model file exists and is a valid model.',
     )
@@ -81,7 +87,8 @@ async function loadModel(llama: Llama) {
 async function createContext(model: LlamaModel) {
   try {
     return await model.createContext()
-  } catch {
+  } catch (error) {
+    logger.error('Failed to create model context', error)
     throw new Error(
       'Failed to create a model context. The model may require more memory than is available.',
     )
@@ -95,10 +102,13 @@ async function createSession() {
   const context = await createContext(model)
 
   try {
-    return new LlamaChatSession({
+    const session = new LlamaChatSession({
       contextSequence: context.getSequence(),
     })
-  } catch {
+    logger.info('Chat session ready')
+    return session
+  } catch (error) {
+    logger.error('Failed to start a chat session', error)
     throw new Error('Failed to start a chat session. Please try again.')
   }
 }
@@ -132,6 +142,8 @@ async function streamPrompt(
   prompt: string,
   abortController: AbortController,
 ) {
+  logger.info(`Prompt received (${prompt.length} chars), generating response`)
+
   try {
     const responseChunks: string[] = []
     const session = await getSession()
@@ -149,21 +161,28 @@ async function streamPrompt(
       },
     })
 
+    const responseText = responseChunks.join('') || response.responseText
+    logger.info(
+      `Response complete (${responseText.length} chars, stopReason: ${response.stopReason})`,
+    )
+
     sendStreamEvent(sender, {
       type: 'done',
-      response: responseChunks.join('') || response.responseText,
+      response: responseText,
       stopped: response.stopReason === 'abort',
     })
   } catch (error) {
     // Aborting before generation starts streaming rejects instead of
     // resolving with a partial response, so treat it as a normal stop.
     if (abortController.signal.aborted) {
+      logger.info('Generation aborted')
       sendStreamEvent(sender, {
         type: 'done',
         response: '',
         stopped: true,
       })
     } else {
+      logger.error('Generation failed', error)
       sendStreamEvent(sender, {
         type: 'error',
         message: getErrorMessage(error),
@@ -180,10 +199,12 @@ export function registerLlamaHandlers() {
     IpcChannels.llamaSendPrompt,
     async (event, prompt: unknown) => {
       if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+        logger.warn('Rejected prompt: not a non-empty string')
         throw new Error('Prompt must be a non-empty string.')
       }
 
       if (isGenerating) {
+        logger.warn('Rejected prompt: a response is already streaming')
         throw new Error('A response is already streaming.')
       }
 
@@ -201,17 +222,20 @@ export function registerLlamaHandlers() {
   )
 
   ipcMain.handle(IpcChannels.llamaStopGeneration, () => {
+    logger.info('Stop generation requested')
     activeAbortController?.abort()
   })
 
   // Warms the session up front so the first prompt isn't delayed by loading.
   ipcMain.handle(IpcChannels.llamaLoadModel, async () => {
+    logger.info('Model load requested')
     await getSession()
   })
 
   // Unloading mid-stream aborts the generation first and waits for it to unwind
   // so the model isn't disposed while native code is still using it.
   ipcMain.handle(IpcChannels.llamaUnloadModel, async () => {
+    logger.info('Model unload requested')
     activeAbortController?.abort()
     await activeGeneration
     resetLlamaSession()

@@ -27,6 +27,12 @@ vi.mock('node-llama-cpp', () => ({
     Promise.resolve({
       loadModel: vi.fn(() =>
         Promise.resolve({
+          filename: 'model.gguf',
+          size: 4 * 1024 ** 3,
+          trainContextSize: 4096,
+          gpuLayers: 32,
+          fileInsights: { totalLayers: 32 },
+          getWarnings: vi.fn(() => []),
           createContext: vi.fn(() =>
             Promise.resolve({
               getSequence: vi.fn(() => ({})),

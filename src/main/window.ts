@@ -9,6 +9,7 @@ import {
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { IpcChannels } from '@shared/types'
+import { logger } from './logger'
 import { getStoreValue, setStoreValue } from './store'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -37,6 +38,7 @@ function saveWindowState(window: BrowserWindow) {
 }
 
 export function createWindow() {
+  logger.info('Creating main window')
   const isDev = !app.isPackaged
   const windowState = getStoreValue('window')
 
@@ -103,6 +105,21 @@ export function createWindow() {
     clearTimeout(fallbackTimer)
     ipcMain.removeListener(IpcChannels.appReady, handleAppReady)
   })
+
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    logger.error(
+      `Renderer process gone (reason: ${details.reason}, exitCode: ${details.exitCode})`,
+    )
+  })
+
+  mainWindow.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL) => {
+      logger.error(
+        `Renderer failed to load ${validatedURL} (${errorCode}: ${errorDescription})`,
+      )
+    },
+  )
 
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, true)

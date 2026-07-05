@@ -12,7 +12,17 @@ if (started) {
   app.quit()
 }
 
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception in main process', error)
+})
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled promise rejection in main process', reason)
+})
+
 void app.whenReady().then(() => {
+  logger.info(`App ready (v${app.getVersion()}, ${process.platform})`)
+
   void cleanupOldLogs().catch((error: unknown) => {
     logger.error('Failed to clean up old logs', error)
   })
@@ -40,6 +50,7 @@ void app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  logger.info('All windows closed')
   // Quit the app when all windows are closed (Windows & Linux)
   if (process.platform !== 'darwin') {
     app.quit()
