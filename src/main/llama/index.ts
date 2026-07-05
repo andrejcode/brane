@@ -8,6 +8,7 @@ import {
 } from 'node-llama-cpp'
 import { getErrorMessage } from '@shared/getErrorMessage'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
+import { logger } from '../logger'
 import { getSelectedModelPath } from '../model'
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
@@ -56,7 +57,20 @@ async function loadModel(llama: Llama) {
   }
 
   try {
-    return await llama.loadModel({ modelPath })
+    const model = await llama.loadModel({ modelPath })
+
+    logger.info(
+      `Model loaded: ${model.filename ?? modelPath}\n`,
+      `Size: ${(model.size / 1024 ** 3).toFixed(2)} GiB\n`,
+      `Context size: ${model.trainContextSize}\n`,
+      `GPU layers: ${model.gpuLayers}/${model.fileInsights.totalLayers}`,
+    )
+
+    for (const warning of model.getWarnings()) {
+      logger.warn(`Model warning: ${warning}`)
+    }
+
+    return model
   } catch {
     throw new Error(
       'Failed to load the selected model. Make sure the model file exists and is a valid model.',
