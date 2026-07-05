@@ -123,7 +123,7 @@ export function ModelsModal() {
 
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {!hasModels ? (
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <p className="px-3 py-2 text-neutral-500 dark:text-neutral-400">
             No models found. Add{' '}
             <code className="rounded bg-neutral-200 px-1 py-0.5 text-sm dark:bg-neutral-600">
               .gguf
@@ -135,7 +135,7 @@ export function ModelsModal() {
             to get started.
           </p>
         ) : filteredModels.length === 0 ? (
-          <p className="text-neutral-500 dark:text-neutral-400">
+          <p className="px-3 py-2 text-neutral-500 dark:text-neutral-400">
             No models match “{debouncedQuery}”.
           </p>
         ) : (
