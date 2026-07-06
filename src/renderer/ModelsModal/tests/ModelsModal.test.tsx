@@ -151,6 +151,56 @@ describe('ModelsModal', () => {
     ).toBeInTheDocument()
   })
 
+  it('unloads the current model before loading a newly selected one, hiding the eject button while loading', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf', 'beta.gguf'],
+      selectedModel: 'alpha.gguf',
+    })
+    let resolveSwitchLoad: () => void = () => {}
+    mock.loadModel.mockResolvedValueOnce(undefined).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveSwitchLoad = resolve
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderModal()
+
+    // Wait for the persisted model to finish its startup load.
+    await screen.findByRole('button', { name: 'Unload model' })
+
+    await user.click(screen.getByRole('button', { name: 'beta' }))
+
+    await waitFor(() => {
+      expect(mock.unloadModel).toHaveBeenCalledTimes(1)
+    })
+    expect(mock.setSelectedModel).toHaveBeenCalledWith('beta.gguf')
+    // The outgoing model must be unloaded before the new one starts loading.
+    const unloadOrder = mock.unloadModel.mock.invocationCallOrder[0]
+    const switchLoadOrder = mock.loadModel.mock.invocationCallOrder[1]
+    expect(unloadOrder).toBeGreaterThan(0)
+    expect(switchLoadOrder).toBeGreaterThan(0)
+    expect(unloadOrder).toBeLessThan(switchLoadOrder ?? 0)
+
+    // No model can be ejected while the new one is still loading.
+    expect(
+      screen.queryByRole('button', { name: 'Unload model' }),
+    ).not.toBeInTheDocument()
+    expect(
+      await screen.findByRole('status', { name: 'Loading' }),
+    ).toBeInTheDocument()
+
+    act(() => {
+      resolveSwitchLoad()
+    })
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Unload model' }),
+      ).toBeInTheDocument()
+    })
+  })
+
   it('unloads the loaded model and clears the selection when unloaded', async () => {
     mock = installMockElectronApi({
       models: ['alpha.gguf'],

@@ -35,9 +35,13 @@ void app.whenReady().then(() => {
 
   registerThemeHandlers()
   registerLlamaHandlers()
-  // Switching models invalidates the cached chat session so the next prompt
-  // loads the newly selected model.
-  registerModelHandlers({ onSelectedModelChange: resetLlamaSession })
+  registerModelHandlers({
+    onSelectedModelChange: () => {
+      void resetLlamaSession().catch((error: unknown) => {
+        logger.error('Failed to reset the llama session', error)
+      })
+    },
+  })
 
   createWindow()
 

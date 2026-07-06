@@ -85,19 +85,34 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
 
   const selectModel = useCallback(
     async (model: string) => {
-      // Ignore clicks mid-load, and treat re-selecting the loaded model as a no-op.
       if (loadingModel !== null || model === loadedModel) {
         return
       }
 
-      const saved = await window.electronApi.setSelectedModel(model)
-      setSelectedModel(saved)
+      const previousModel = loadedModel
+      setLoadingModel(model)
+      setLoadedModel(null)
 
-      if (saved !== null) {
-        await loadModel(saved)
+      try {
+        if (previousModel !== null) {
+          await window.electronApi.unloadModel()
+        }
+
+        const saved = await window.electronApi.setSelectedModel(model)
+        setSelectedModel(saved)
+
+        if (saved !== null) {
+          await window.electronApi.loadModel()
+          setLoadedModel(saved)
+        }
+      } catch (error) {
+        setLoadedModel(null)
+        showAlert(getErrorMessage(error), 'error')
+      } finally {
+        setLoadingModel(null)
       }
     },
-    [loadingModel, loadedModel, loadModel],
+    [loadingModel, loadedModel, showAlert],
   )
 
   const unloadModel = useCallback(async () => {

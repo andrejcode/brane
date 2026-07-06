@@ -28,9 +28,11 @@ function getSession() {
   return sessionPromise
 }
 
-// Tears down the active session so the next prompt loads a fresh one. Used when
-// the selected model changes; the previous model is disposed to free its memory.
-export function resetLlamaSession() {
+// Tears down the active session and disposes the model. Awaits the dispose so
+// callers can guarantee the model is fully unloaded before loading another one,
+// since holding two models resident at once can exhaust the hardware.
+// TODO: Separate the session and model disposal into two functions.
+export async function resetLlamaSession() {
   sessionPromise = undefined
 
   const modelToDispose = loadedModel
@@ -38,7 +40,7 @@ export function resetLlamaSession() {
 
   if (modelToDispose) {
     logger.info(`Disposing model: ${modelToDispose.filename}`)
-    void modelToDispose.dispose()
+    await modelToDispose.dispose()
   }
 }
 
@@ -238,6 +240,6 @@ export function registerLlamaHandlers() {
     logger.info('Model unload requested')
     activeAbortController?.abort()
     await activeGeneration
-    resetLlamaSession()
+    await resetLlamaSession()
   })
 }
