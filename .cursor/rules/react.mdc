@@ -1,0 +1,12 @@
+---
+globs: src/renderer/**/*.tsx
+alwaysApply: false
+---
+
+# React
+
+- Function components only; name the props interface `<Component>Props`.
+- Stabilize values passed down or into deps with `useCallback`/`useMemo`.
+- Guard effect async work with an `isMounted` flag and clean up listeners on unmount.
+- Context hooks (`useModel`) throw a clear error when used outside their provider.
+- Compose class names with `clsx`; group related Tailwind classes across lines.

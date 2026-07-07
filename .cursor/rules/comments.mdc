@@ -1,0 +1,57 @@
+---
+description: When and how to write code comments in this project
+alwaysApply: true
+---
+
+# Comments
+
+The default number of comments in code you write is **zero**. Well-named code
+explains itself. Add a comment only when you can name a concrete reason a future
+reader would be confused **without** it.
+
+## The one test
+
+Before writing any comment, ask: _"Does this explain something the code cannot?"_
+
+- If the comment restates, summarizes, or paraphrases the code below it → delete it.
+- If it explains **why** (a non-obvious reason, trade-off, caveat, workaround, or
+  library/platform quirk) → keep it.
+
+If you cannot articulate the "why", the code needs a better name, not a comment.
+
+## Never write these
+
+- Narration of what the next line/block does (`// loop over users`, `// return result`).
+- Restating a name in prose (`// the user id` above `const userId`).
+- Change logs or intent about your edit (`// added retry`, `// now handles null`,
+  `// updated to use X`). Git history is the changelog, not the source.
+- Section banners, decorative dividers, or `// ---- helpers ----`.
+- Commented-out code. Delete it.
+- Redundant JSDoc that only repeats the signature and param names.
+
+## Good comments explain why
+
+```typescript
+// ❌ BAD — narrates the obvious / logs the change
+// Increment the counter
+counter += 1
+// Loop over entries and filter logs
+entries.filter((entry) => entry.endsWith('.log'))
+// Added catch so the app doesn't crash
+try { risky() } catch {}
+
+// ✅ GOOD — explains a reason the code cannot
+// Rollovers within the same millisecond would collide on the timestamp.
+while (fs.existsSync(candidate)) { ... }
+
+// Don't cache a rejected promise: clear it so the next call can retry
+// instead of reusing the failed attempt.
+sessionPromise ??= createSession().catch(() => { sessionPromise = undefined; throw error })
+```
+
+## Before finishing
+
+Re-read every comment you added or touched and delete any that fail the one test
+above. Do not leave a comment just because the surrounding code already had that
+style. When suppressing a linter rule, justify it inline
+(`// eslint-disable-next-line ... -- reason`).
