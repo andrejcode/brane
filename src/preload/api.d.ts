@@ -17,6 +17,8 @@ declare global {
     setTheme: (theme: Theme) => Promise<void>
     getModelState: () => Promise<ModelState>
     setSelectedModel: (model: string | null) => Promise<string | null>
+    getSendWithModifierEnter: () => Promise<boolean>
+    setSendWithModifierEnter: (enabled: boolean) => Promise<boolean>
   }
 
   interface Window {

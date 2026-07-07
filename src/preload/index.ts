@@ -82,6 +82,19 @@ const electronApi: ElectronApi = {
     )
     return typeof saved === 'string' ? saved : null
   },
+  getSendWithModifierEnter: async () => {
+    const enabled: unknown = await ipcRenderer.invoke(
+      IpcChannels.getSendWithModifierEnter,
+    )
+    return enabled === true
+  },
+  setSendWithModifierEnter: async (enabled: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setSendWithModifierEnter,
+      enabled,
+    )
+    return saved === true
+  },
 }
 
 contextBridge.exposeInMainWorld('electronApi', electronApi)

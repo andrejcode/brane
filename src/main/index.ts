@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
+import { registerChatSettingsHandlers } from './chatSettings'
 import { registerLlamaHandlers, resetLlamaSession } from './llama'
 import { cleanupOldLogs, logger } from './logger'
 import { registerModelHandlers } from './model'
@@ -34,6 +35,7 @@ void app.whenReady().then(() => {
   })
 
   registerThemeHandlers()
+  registerChatSettingsHandlers()
   registerLlamaHandlers()
   registerModelHandlers({
     onSelectedModelChange: () => {

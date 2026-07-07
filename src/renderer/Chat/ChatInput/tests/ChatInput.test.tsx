@@ -13,6 +13,7 @@ function renderChatInput(
       event.preventDefault()
     }),
     setInput: vi.fn(),
+    sendWithModifierEnter: false,
     ...overrides,
   }
 
@@ -100,6 +101,59 @@ describe('ChatInput keyboard submit', () => {
 
     expect(onSubmit).not.toHaveBeenCalled()
   })
+
+  it('does not submit on Cmd/Ctrl+Enter in the default (Enter) mode', () => {
+    const { onSubmit } = renderChatInput({ input: 'hello' })
+    const textarea = screen.getByPlaceholderText('Ask anything')
+
+    fireEvent.keyDown(textarea, { key: 'Enter', metaKey: true })
+    fireEvent.keyDown(textarea, { key: 'Enter', ctrlKey: true })
+
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+})
+
+describe('ChatInput keyboard submit with modifier-enter enabled', () => {
+  it('submits on Cmd+Enter (macOS)', () => {
+    const { onSubmit } = renderChatInput({
+      input: 'hello',
+      sendWithModifierEnter: true,
+    })
+
+    fireEvent.keyDown(screen.getByPlaceholderText('Ask anything'), {
+      key: 'Enter',
+      metaKey: true,
+    })
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('submits on Ctrl+Enter (Windows/Linux)', () => {
+    const { onSubmit } = renderChatInput({
+      input: 'hello',
+      sendWithModifierEnter: true,
+    })
+
+    fireEvent.keyDown(screen.getByPlaceholderText('Ask anything'), {
+      key: 'Enter',
+      ctrlKey: true,
+    })
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not submit on plain Enter (newline)', () => {
+    const { onSubmit } = renderChatInput({
+      input: 'hello',
+      sendWithModifierEnter: true,
+    })
+
+    fireEvent.keyDown(screen.getByPlaceholderText('Ask anything'), {
+      key: 'Enter',
+    })
+
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
 })
 
 describe('ChatInput global focus stealing', () => {
@@ -141,6 +195,7 @@ describe('ChatInput global focus stealing', () => {
           onStop={vi.fn()}
           onSubmit={vi.fn()}
           setInput={vi.fn()}
+          sendWithModifierEnter={false}
         />
       </div>,
     )

@@ -10,6 +10,7 @@ import { getErrorMessage } from '@shared/getErrorMessage'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
+import { useChatSettings } from '../contexts/ChatSettingsContext'
 import { useModel } from '../contexts/ModelContext'
 
 export interface ChatMessage {
@@ -42,6 +43,7 @@ function pickIntroMessage() {
 export function Chat() {
   const { showAlert } = useAlert()
   const { selectedModel } = useModel()
+  const { sendWithModifierEnter } = useChatSettings()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -268,6 +270,7 @@ export function Chat() {
                 onStop={handleStop}
                 onSubmit={handleSubmit}
                 setInput={setInput}
+                sendWithModifierEnter={sendWithModifierEnter}
               />
             </div>
           </div>

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   type ModalName,
   ModalProvider,
@@ -35,8 +36,10 @@ function renderSettings({ open = true } = {}) {
   return render(
     <ModalProvider>
       <ThemeProvider>
-        {open && <OpenOnMount modal="settings" />}
-        <SettingsModal />
+        <ChatSettingsProvider>
+          {open && <OpenOnMount modal="settings" />}
+          <SettingsModal />
+        </ChatSettingsProvider>
       </ThemeProvider>
     </ModalProvider>,
   )
@@ -55,7 +58,9 @@ describe('SettingsModal', () => {
     expect(
       screen.getByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('Nothing here yet.')).toBeInTheDocument()
+    expect(
+      screen.getByRole('switch', { name: 'Send with Ctrl+Enter' }),
+    ).toBeInTheDocument()
     expect(screen.queryByText('Theme')).not.toBeInTheDocument()
   })
 
@@ -107,7 +112,9 @@ describe('SettingsModal', () => {
     const user = userEvent.setup()
     renderSettings()
 
-    expect(screen.getByText('Nothing here yet.')).toBeInTheDocument()
+    expect(
+      screen.getByRole('switch', { name: 'Send with Ctrl+Enter' }),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('tab', { name: 'Appearance' }))
 
@@ -118,7 +125,9 @@ describe('SettingsModal', () => {
     expect(
       screen.getByRole('heading', { name: 'Appearance' }),
     ).toBeInTheDocument()
-    expect(screen.queryByText('Nothing here yet.')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('switch', { name: 'Send with Ctrl+Enter' }),
+    ).not.toBeInTheDocument()
   })
 
   it('moves between tabs with the arrow keys', async () => {

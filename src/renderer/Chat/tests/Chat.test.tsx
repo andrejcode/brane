@@ -8,6 +8,7 @@ import {
   type MockElectronApi,
 } from '@test/electronApi'
 import { AlertProvider } from '../../contexts/AlertContext'
+import { ChatSettingsProvider } from '../../contexts/ChatSettingsContext'
 import { ModelProvider } from '../../contexts/ModelContext'
 import { GlobalAlert } from '../../GlobalAlert'
 import { Chat, introMessages } from '../index'
@@ -32,8 +33,10 @@ function renderChat() {
   return render(
     <AlertProvider>
       <ModelProvider>
-        <Chat />
-        <GlobalAlert />
+        <ChatSettingsProvider>
+          <Chat />
+          <GlobalAlert />
+        </ChatSettingsProvider>
       </ModelProvider>
     </AlertProvider>,
   )

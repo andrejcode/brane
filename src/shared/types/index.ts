@@ -15,6 +15,9 @@ export const IpcChannels = {
 
   getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
+
+  getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',
+  setSendWithModifierEnter: 'chat-settings:set-send-with-modifier-enter',
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'

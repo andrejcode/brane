@@ -2,6 +2,7 @@ import { clsx } from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chat } from './Chat'
 import { AlertProvider } from './contexts/AlertContext'
+import { ChatSettingsProvider } from './contexts/ChatSettingsContext'
 import { ModalProvider } from './contexts/ModalContext'
 import { ModelProvider, useModel } from './contexts/ModelContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
@@ -17,7 +18,9 @@ export function App() {
       <ModalProvider>
         <ModelProvider>
           <ThemeProvider>
-            <AppContent />
+            <ChatSettingsProvider>
+              <AppContent />
+            </ChatSettingsProvider>
           </ThemeProvider>
         </ModelProvider>
       </ModalProvider>

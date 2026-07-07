@@ -28,6 +28,8 @@ interface ChatInputProps {
   onStop: () => void
   onSubmit: SubmitEventHandler<HTMLFormElement>
   setInput: Dispatch<SetStateAction<string>>
+  // When true, Cmd/Ctrl+Enter submits and plain Enter inserts a newline.
+  sendWithModifierEnter: boolean
 }
 
 export function ChatInput({
@@ -36,6 +38,7 @@ export function ChatInput({
   onStop,
   onSubmit,
   setInput,
+  sendWithModifierEnter,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isMultiline, setIsMultiline] = useState(false)
@@ -130,6 +133,13 @@ export function ChatInput({
       event.nativeEvent.isComposing ||
       isModalOpen
     ) {
+      return
+    }
+
+    // metaKey covers Cmd on macOS; ctrlKey covers Ctrl on Windows/Linux.
+    const modifierPressed = event.metaKey || event.ctrlKey
+
+    if (sendWithModifierEnter ? !modifierPressed : modifierPressed) {
       return
     }
 

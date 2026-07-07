@@ -15,6 +15,8 @@ export interface MockElectronApi {
   setTheme: ReturnType<typeof vi.fn>
   getModelState: ReturnType<typeof vi.fn>
   setSelectedModel: ReturnType<typeof vi.fn>
+  getSendWithModifierEnter: ReturnType<typeof vi.fn>
+  setSendWithModifierEnter: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
@@ -27,6 +29,7 @@ export interface MockElectronApiOptions {
   theme?: Theme
   models?: string[]
   selectedModel?: string | null
+  sendWithModifierEnter?: boolean
 }
 
 // Installs a fake `window.electronApi` so renderer components that talk to the
@@ -41,6 +44,7 @@ export function installMockElectronApi(
     theme = 'system',
     models = [],
     selectedModel = null,
+    sendWithModifierEnter = false,
   } = options
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
@@ -62,6 +66,12 @@ export function installMockElectronApi(
   const getModelState = vi.fn(() => Promise.resolve({ models, selectedModel }))
   const setSelectedModel = vi.fn(
     (model: string | null): Promise<string | null> => Promise.resolve(model),
+  )
+  const getSendWithModifierEnter = vi.fn(
+    (): Promise<boolean> => Promise.resolve(sendWithModifierEnter),
+  )
+  const setSendWithModifierEnter = vi.fn(
+    (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
 
   const streamResponse = vi.fn(
@@ -100,6 +110,8 @@ export function installMockElectronApi(
     setTheme,
     getModelState,
     setSelectedModel,
+    getSendWithModifierEnter,
+    setSendWithModifierEnter,
   }
 
   window.electronApi = electronApi
@@ -118,6 +130,8 @@ export function installMockElectronApi(
     setTheme,
     getModelState,
     setSelectedModel,
+    getSendWithModifierEnter,
+    setSendWithModifierEnter,
     streamUnsubscribe,
     fullScreenUnsubscribe,
     emitStream: (event) => {
