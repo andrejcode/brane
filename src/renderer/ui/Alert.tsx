@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Button } from './Button'
+import { BaseButton } from './BaseButton'
 
 export type AlertVariant = 'error' | 'success' | 'info'
 
@@ -87,7 +87,7 @@ export default function Alert({
           <span className="sr-only">{variantLabel[variant]}: </span>
           {message}
         </span>
-        <Button
+        <BaseButton
           type="button"
           onClick={handleClose}
           className="ml-2 shrink-0 rounded"
@@ -95,7 +95,7 @@ export default function Alert({
           title="Close alert"
         >
           <X />
-        </Button>
+        </BaseButton>
       </div>
     )
   )

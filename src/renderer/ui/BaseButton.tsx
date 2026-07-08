@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 
-interface ButtonProps {
+interface BaseButtonProps {
   children: React.ReactNode
   className?: string | undefined
   type: 'button' | 'submit' | 'reset'
@@ -20,7 +20,7 @@ interface ButtonProps {
     | undefined
 }
 
-export function Button({
+export function BaseButton({
   children,
   className,
   type,
@@ -34,7 +34,7 @@ export function Button({
   ariaControls,
   tabIndex,
   onKeyDown,
-}: ButtonProps) {
+}: BaseButtonProps) {
   const buttonClassName = clsx(
     'focus:outline-none focus-visible:ring-2',
     'cursor-pointer disabled:cursor-not-allowed',

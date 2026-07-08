@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { Button } from './Button'
+import { BaseButton } from './BaseButton'
 
 interface GhostButtonProps {
   children: React.ReactNode
@@ -41,7 +41,7 @@ export function GhostButton({
   onKeyDown,
 }: GhostButtonProps) {
   return (
-    <Button
+    <BaseButton
       type="button"
       className={clsx(
         '[app-region:no-drag]',
@@ -64,6 +64,6 @@ export function GhostButton({
       onKeyDown={onKeyDown}
     >
       {children}
-    </Button>
+    </BaseButton>
   )
 }

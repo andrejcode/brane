@@ -1,20 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { Button } from '../Button'
+import { BaseButton } from '../BaseButton'
 
-describe('Button', () => {
+describe('BaseButton', () => {
   it('renders its children', () => {
-    render(<Button type="button">Send</Button>)
+    render(<BaseButton type="button">Send</BaseButton>)
 
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument()
   })
 
   it('uses ariaLabel as its accessible name', () => {
     render(
-      <Button type="button" ariaLabel="Send message">
+      <BaseButton type="button" ariaLabel="Send message">
         →
-      </Button>,
+      </BaseButton>,
     )
 
     expect(
@@ -25,9 +25,9 @@ describe('Button', () => {
   it('calls onClick when clicked', async () => {
     const onClick = vi.fn()
     render(
-      <Button type="button" onClick={onClick}>
+      <BaseButton type="button" onClick={onClick}>
         Send
-      </Button>,
+      </BaseButton>,
     )
 
     await userEvent.click(screen.getByRole('button', { name: 'Send' }))
@@ -38,9 +38,9 @@ describe('Button', () => {
   it('does not fire onClick while disabled', async () => {
     const onClick = vi.fn()
     render(
-      <Button type="button" onClick={onClick} disabled>
+      <BaseButton type="button" onClick={onClick} disabled>
         Send
-      </Button>,
+      </BaseButton>,
     )
 
     await userEvent.click(screen.getByRole('button', { name: 'Send' }))

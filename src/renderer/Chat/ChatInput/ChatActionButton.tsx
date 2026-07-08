@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { Button } from '@/ui/Button'
+import { BaseButton } from '@/ui/BaseButton'
 
 interface ChatActionButtonProps {
   children: React.ReactNode
@@ -19,7 +19,7 @@ export function ChatActionButton({
   onClick,
 }: ChatActionButtonProps) {
   return (
-    <Button
+    <BaseButton
       type={type}
       title={title}
       ariaLabel={ariaLabel}
@@ -36,6 +36,6 @@ export function ChatActionButton({
       )}
     >
       {children}
-    </Button>
+    </BaseButton>
   )
 }

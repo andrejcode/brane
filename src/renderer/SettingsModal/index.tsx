@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/ui/Button'
+import { BaseButton } from '@/ui/BaseButton'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
 import { type SettingsTabId, SettingsSidebar, TABS } from './SettingsSidebar'
@@ -26,14 +26,14 @@ export function SettingsModal() {
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex shrink-0 items-center justify-between p-3">
             <h3 className="text-xl">{activeLabel}</h3>
-            <Button
+            <BaseButton
               type="button"
               onClick={closeModal}
               title="Close settings"
               className="rounded-lg"
             >
               <X />
-            </Button>
+            </BaseButton>
           </div>
 
           <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
