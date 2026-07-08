@@ -17,6 +17,8 @@ export interface MockElectronApi {
   setSelectedModel: ReturnType<typeof vi.fn>
   getSendWithModifierEnter: ReturnType<typeof vi.fn>
   setSendWithModifierEnter: ReturnType<typeof vi.fn>
+  openLogs: ReturnType<typeof vi.fn>
+  deleteLogs: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
@@ -73,6 +75,8 @@ export function installMockElectronApi(
   const setSendWithModifierEnter = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
+  const openLogs = vi.fn((): Promise<void> => Promise.resolve())
+  const deleteLogs = vi.fn((): Promise<void> => Promise.resolve())
 
   const streamResponse = vi.fn(
     (callback: (event: LlamaStreamEvent) => void): (() => void) => {
@@ -112,6 +116,8 @@ export function installMockElectronApi(
     setSelectedModel,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    openLogs,
+    deleteLogs,
   }
 
   window.electronApi = electronApi
@@ -132,6 +138,8 @@ export function installMockElectronApi(
     setSelectedModel,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    openLogs,
+    deleteLogs,
     streamUnsubscribe,
     fullScreenUnsubscribe,
     emitStream: (event) => {

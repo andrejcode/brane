@@ -4,6 +4,7 @@ import { IpcChannels } from '@shared/types'
 import { registerChatSettingsHandlers } from './chatSettings'
 import { registerLlamaHandlers, resetLlamaSession } from './llama'
 import { cleanupOldLogs, logger } from './logger'
+import { registerLogsHandlers } from './logs'
 import { registerModelHandlers } from './model'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
@@ -36,6 +37,7 @@ void app.whenReady().then(() => {
 
   registerThemeHandlers()
   registerChatSettingsHandlers()
+  registerLogsHandlers()
   registerLlamaHandlers()
   registerModelHandlers({
     onSelectedModelChange: () => {

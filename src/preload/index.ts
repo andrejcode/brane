@@ -95,6 +95,12 @@ const electronApi: ElectronApi = {
     )
     return saved === true
   },
+  openLogs: async () => {
+    await ipcRenderer.invoke(IpcChannels.openLogs)
+  },
+  deleteLogs: async () => {
+    await ipcRenderer.invoke(IpcChannels.deleteLogs)
+  },
 }
 
 contextBridge.exposeInMainWorld('electronApi', electronApi)

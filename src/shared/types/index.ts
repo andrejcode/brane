@@ -18,6 +18,9 @@ export const IpcChannels = {
 
   getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',
   setSendWithModifierEnter: 'chat-settings:set-send-with-modifier-enter',
+
+  openLogs: 'logs:open',
+  deleteLogs: 'logs:delete',
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'

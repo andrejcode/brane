@@ -19,6 +19,8 @@ declare global {
     setSelectedModel: (model: string | null) => Promise<string | null>
     getSendWithModifierEnter: () => Promise<boolean>
     setSendWithModifierEnter: (enabled: boolean) => Promise<boolean>
+    openLogs: () => Promise<void>
+    deleteLogs: () => Promise<void>
   }
 
   interface Window {
