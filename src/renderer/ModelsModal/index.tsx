@@ -1,6 +1,6 @@
-import { Check, CircleStop, Search, X } from 'lucide-react'
+import { Check, CircleStop, Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BaseButton } from '@/ui/BaseButton'
+import { CloseButton } from '@/ui/CloseButton'
 import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
@@ -110,14 +110,11 @@ export function ModelsModal() {
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed"
           />
         </div>
-        <BaseButton
-          type="button"
+        <CloseButton
           onClick={closeModal}
           title="Close models"
           className="rounded-lg"
-        >
-          <X />
-        </BaseButton>
+        />
       </div>
       <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
 
