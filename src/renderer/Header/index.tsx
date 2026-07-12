@@ -22,11 +22,11 @@ interface HeaderProps {
 export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
-  const { selectedModel, loadingModel } = useModel()
+  const { loadedModel, loadingModel } = useModel()
   const isLoadingModel = loadingModel !== null
-  const selectedModelLabel = selectedModel
-    ? formatModelName(selectedModel)
-    : 'Select model'
+  // Reflect what's actually loaded, not just selected: a model that was picked
+  // but never finished loading (canceled or failed) shouldn't show its name.
+  const modelLabel = loadedModel ? formatModelName(loadedModel) : 'Select model'
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
@@ -90,14 +90,14 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title={isLoadingModel ? 'Loading model' : selectedModelLabel}
+            title={isLoadingModel ? 'Loading model' : modelLabel}
             ariaLabel="Select model"
             onClick={() => openModal('models')}
           >
             {isLoadingModel ? (
               <LoadingSpinner isLoading size={20} />
             ) : (
-              <span className="max-w-64 truncate">{selectedModelLabel}</span>
+              <span className="max-w-64 truncate">{modelLabel}</span>
             )}
             <ChevronRight size={18} className="shrink-0" />
           </GhostButton>

@@ -132,6 +132,25 @@ describe('Header on non-mac', () => {
       screen.queryByRole('status', { name: 'Loading' }),
     ).not.toBeInTheDocument()
   })
+
+  it('falls back to "Select model" when the selected model never finishes loading', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({
+      isMac: false,
+      models: ['my-model.gguf'],
+      selectedModel: 'my-model.gguf',
+    })
+    // A model that's selected but fails to load (or is canceled) must not show
+    // its name, since it isn't actually loaded.
+    mock.loadModel.mockRejectedValue(new Error('load failed'))
+
+    renderHeader()
+
+    await waitFor(() => {
+      expect(screen.getByText('Select model')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('my-model')).not.toBeInTheDocument()
+  })
 })
 
 describe('Header on mac', () => {
