@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { getErrorMessage } from '@shared/getErrorMessage'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
@@ -211,8 +210,8 @@ export function Chat() {
       },
     ])
 
-    void window.electronApi.sendPrompt(prompt).catch((error: unknown) => {
-      showAlert(getErrorMessage(error), 'error')
+    void window.electronApi.sendPrompt(prompt).catch(() => {
+      showAlert('Failed to send your message. Please try again.', 'error')
       setMessages((currentMessages) =>
         currentMessages.filter((message) => message.id !== assistantMessageId),
       )

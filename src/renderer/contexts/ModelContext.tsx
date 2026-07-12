@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { getErrorMessage } from '@shared/getErrorMessage'
 import { useAlert } from './AlertContext'
 
 interface ModelContextValue {
@@ -44,19 +43,19 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   const loadIntoMemory = useCallback(
     async (model: string, requestId: number) => {
       try {
-        await window.electronApi.loadModel()
+        await window.electronApi.loadModel(model)
         if (loadRequestRef.current !== requestId) {
           return
         }
         setLoadedModel(model)
-      } catch (error) {
+      } catch {
         // A cancel bumps the request id and settles its own state, so ignore the
         // resulting rejection instead of surfacing it as a load failure.
         if (loadRequestRef.current !== requestId) {
           return
         }
         setLoadedModel(null)
-        showAlert(getErrorMessage(error), 'error')
+        showAlert('Failed to load the model. Please try again.', 'error')
       } finally {
         if (loadRequestRef.current === requestId) {
           setLoadingModel(null)
@@ -125,13 +124,13 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         } else {
           setLoadingModel(null)
         }
-      } catch (error) {
+      } catch {
         if (loadRequestRef.current !== requestId) {
           return
         }
         setLoadingModel(null)
         setLoadedModel(null)
-        showAlert(getErrorMessage(error), 'error')
+        showAlert('Failed to load the model. Please try again.', 'error')
       }
     },
     [loadingModel, loadedModel, loadIntoMemory, showAlert],
@@ -148,8 +147,8 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       await window.electronApi.unloadModel()
       await window.electronApi.setSelectedModel(null)
       setSelectedModel(null)
-    } catch (error) {
-      showAlert(getErrorMessage(error), 'error')
+    } catch {
+      showAlert('Failed to unload the model. Please try again.', 'error')
     }
   }, [showAlert])
 

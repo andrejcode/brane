@@ -28,6 +28,7 @@ vi.mock('electron', () => ({
 
 vi.mock('../../model', () => ({
   getSelectedModelPath: vi.fn(() => '/fake/models/model.gguf'),
+  getModelPath: vi.fn(() => '/fake/models/model.gguf'),
 }))
 
 vi.mock('node-llama-cpp', () => ({
@@ -146,7 +147,7 @@ describe('llama send-prompt handler', () => {
     )
   })
 
-  it('sends an error event with the raw message when generation fails without an abort', async () => {
+  it('sends an error event with a friendly message when generation fails without an abort', async () => {
     promptWithMeta.mockRejectedValueOnce(new Error('boom'))
 
     const { event, send } = createEvent()
@@ -154,7 +155,7 @@ describe('llama send-prompt handler', () => {
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'error',
-      message: 'boom',
+      message: 'The model failed to generate a response. Please try again.',
     })
   })
 
@@ -170,8 +171,14 @@ describe('llama send-prompt handler', () => {
 describe('llama load/unload handlers', () => {
   it('loads the model without sending a prompt', async () => {
     await expect(
-      getHandler(IpcChannels.llamaLoadModel)(),
+      getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
     ).resolves.toBeUndefined()
+  })
+
+  it('rejects a load with a clear message when no model is provided', async () => {
+    await expect(
+      getHandler(IpcChannels.llamaLoadModel)({}, undefined),
+    ).rejects.toThrow('No model selected. Please select a model in settings.')
   })
 
   it('reuses the loaded session for a subsequent prompt', async () => {
@@ -180,7 +187,7 @@ describe('llama load/unload handlers', () => {
       stopReason: 'eogToken',
     })
 
-    await getHandler(IpcChannels.llamaLoadModel)()
+    await getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
 
     const { event, send } = createEvent()
     await getHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
@@ -193,7 +200,7 @@ describe('llama load/unload handlers', () => {
   })
 
   it('unloads without throwing when no generation is in flight', async () => {
-    await getHandler(IpcChannels.llamaLoadModel)()
+    await getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
 
     await expect(
       getHandler(IpcChannels.llamaUnloadModel)(),
@@ -245,7 +252,10 @@ describe('llama load/unload handlers', () => {
         }),
     )
 
-    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)()
+    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)(
+      {},
+      'model.gguf',
+    )
     await vi.waitFor(() => {
       expect(loadModelMock).toHaveBeenCalledTimes(1)
     })
@@ -255,7 +265,7 @@ describe('llama load/unload handlers', () => {
 
     // The next load uses the default resolving mock and should complete.
     await expect(
-      getHandler(IpcChannels.llamaLoadModel)(),
+      getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
     ).resolves.toBeUndefined()
     expect(loadModelMock).toHaveBeenCalledTimes(2)
   })
@@ -270,7 +280,10 @@ describe('llama load/unload handlers', () => {
         }),
     )
 
-    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)()
+    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)(
+      {},
+      'model.gguf',
+    )
     await vi.waitFor(() => {
       expect(createContextMock).toHaveBeenCalled()
     })

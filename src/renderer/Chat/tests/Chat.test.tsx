@@ -1,7 +1,6 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { getErrorMessage } from '@shared/getErrorMessage'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -54,16 +53,6 @@ async function submitPrompt(text: string) {
   await user.type(screen.getByPlaceholderText('Ask anything'), text)
   await user.click(screen.getByRole('button', { name: 'Send message' }))
 }
-
-describe('getErrorMessage', () => {
-  it('uses the message from Error instances', () => {
-    expect(getErrorMessage(new Error('boom'))).toBe('boom')
-  })
-
-  it('falls back for non-Error values', () => {
-    expect(getErrorMessage('nope')).toBe('An unknown error occurred.')
-  })
-})
 
 describe('Chat intro greeting', () => {
   it('shows a random intro greeting centered when there are no messages', () => {
@@ -177,13 +166,15 @@ describe('Chat without a selected model', () => {
 })
 
 describe('Chat error handling', () => {
-  it('shows an alert when sendPrompt rejects', async () => {
+  it('shows a friendly alert when sendPrompt rejects', async () => {
     mock.sendPrompt.mockRejectedValueOnce(new Error('network down'))
     renderChat()
 
     await submitPrompt('hi')
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('network down')
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to send your message. Please try again.',
+    )
   })
 })
 

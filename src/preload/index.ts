@@ -32,8 +32,8 @@ const electronApi: ElectronApi = {
   stopGeneration: async () => {
     await ipcRenderer.invoke(IpcChannels.llamaStopGeneration)
   },
-  loadModel: async () => {
-    await ipcRenderer.invoke(IpcChannels.llamaLoadModel)
+  loadModel: async (model: string) => {
+    await ipcRenderer.invoke(IpcChannels.llamaLoadModel, model)
   },
   unloadModel: async () => {
     await ipcRenderer.invoke(IpcChannels.llamaUnloadModel)

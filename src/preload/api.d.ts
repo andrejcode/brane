@@ -9,7 +9,7 @@ declare global {
     ) => () => void
     sendPrompt: (prompt: string) => Promise<void>
     stopGeneration: () => Promise<void>
-    loadModel: () => Promise<void>
+    loadModel: (model: string) => Promise<void>
     unloadModel: () => Promise<void>
     streamResponse: (callback: (event: LlamaStreamEvent) => void) => () => void
     notifyAppReady: () => void

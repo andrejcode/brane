@@ -6,10 +6,9 @@ import {
   type LlamaChatResponseChunk,
   type LlamaModel,
 } from 'node-llama-cpp'
-import { getErrorMessage } from '@shared/getErrorMessage'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
 import { logger } from '../logger'
-import { getSelectedModelPath } from '../model'
+import { getModelPath, getSelectedModelPath } from '../model'
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
 let loadedModel: LlamaModel | undefined
@@ -19,7 +18,7 @@ let isGenerating = false
 let activeAbortController: AbortController | undefined
 let activeGeneration: Promise<void> | undefined
 
-async function getSession() {
+async function getSession(modelPath: string | null) {
   // Never load a new model while the previous one is still being disposed.
   if (pendingTeardown) {
     await pendingTeardown
@@ -31,7 +30,7 @@ async function getSession() {
 
     // Don't cache a rejected promise: if loading the model/context fails (or is
     // canceled), clear it so the next attempt can retry from scratch.
-    sessionPromise = createSession(abortController.signal)
+    sessionPromise = createSession(modelPath, abortController.signal)
       .catch((error: unknown) => {
         sessionPromise = undefined
         throw error
@@ -93,11 +92,13 @@ async function initLlama() {
   }
 }
 
-async function loadModel(llama: Llama, signal: AbortSignal) {
-  const modelPath = getSelectedModelPath()
-
+async function loadModel(
+  llama: Llama,
+  modelPath: string | null,
+  signal: AbortSignal,
+) {
   if (modelPath === null) {
-    logger.warn('Prompt attempted with no model selected')
+    logger.warn('Model load attempted with no model selected')
     throw new Error('No model selected. Please select a model in settings.')
   }
 
@@ -148,13 +149,13 @@ async function createContext(model: LlamaModel, signal: AbortSignal) {
   }
 }
 
-async function createSession(signal: AbortSignal) {
+async function createSession(modelPath: string | null, signal: AbortSignal) {
   const llama = await initLlama()
 
   let model: LlamaModel | undefined
 
   try {
-    model = await loadModel(llama, signal)
+    model = await loadModel(llama, modelPath, signal)
     loadedModel = model
 
     const context = await createContext(model, signal)
@@ -214,7 +215,7 @@ async function streamPrompt(
 
   try {
     const responseChunks: string[] = []
-    const session = await getSession()
+    const session = await getSession(getSelectedModelPath())
     const response = await session.promptWithMeta(prompt, {
       signal: abortController.signal,
       stopOnAbortSignal: true,
@@ -253,7 +254,7 @@ async function streamPrompt(
       logger.error('Generation failed', error)
       sendStreamEvent(sender, {
         type: 'error',
-        message: getErrorMessage(error),
+        message: 'The model failed to generate a response. Please try again.',
       })
     }
   } finally {
@@ -295,9 +296,12 @@ export function registerLlamaHandlers() {
   })
 
   // Warms the session up front so the first prompt isn't delayed by loading.
-  ipcMain.handle(IpcChannels.llamaLoadModel, async () => {
+  // The exact model is passed in rather than read from the store, so a rapid
+  // reselect can't leave this loading a model the user already switched away from.
+  ipcMain.handle(IpcChannels.llamaLoadModel, async (_event, model: unknown) => {
     logger.info('Model load requested')
-    await getSession()
+    const modelPath = typeof model === 'string' ? getModelPath(model) : null
+    await getSession(modelPath)
   })
 
   // Also serves as "cancel": unloading aborts an in-flight load, not just a

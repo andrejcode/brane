@@ -78,6 +78,11 @@ export function getSelectedModelPath(): string | null {
   return selected === null ? null : path.join(modelsDir, selected)
 }
 
+// Resolves a specific model name to its path, or null if it no longer exists.
+export function getModelPath(name: string): string | null {
+  return modelExists(name) ? path.join(modelsDir, name) : null
+}
+
 interface RegisterModelHandlersOptions {
   onSelectedModelChange: () => void
 }

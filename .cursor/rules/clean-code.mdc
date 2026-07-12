@@ -26,7 +26,7 @@ stay unnecessary.
 ## Error Handling
 
 - Swallow-and-fallback for non-critical reads (return `[]`/`null`); rethrow user-facing `Error` messages for actionable failures.
-- Normalize unknown errors with the shared `getErrorMessage` helper rather than assuming `.message`.
+- Write your own custom, user-facing message where an error is surfaced rather than passing the caught error's `.message` through; log the raw error for debugging.
 
 ## Formatting
 

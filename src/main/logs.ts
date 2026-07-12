@@ -1,7 +1,6 @@
 import { ipcMain, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import { getErrorMessage } from '@shared/getErrorMessage'
 import { IpcChannels } from '@shared/types'
 import { logger } from './logger'
 import { logsDir } from './paths'
@@ -46,7 +45,7 @@ export function registerLogsHandlers() {
       await deleteLogFiles()
     } catch (error) {
       logger.error('Failed to delete logs', error)
-      throw new Error(getErrorMessage(error))
+      throw new Error('Failed to delete logs. Please try again.')
     }
   })
 }
