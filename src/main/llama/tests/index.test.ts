@@ -4,10 +4,18 @@ import { registerLlamaHandlers } from '../index'
 
 type IpcHandler = (...args: unknown[]) => unknown
 
-const { ipcHandlers, promptWithMeta, dispose } = vi.hoisted(() => ({
+const {
+  ipcHandlers,
+  promptWithMeta,
+  dispose,
+  loadModelMock,
+  createContextMock,
+} = vi.hoisted(() => ({
   ipcHandlers: new Map<string, IpcHandler>(),
   promptWithMeta: vi.fn(),
   dispose: vi.fn(() => Promise.resolve()),
+  loadModelMock: vi.fn(),
+  createContextMock: vi.fn(),
 }))
 
 vi.mock('electron', () => ({
@@ -23,30 +31,24 @@ vi.mock('../../model', () => ({
 }))
 
 vi.mock('node-llama-cpp', () => ({
-  getLlama: vi.fn(() =>
-    Promise.resolve({
-      loadModel: vi.fn(() =>
-        Promise.resolve({
-          filename: 'model.gguf',
-          size: 4 * 1024 ** 3,
-          trainContextSize: 4096,
-          gpuLayers: 32,
-          fileInsights: { totalLayers: 32 },
-          getWarnings: vi.fn(() => []),
-          createContext: vi.fn(() =>
-            Promise.resolve({
-              getSequence: vi.fn(() => ({})),
-            }),
-          ),
-          dispose,
-        }),
-      ),
-    }),
-  ),
+  getLlama: vi.fn(() => Promise.resolve({ loadModel: loadModelMock })),
   LlamaChatSession: class {
     promptWithMeta = promptWithMeta
   },
 }))
+
+function createFakeModel() {
+  return {
+    filename: 'model.gguf',
+    size: 4 * 1024 ** 3,
+    trainContextSize: 4096,
+    gpuLayers: 32,
+    fileInsights: { totalLayers: 32 },
+    getWarnings: () => [],
+    createContext: createContextMock,
+    dispose,
+  }
+}
 
 function getHandler(channel: string): IpcHandler {
   const handler = ipcHandlers.get(channel)
@@ -73,10 +75,18 @@ function getStreamEvents(send: ReturnType<typeof vi.fn>): LlamaStreamEvent[] {
 
 beforeEach(() => {
   promptWithMeta.mockReset()
+  loadModelMock.mockReset()
+  createContextMock.mockReset()
+  dispose.mockClear()
+  createContextMock.mockResolvedValue({ getSequence: () => ({}) })
+  loadModelMock.mockImplementation(() => Promise.resolve(createFakeModel()))
   registerLlamaHandlers()
 })
 
-afterEach(() => {
+afterEach(async () => {
+  // The llama module keeps the loaded model/session in module state, so reset it
+  // between tests to keep them independent.
+  await getHandler(IpcChannels.llamaUnloadModel)()
   vi.clearAllMocks()
 })
 
@@ -220,6 +230,54 @@ describe('llama load/unload handlers', () => {
       response: 'partial',
       stopped: true,
     })
+    expect(dispose).toHaveBeenCalled()
+  })
+
+  it('cancels an in-flight load and lets a later load succeed', async () => {
+    // A load that only settles once its abort signal fires, mirroring how
+    // node-llama-cpp rejects loadModel when loadSignal aborts.
+    loadModelMock.mockImplementationOnce(
+      (options: { loadSignal: AbortSignal }) =>
+        new Promise((_resolve, reject) => {
+          options.loadSignal.addEventListener('abort', () => {
+            reject(new Error('The load was aborted'))
+          })
+        }),
+    )
+
+    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)()
+    await vi.waitFor(() => {
+      expect(loadModelMock).toHaveBeenCalledTimes(1)
+    })
+
+    await getHandler(IpcChannels.llamaUnloadModel)()
+    await expect(canceledLoad).rejects.toThrow()
+
+    // The next load uses the default resolving mock and should complete.
+    await expect(
+      getHandler(IpcChannels.llamaLoadModel)(),
+    ).resolves.toBeUndefined()
+    expect(loadModelMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('disposes the model when a load is canceled during context creation', async () => {
+    createContextMock.mockImplementationOnce(
+      (options: { createSignal: AbortSignal }) =>
+        new Promise((_resolve, reject) => {
+          options.createSignal.addEventListener('abort', () => {
+            reject(new Error('The context creation was aborted'))
+          })
+        }),
+    )
+
+    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)()
+    await vi.waitFor(() => {
+      expect(createContextMock).toHaveBeenCalled()
+    })
+
+    await getHandler(IpcChannels.llamaUnloadModel)()
+    await expect(canceledLoad).rejects.toThrow()
+    // The model finished loading before the cancel, so it must be disposed.
     expect(dispose).toHaveBeenCalled()
   })
 })

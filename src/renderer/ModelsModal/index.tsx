@@ -164,16 +164,27 @@ export function ModelsModal() {
                       isLoaded && <Check size={18} className="shrink-0" />
                     )}
                   </GhostButton>
-                  {isLoaded && !isModelLoading && (
+                  {isModelLoading ? (
                     <GhostButton
                       className="flex shrink-0 items-center justify-center px-2"
-                      disabled={isLoading}
-                      title="Unload model"
-                      ariaLabel="Unload model"
+                      title="Stop loading"
+                      ariaLabel="Stop loading"
                       onClick={handleUnload}
                     >
                       <CircleStop size={22} />
                     </GhostButton>
+                  ) : (
+                    isLoaded && (
+                      <GhostButton
+                        className="flex shrink-0 items-center justify-center px-2"
+                        disabled={isLoading}
+                        title="Unload model"
+                        ariaLabel="Unload model"
+                        onClick={handleUnload}
+                      >
+                        <CircleStop size={22} />
+                      </GhostButton>
+                    )
                   )}
                 </li>
               )

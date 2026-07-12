@@ -151,6 +151,51 @@ describe('ModelsModal', () => {
     ).toBeInTheDocument()
   })
 
+  it('cancels an in-flight load and ignores its late resolution when Stop loading is clicked', async () => {
+    mock = installMockElectronApi({
+      models: ['alpha.gguf'],
+      selectedModel: null,
+    })
+    let resolveLoad: () => void = () => {}
+    mock.loadModel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveLoad = resolve
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await user.click(await screen.findByRole('button', { name: 'alpha' }))
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Stop loading' }),
+    )
+
+    await waitFor(() => {
+      expect(mock.unloadModel).toHaveBeenCalled()
+    })
+    expect(mock.setSelectedModel).toHaveBeenCalledWith(null)
+    expect(
+      screen.queryByRole('status', { name: 'Loading' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Stop loading' }),
+    ).not.toBeInTheDocument()
+
+    // A load that finishes after the cancel must not mark the model as loaded.
+    act(() => {
+      resolveLoad()
+    })
+
+    await waitFor(() => {
+      expect(mock.setSelectedModel).toHaveBeenCalledWith(null)
+    })
+    expect(
+      screen.queryByRole('button', { name: 'Unload model' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('unloads the current model before loading a newly selected one, hiding the eject button while loading', async () => {
     mock = installMockElectronApi({
       models: ['alpha.gguf', 'beta.gguf'],

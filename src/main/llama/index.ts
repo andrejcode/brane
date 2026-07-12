@@ -13,26 +13,42 @@ import { getSelectedModelPath } from '../model'
 
 let sessionPromise: Promise<LlamaChatSession> | undefined
 let loadedModel: LlamaModel | undefined
+let loadAbortController: AbortController | undefined
+let pendingTeardown: Promise<void> | undefined
 let isGenerating = false
 let activeAbortController: AbortController | undefined
 let activeGeneration: Promise<void> | undefined
 
-function getSession() {
-  // Don't cache a rejected promise: if loading the model/context fails, clear
-  // it so the next prompt can retry instead of reusing the failed attempt.
-  sessionPromise ??= createSession().catch((error: unknown) => {
-    sessionPromise = undefined
-    throw error
-  })
+async function getSession() {
+  // Never load a new model while the previous one is still being disposed.
+  if (pendingTeardown) {
+    await pendingTeardown
+  }
+
+  if (sessionPromise === undefined) {
+    const abortController = new AbortController()
+    loadAbortController = abortController
+
+    // Don't cache a rejected promise: if loading the model/context fails (or is
+    // canceled), clear it so the next attempt can retry from scratch.
+    sessionPromise = createSession(abortController.signal)
+      .catch((error: unknown) => {
+        sessionPromise = undefined
+        throw error
+      })
+      .finally(() => {
+        if (loadAbortController === abortController) {
+          loadAbortController = undefined
+        }
+      })
+  }
 
   return sessionPromise
 }
 
-// Tears down the active session and disposes the model. Awaits the dispose so
-// callers can guarantee the model is fully unloaded before loading another one,
-// since holding two models resident at once can exhaust the hardware.
-// TODO: Separate the session and model disposal into two functions.
-export async function resetLlamaSession() {
+// Awaits the dispose so the model is fully freed before another is loaded; two
+// resident models can exhaust the hardware.
+async function resetLlamaSession() {
   sessionPromise = undefined
 
   const modelToDispose = loadedModel
@@ -41,6 +57,30 @@ export async function resetLlamaSession() {
   if (modelToDispose) {
     logger.info(`Disposing model: ${modelToDispose.filename}`)
     await modelToDispose.dispose()
+  }
+}
+
+// Aborts any in-flight generation and model load, then disposes. Serialized
+// through `pendingTeardown` so a concurrent load waits for it to finish.
+export async function unloadLlamaModel() {
+  activeAbortController?.abort()
+  loadAbortController?.abort()
+
+  const teardown = (async () => {
+    await activeGeneration
+    // A canceled load rejects after disposing its own partial model; wait for it
+    // to settle before the final reset.
+    await sessionPromise?.catch(() => {})
+    await resetLlamaSession()
+  })()
+  pendingTeardown = teardown
+
+  try {
+    await teardown
+  } finally {
+    if (pendingTeardown === teardown) {
+      pendingTeardown = undefined
+    }
   }
 }
 
@@ -53,7 +93,7 @@ async function initLlama() {
   }
 }
 
-async function loadModel(llama: Llama) {
+async function loadModel(llama: Llama, signal: AbortSignal) {
   const modelPath = getSelectedModelPath()
 
   if (modelPath === null) {
@@ -64,7 +104,7 @@ async function loadModel(llama: Llama) {
   logger.info(`Loading model: ${modelPath}`)
 
   try {
-    const model = await llama.loadModel({ modelPath })
+    const model = await llama.loadModel({ modelPath, loadSignal: signal })
 
     logger.info(
       `Model loaded: ${model.filename ?? modelPath}\n`,
@@ -79,6 +119,12 @@ async function loadModel(llama: Llama) {
 
     return model
   } catch (error) {
+    // A canceled load isn't a failure; let the abort propagate untouched.
+    if (signal.aborted) {
+      logger.info(`Model load canceled: ${modelPath}`)
+      throw error
+    }
+
     logger.error(`Failed to load model: ${modelPath}`, error)
     throw new Error(
       'Failed to load the selected model. Make sure the model file exists and is a valid model.',
@@ -86,10 +132,15 @@ async function loadModel(llama: Llama) {
   }
 }
 
-async function createContext(model: LlamaModel) {
+async function createContext(model: LlamaModel, signal: AbortSignal) {
   try {
-    return await model.createContext()
+    return await model.createContext({ createSignal: signal })
   } catch (error) {
+    if (signal.aborted) {
+      logger.info('Model context creation canceled')
+      throw error
+    }
+
     logger.error('Failed to create model context', error)
     throw new Error(
       'Failed to create a model context. The model may require more memory than is available.',
@@ -97,21 +148,36 @@ async function createContext(model: LlamaModel) {
   }
 }
 
-async function createSession() {
+async function createSession(signal: AbortSignal) {
   const llama = await initLlama()
-  const model = await loadModel(llama)
-  loadedModel = model
-  const context = await createContext(model)
+
+  let model: LlamaModel | undefined
 
   try {
-    const session = new LlamaChatSession({
-      contextSequence: context.getSequence(),
-    })
-    logger.info('Chat session ready')
-    return session
+    model = await loadModel(llama, signal)
+    loadedModel = model
+
+    const context = await createContext(model, signal)
+
+    try {
+      const session = new LlamaChatSession({
+        contextSequence: context.getSequence(),
+      })
+      logger.info('Chat session ready')
+      return session
+    } catch (error) {
+      logger.error('Failed to start a chat session', error)
+      throw new Error('Failed to start a chat session. Please try again.')
+    }
   } catch (error) {
-    logger.error('Failed to start a chat session', error)
-    throw new Error('Failed to start a chat session. Please try again.')
+    // If the model loaded before we failed or were canceled, dispose it here so
+    // we never leak a resident model that nothing else tracks.
+    if (model !== undefined) {
+      loadedModel = undefined
+      await model.dispose()
+    }
+
+    throw error
   }
 }
 
@@ -234,12 +300,10 @@ export function registerLlamaHandlers() {
     await getSession()
   })
 
-  // Unloading mid-stream aborts the generation first and waits for it to unwind
-  // so the model isn't disposed while native code is still using it.
+  // Also serves as "cancel": unloading aborts an in-flight load, not just a
+  // running generation.
   ipcMain.handle(IpcChannels.llamaUnloadModel, async () => {
     logger.info('Model unload requested')
-    activeAbortController?.abort()
-    await activeGeneration
-    await resetLlamaSession()
+    await unloadLlamaModel()
   })
 }

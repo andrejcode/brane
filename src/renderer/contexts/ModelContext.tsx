@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { getErrorMessage } from '@shared/getErrorMessage'
@@ -30,24 +31,36 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [loadedModel, setLoadedModel] = useState<string | null>(null)
 
+  // Bumped whenever a load is cancelled or superseded, so a stale in-flight load
+  // can't clobber newer UI state when it finally settles.
+  const loadRequestRef = useRef(0)
+
   const refreshModels = useCallback(async () => {
     const state = await window.electronApi.getModelState()
     setModels(state.models)
     setSelectedModel(state.selectedModel)
   }, [])
 
-  const loadModel = useCallback(
-    async (model: string) => {
-      setLoadingModel(model)
-
+  const loadIntoMemory = useCallback(
+    async (model: string, requestId: number) => {
       try {
         await window.electronApi.loadModel()
+        if (loadRequestRef.current !== requestId) {
+          return
+        }
         setLoadedModel(model)
       } catch (error) {
+        // A cancel bumps the request id and settles its own state, so ignore the
+        // resulting rejection instead of surfacing it as a load failure.
+        if (loadRequestRef.current !== requestId) {
+          return
+        }
         setLoadedModel(null)
         showAlert(getErrorMessage(error), 'error')
       } finally {
-        setLoadingModel(null)
+        if (loadRequestRef.current === requestId) {
+          setLoadingModel(null)
+        }
       }
     },
     [showAlert],
@@ -69,7 +82,9 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         // Load the persisted selection up front so the model is ready before
         // the first prompt instead of paying the cost on send.
         if (state.selectedModel !== null) {
-          void loadModel(state.selectedModel)
+          const requestId = ++loadRequestRef.current
+          setLoadingModel(state.selectedModel)
+          void loadIntoMemory(state.selectedModel, requestId)
         }
       })
       .finally(() => {
@@ -81,7 +96,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false
     }
-  }, [loadModel])
+  }, [loadIntoMemory])
 
   const selectModel = useCallback(
     async (model: string) => {
@@ -89,6 +104,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      const requestId = ++loadRequestRef.current
       const previousModel = loadedModel
       setLoadingModel(model)
       setLoadedModel(null)
@@ -99,27 +115,38 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         }
 
         const saved = await window.electronApi.setSelectedModel(model)
+        if (loadRequestRef.current !== requestId) {
+          return
+        }
         setSelectedModel(saved)
 
         if (saved !== null) {
-          await window.electronApi.loadModel()
-          setLoadedModel(saved)
+          await loadIntoMemory(saved, requestId)
+        } else {
+          setLoadingModel(null)
         }
       } catch (error) {
+        if (loadRequestRef.current !== requestId) {
+          return
+        }
+        setLoadingModel(null)
         setLoadedModel(null)
         showAlert(getErrorMessage(error), 'error')
-      } finally {
-        setLoadingModel(null)
       }
     },
-    [loadingModel, loadedModel, showAlert],
+    [loadingModel, loadedModel, loadIntoMemory, showAlert],
   )
 
+  // Serves both ejecting a loaded model and cancelling one that's still loading:
+  // the main process aborts whatever is in flight and disposes the model.
   const unloadModel = useCallback(async () => {
+    loadRequestRef.current++
+    setLoadingModel(null)
+    setLoadedModel(null)
+
     try {
       await window.electronApi.unloadModel()
       await window.electronApi.setSelectedModel(null)
-      setLoadedModel(null)
       setSelectedModel(null)
     } catch (error) {
       showAlert(getErrorMessage(error), 'error')

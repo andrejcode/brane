@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
 import { registerChatSettingsHandlers } from './chatSettings'
-import { registerLlamaHandlers, resetLlamaSession } from './llama'
+import { registerLlamaHandlers, unloadLlamaModel } from './llama'
 import { cleanupOldLogs, logger } from './logger'
 import { registerLogsHandlers } from './logs'
 import { registerModelHandlers } from './model'
@@ -41,7 +41,7 @@ void app.whenReady().then(() => {
   registerLlamaHandlers()
   registerModelHandlers({
     onSelectedModelChange: () => {
-      void resetLlamaSession().catch((error: unknown) => {
+      void unloadLlamaModel().catch((error: unknown) => {
         logger.error('Failed to reset the llama session', error)
       })
     },
@@ -62,5 +62,32 @@ app.on('window-all-closed', () => {
   // Quit the app when all windows are closed (Windows & Linux)
   if (process.platform !== 'darwin') {
     app.quit()
+    return
   }
+
+  // On macOS the process stays alive after the window closes, so the model would
+  // otherwise sit resident in memory. Free it; it reloads on reactivate.
+  void unloadLlamaModel().catch((error: unknown) => {
+    logger.error('Failed to unload the model after window close', error)
+  })
+})
+
+// Dispose the model gracefully before exiting. Defer the quit until teardown
+// finishes so native resources are released cleanly rather than on hard exit.
+let isQuitting = false
+app.on('before-quit', (event) => {
+  if (isQuitting) {
+    return
+  }
+
+  isQuitting = true
+  event.preventDefault()
+
+  void unloadLlamaModel()
+    .catch((error: unknown) => {
+      logger.error('Failed to unload the model during quit', error)
+    })
+    .finally(() => {
+      app.quit()
+    })
 })
