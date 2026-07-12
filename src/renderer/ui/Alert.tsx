@@ -1,5 +1,7 @@
 import { clsx } from 'clsx'
 import { useEffect, useState } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
+import type { MessageKey } from '@/i18n'
 import { CloseButton } from './CloseButton'
 
 export type AlertVariant = 'error' | 'success' | 'info'
@@ -17,10 +19,10 @@ const indicatorClasses: Record<AlertVariant, string> = {
   info: 'bg-neutral-400 dark:bg-neutral-500',
 }
 
-const variantLabel: Record<AlertVariant, string> = {
-  error: 'Error',
-  success: 'Success',
-  info: 'Information',
+const variantLabelKey: Record<AlertVariant, MessageKey> = {
+  error: 'alert.error',
+  success: 'alert.success',
+  info: 'alert.info',
 }
 
 export default function Alert({
@@ -29,6 +31,7 @@ export default function Alert({
   className,
   onDismiss,
 }: AlertProps) {
+  const { t } = useTranslation()
   const [showAlert, setShowAlert] = useState(true)
   const [fadeClass, setFadeClass] = useState<'opacity-0' | 'opacity-100'>(
     'opacity-0',
@@ -83,13 +86,13 @@ export default function Alert({
           )}
         />
         <span className="max-h-40 min-w-0 flex-1 overflow-y-auto wrap-break-word whitespace-pre-wrap">
-          <span className="sr-only">{variantLabel[variant]}: </span>
+          <span className="sr-only">{t(variantLabelKey[variant])}: </span>
           {message}
         </span>
         <CloseButton
           onClick={handleClose}
           className="ml-2 shrink-0 rounded"
-          title="Close alert"
+          title={t('alert.close')}
         />
       </div>
     )

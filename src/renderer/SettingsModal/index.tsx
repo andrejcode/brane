@@ -3,14 +3,17 @@ import { CloseButton } from '@/ui/CloseButton'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
 import { type SettingsTabId, SettingsSidebar, TABS } from './SettingsSidebar'
+import { useTranslation } from '../contexts/LocaleContext'
 import { useModals } from '../contexts/ModalContext'
 import { Modal } from '../ui/Modal'
 
 export function SettingsModal() {
   const { activeModal, closeModal } = useModals()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<SettingsTabId>('general')
 
-  const activeLabel = TABS.find((tab) => tab.id === activeTab)?.label ?? ''
+  const activeTabLabelKey = TABS.find((tab) => tab.id === activeTab)?.labelKey
+  const activeLabel = activeTabLabelKey ? t(activeTabLabelKey) : ''
 
   return (
     <Modal
@@ -27,7 +30,7 @@ export function SettingsModal() {
             <h3 className="text-xl">{activeLabel}</h3>
             <CloseButton
               onClick={closeModal}
-              title="Close settings"
+              title={t('settings.close')}
               className="rounded-lg"
             />
           </div>

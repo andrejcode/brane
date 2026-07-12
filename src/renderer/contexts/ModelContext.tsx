@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { useAlert } from './AlertContext'
+import { useTranslation } from './LocaleContext'
 
 interface ModelContextValue {
   models: string[]
@@ -24,6 +25,7 @@ const ModelContext = createContext<ModelContextValue | null>(null)
 
 export function ModelProvider({ children }: { children: React.ReactNode }) {
   const { showAlert } = useAlert()
+  const { t } = useTranslation()
   const [models, setModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -55,14 +57,14 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
           return
         }
         setLoadedModel(null)
-        showAlert('Failed to load the model. Please try again.', 'error')
+        showAlert(t('models.loadFailed'), 'error')
       } finally {
         if (loadRequestRef.current === requestId) {
           setLoadingModel(null)
         }
       }
     },
-    [showAlert],
+    [showAlert, t],
   )
 
   useEffect(() => {
@@ -130,10 +132,10 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         }
         setLoadingModel(null)
         setLoadedModel(null)
-        showAlert('Failed to load the model. Please try again.', 'error')
+        showAlert(t('models.loadFailed'), 'error')
       }
     },
-    [loadingModel, loadedModel, loadIntoMemory, showAlert],
+    [loadingModel, loadedModel, loadIntoMemory, showAlert, t],
   )
 
   // Serves both ejecting a loaded model and cancelling one that's still loading:
@@ -148,9 +150,9 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       await window.electronApi.setSelectedModel(null)
       setSelectedModel(null)
     } catch {
-      showAlert('Failed to unload the model. Please try again.', 'error')
+      showAlert(t('models.unloadFailed'), 'error')
     }
-  }, [showAlert])
+  }, [showAlert, t])
 
   const value = useMemo(
     () => ({

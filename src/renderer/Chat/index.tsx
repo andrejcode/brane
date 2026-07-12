@@ -6,11 +6,14 @@ import {
   useRef,
   useState,
 } from 'react'
+import type { Locale } from '@shared/types'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
 import { useChatSettings } from '../contexts/ChatSettingsContext'
+import { useTranslation } from '../contexts/LocaleContext'
 import { useModel } from '../contexts/ModelContext'
+import { introMessagesByLocale } from '../i18n'
 
 export interface ChatMessage {
   id: string
@@ -22,31 +25,22 @@ function createMessageId() {
   return crypto.randomUUID()
 }
 
-export const introMessages = [
-  'How can I help you today?',
-  'What can I do for you?',
-  'What are you working on?',
-  'Where should we start?',
-  "What's on your mind?",
-  'Ready when you are.',
-  "Let's dig in. What's the task?",
-  'What can we tackle together?',
-  "What's next on your list?",
-  'Ask me anything.',
-]
+export const introMessages = introMessagesByLocale.en
 
-function pickIntroMessage() {
-  return introMessages[Math.floor(Math.random() * introMessages.length)]
+function pickIntroMessage(locale: Locale) {
+  const options = introMessagesByLocale[locale]
+  return options[Math.floor(Math.random() * options.length)]
 }
 
 export function Chat() {
   const { showAlert } = useAlert()
   const { selectedModel } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
+  const { t, locale } = useTranslation()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [introMessage] = useState(pickIntroMessage)
+  const [introMessage] = useState(() => pickIntroMessage(locale))
   const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
@@ -187,7 +181,7 @@ export function Chat() {
     }
 
     if (!selectedModel) {
-      showAlert('Please select a model to send a message.', 'info')
+      showAlert(t('chat.selectModelAlert'), 'info')
       return
     }
 
@@ -211,7 +205,7 @@ export function Chat() {
     ])
 
     void window.electronApi.sendPrompt(prompt).catch(() => {
-      showAlert('Failed to send your message. Please try again.', 'error')
+      showAlert(t('chat.sendFailed'), 'error')
       setMessages((currentMessages) =>
         currentMessages.filter((message) => message.id !== assistantMessageId),
       )

@@ -3,6 +3,7 @@ import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
 import { registerChatSettingsHandlers } from './chatSettings'
 import { registerLlamaHandlers, unloadLlamaModel } from './llama'
+import { initializeLocale, registerLocaleHandlers } from './locale'
 import { cleanupOldLogs, logger } from './logger'
 import { registerLogsHandlers } from './logs'
 import { registerModelHandlers } from './model'
@@ -30,12 +31,14 @@ void app.whenReady().then(() => {
   })
 
   initializeTheme()
+  initializeLocale()
 
   ipcMain.handle(IpcChannels.windowIsFullScreen, (event) => {
     return BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false
   })
 
   registerThemeHandlers()
+  registerLocaleHandlers()
   registerChatSettingsHandlers()
   registerLogsHandlers()
   registerLlamaHandlers()

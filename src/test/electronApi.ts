@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { LlamaStreamEvent, Theme } from '@shared/types'
+import type { Locale, LlamaStreamEvent, Theme } from '@shared/types'
 
 export interface MockElectronApi {
   electronApi: ElectronApi
@@ -13,6 +13,8 @@ export interface MockElectronApi {
   notifyAppReady: ReturnType<typeof vi.fn>
   getTheme: ReturnType<typeof vi.fn>
   setTheme: ReturnType<typeof vi.fn>
+  getLocale: ReturnType<typeof vi.fn>
+  setLocale: ReturnType<typeof vi.fn>
   getModelState: ReturnType<typeof vi.fn>
   setSelectedModel: ReturnType<typeof vi.fn>
   getSendWithModifierEnter: ReturnType<typeof vi.fn>
@@ -29,6 +31,7 @@ export interface MockElectronApiOptions {
   isMac?: boolean
   isFullScreen?: boolean
   theme?: Theme
+  locale?: Locale
   models?: string[]
   selectedModel?: string | null
   sendWithModifierEnter?: boolean
@@ -44,6 +47,7 @@ export function installMockElectronApi(
     isMac = false,
     isFullScreen = false,
     theme = 'system',
+    locale = 'en',
     models = [],
     selectedModel = null,
     sendWithModifierEnter = false,
@@ -65,6 +69,10 @@ export function installMockElectronApi(
   const notifyAppReady = vi.fn()
   const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
+  const getLocale = vi.fn((): Promise<Locale> => Promise.resolve(locale))
+  const setLocale = vi.fn(
+    (next: Locale): Promise<Locale> => Promise.resolve(next),
+  )
   const getModelState = vi.fn(() => Promise.resolve({ models, selectedModel }))
   const setSelectedModel = vi.fn(
     (model: string | null): Promise<string | null> => Promise.resolve(model),
@@ -112,6 +120,8 @@ export function installMockElectronApi(
     notifyAppReady,
     getTheme,
     setTheme,
+    getLocale,
+    setLocale,
     getModelState,
     setSelectedModel,
     getSendWithModifierEnter,
@@ -134,6 +144,8 @@ export function installMockElectronApi(
     notifyAppReady,
     getTheme,
     setTheme,
+    getLocale,
+    setLocale,
     getModelState,
     setSelectedModel,
     getSendWithModifierEnter,

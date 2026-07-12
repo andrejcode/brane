@@ -15,6 +15,7 @@ import type {
 } from 'react'
 import { ChatActionButton } from './ChatActionButton'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
+import { useTranslation } from '../../contexts/LocaleContext'
 import { useIsAnyModalOpen } from '../../contexts/ModalContext'
 
 const MAX_ROWS = 8
@@ -43,6 +44,7 @@ export function ChatInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isMultiline, setIsMultiline] = useState(false)
   const isModalOpen = useIsAnyModalOpen()
+  const { t } = useTranslation()
 
   const resize = useCallback(() => {
     const textarea = textareaRef.current
@@ -162,7 +164,7 @@ export function ChatInput({
         value={input}
         onChange={(event) => setInput(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask anything"
+        placeholder={t('chat.inputPlaceholder')}
         rows={1}
         className={clsx(
           'block w-full min-h-6 resize-none pl-4 leading-6',
@@ -173,8 +175,8 @@ export function ChatInput({
       {isSending ? (
         <ChatActionButton
           type="button"
-          title="Stop generating"
-          ariaLabel="Stop generating"
+          title={t('chat.stopGenerating')}
+          ariaLabel={t('chat.stopGenerating')}
           disabled={isModalOpen}
           onClick={onStop}
         >
@@ -183,8 +185,8 @@ export function ChatInput({
       ) : (
         <ChatActionButton
           type="submit"
-          title="Send message"
-          ariaLabel="Send message"
+          title={t('chat.sendMessage')}
+          ariaLabel={t('chat.sendMessage')}
           disabled={isModalOpen || input.trim().length === 0}
         >
           <ArrowUp size={20} />

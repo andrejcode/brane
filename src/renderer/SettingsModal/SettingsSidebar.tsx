@@ -1,16 +1,18 @@
 import { type LucideIcon, Palette, Settings } from 'lucide-react'
 import { useRef } from 'react'
+import type { MessageKey } from '@/i18n'
 import { GhostButton } from '@/ui/GhostButton'
+import { useTranslation } from '../contexts/LocaleContext'
 
 export type SettingsTabId = 'general' | 'appearance'
 
 export const TABS: ReadonlyArray<{
   id: SettingsTabId
-  label: string
+  labelKey: MessageKey
   icon: LucideIcon
 }> = [
-  { id: 'general', label: 'General', icon: Settings },
-  { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'general', labelKey: 'settings.tabGeneral', icon: Settings },
+  { id: 'appearance', labelKey: 'settings.tabAppearance', icon: Palette },
 ]
 
 type SettingsSidebarProps = {
@@ -23,6 +25,7 @@ export function SettingsSidebar({
   onTabChange,
 }: SettingsSidebarProps) {
   const tablistRef = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
 
   // Vertical tablist keyboard support (WAI-ARIA Tabs pattern). Moving focus
   // also activates the tab, which is the recommended behavior when revealing
@@ -66,19 +69,20 @@ export function SettingsSidebar({
         id="settings-title"
         className="text-sm font-bold text-neutral-500 dark:text-neutral-400"
       >
-        Settings
+        {t('settings.title')}
       </h2>
       <div
         ref={tablistRef}
         role="tablist"
         aria-orientation="vertical"
-        aria-label="Settings sections"
+        aria-label={t('settings.sections')}
         onKeyDown={handleTabKeyDown}
         className="flex flex-col gap-1 mt-2"
       >
         {TABS.map((tab) => {
           const isActive = tab.id === activeTab
           const Icon = tab.icon
+          const label = t(tab.labelKey)
           return (
             <GhostButton
               key={tab.id}
@@ -88,12 +92,12 @@ export function SettingsSidebar({
               ariaControls={`settings-panel-${tab.id}`}
               tabIndex={isActive ? 0 : -1}
               isActive={isActive}
-              title={tab.label}
+              title={label}
               onClick={() => onTabChange(tab.id)}
               className="flex w-full items-center gap-2 px-2 text-left"
             >
               <Icon size={16} className="shrink-0" />
-              {tab.label}
+              {label}
             </GhostButton>
           )
         })}

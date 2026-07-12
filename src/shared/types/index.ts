@@ -13,6 +13,9 @@ export const IpcChannels = {
   getTheme: 'theme:get',
   setTheme: 'theme:set',
 
+  getLocale: 'locale:get',
+  setLocale: 'locale:set',
+
   getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
 
@@ -24,6 +27,12 @@ export const IpcChannels = {
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'
+
+export const LOCALES = ['en', 'de', 'hr', 'sr'] as const
+
+export type Locale = (typeof LOCALES)[number]
+
+export const DEFAULT_LOCALE: Locale = 'en'
 
 // The available models and the persisted selection (validated against disk),
 // fetched together in a single round-trip.

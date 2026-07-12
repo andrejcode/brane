@@ -1,6 +1,7 @@
 import { Check, CircleStop, Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CloseButton } from '@/ui/CloseButton'
+import { useTranslation } from '../contexts/LocaleContext'
 import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
@@ -12,6 +13,7 @@ export const SEARCH_DEBOUNCE_MS = 200
 
 export function ModelsModal() {
   const { activeModal, closeModal } = useModals()
+  const { t } = useTranslation()
   const {
     models,
     selectedModel,
@@ -89,7 +91,7 @@ export function ModelsModal() {
   return (
     <Modal isOpen={isOpen} onClose={closeModal} ariaLabelledBy="models-title">
       <h2 id="models-title" className="sr-only">
-        Models
+        {t('models.title')}
       </h2>
 
       <div className="flex shrink-0 items-center gap-2 p-3">
@@ -105,14 +107,14 @@ export function ModelsModal() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             disabled={!hasModels}
-            placeholder="Search models"
-            aria-label="Search models"
+            placeholder={t('models.search')}
+            aria-label={t('models.search')}
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed"
           />
         </div>
         <CloseButton
           onClick={closeModal}
-          title="Close models"
+          title={t('models.close')}
           className="rounded-lg"
         />
       </div>
@@ -121,19 +123,19 @@ export function ModelsModal() {
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {!hasModels ? (
           <p className="px-3 py-2 text-neutral-500 dark:text-neutral-400">
-            No models found. Add{' '}
+            {t('models.emptyBeforeExtension')}
             <code className="rounded bg-neutral-200 px-1 py-0.5 text-sm dark:bg-neutral-600">
               .gguf
-            </code>{' '}
-            model files to{' '}
+            </code>
+            {t('models.emptyBetween')}
             <code className="rounded bg-neutral-200 px-1 py-0.5 text-sm dark:bg-neutral-600">
               ~/.brane/models
-            </code>{' '}
-            to get started.
+            </code>
+            {t('models.emptyAfterPath')}
           </p>
         ) : filteredModels.length === 0 ? (
           <p className="px-3 py-2 text-neutral-500 dark:text-neutral-400">
-            No models match “{debouncedQuery}”.
+            {t('models.noMatch', { query: debouncedQuery })}
           </p>
         ) : (
           <ul className="flex flex-col gap-1">
@@ -167,8 +169,8 @@ export function ModelsModal() {
                   {isModelLoading ? (
                     <GhostButton
                       className="flex shrink-0 items-center justify-center px-2"
-                      title="Stop loading"
-                      ariaLabel="Stop loading"
+                      title={t('models.stopLoading')}
+                      ariaLabel={t('models.stopLoading')}
                       onClick={handleUnload}
                     >
                       <CircleStop size={22} />
@@ -178,8 +180,8 @@ export function ModelsModal() {
                       <GhostButton
                         className="flex shrink-0 items-center justify-center px-2"
                         disabled={isLoading}
-                        title="Unload model"
-                        ariaLabel="Unload model"
+                        title={t('models.unload')}
+                        ariaLabel={t('models.unload')}
                         onClick={handleUnload}
                       >
                         <CircleStop size={22} />

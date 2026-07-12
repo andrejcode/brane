@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import {
   IpcChannels,
   type LlamaStreamEvent,
+  type Locale,
   type ModelState,
   type Theme,
 } from '@shared/types'
@@ -61,6 +62,17 @@ const electronApi: ElectronApi = {
   },
   setTheme: async (theme: Theme) => {
     await ipcRenderer.invoke(IpcChannels.setTheme, theme)
+  },
+  getLocale: async () => {
+    const locale: unknown = await ipcRenderer.invoke(IpcChannels.getLocale)
+    return locale as Locale
+  },
+  setLocale: async (locale: Locale) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setLocale,
+      locale,
+    )
+    return saved as Locale
   },
   getModelState: async () => {
     const state: unknown = await ipcRenderer.invoke(IpcChannels.getModelState)

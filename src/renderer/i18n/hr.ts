@@ -1,0 +1,59 @@
+import type { Messages } from './types'
+
+export const hr: Messages = {
+  'sidebar.chats': 'Razgovori',
+
+  'header.toggleSidebar': 'Prikaži/sakrij bočnu traku',
+  'header.selectModel': 'Odaberi model',
+  'header.openSettings': 'Otvori postavke',
+  'header.loadingModel': 'Učitavanje modela',
+
+  'chat.inputPlaceholder': 'Pitaj bilo što',
+  'chat.sendMessage': 'Pošalji poruku',
+  'chat.stopGenerating': 'Zaustavi generiranje',
+  'chat.selectModelAlert': 'Odaberi model za slanje poruke.',
+  'chat.sendFailed': 'Slanje poruke nije uspjelo. Pokušaj ponovno.',
+
+  'models.title': 'Modeli',
+  'models.search': 'Pretraži modele',
+  'models.close': 'Zatvori modele',
+  'models.emptyBeforeExtension': 'Nema pronađenih modela. Dodaj ',
+  'models.emptyBetween': ' datoteke modela u ',
+  'models.emptyAfterPath': ' za početak.',
+  'models.noMatch': 'Nijedan model ne odgovara upitu „{query}”.',
+  'models.stopLoading': 'Zaustavi učitavanje',
+  'models.unload': 'Isključi model',
+  'models.loadFailed': 'Učitavanje modela nije uspjelo. Pokušaj ponovno.',
+  'models.unloadFailed': 'Isključivanje modela nije uspjelo. Pokušaj ponovno.',
+
+  'settings.title': 'Postavke',
+  'settings.sections': 'Odjeljci postavki',
+  'settings.close': 'Zatvori postavke',
+  'settings.tabGeneral': 'Općenito',
+  'settings.tabAppearance': 'Izgled',
+
+  'general.sendWith': 'Šalji s {shortcut}+Enter',
+  'general.sendWithDescription':
+    'Koristi {shortcut}+Enter za slanje poruke. Enter dodaje novi redak.',
+  'general.language': 'Jezik',
+  'general.languageDescription': 'Odaberi jezik koji se koristi u aplikaciji.',
+  'general.logs': 'Zapisi',
+  'general.openLogs': 'Otvori zapise',
+  'general.openLogsDescription':
+    'Otvori mapu sa zapisima u pregledniku datoteka.',
+  'general.open': 'Otvori',
+  'general.deleteLogs': 'Izbriši zapise',
+  'general.deleteLogsDescription':
+    'Trajno izbriši sve datoteke zapisa iz mape sa zapisima.',
+  'general.delete': 'Izbriši',
+
+  'appearance.theme': 'Tema',
+  'appearance.dark': 'Tamna',
+  'appearance.light': 'Svijetla',
+  'appearance.system': 'Sustav',
+
+  'alert.error': 'Pogreška',
+  'alert.success': 'Uspjeh',
+  'alert.info': 'Informacija',
+  'alert.close': 'Zatvori obavijest',
+}

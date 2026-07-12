@@ -6,6 +6,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from '../contexts/LocaleContext'
 import { useModals } from '../contexts/ModalContext'
 import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
@@ -23,10 +24,13 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
   const { loadedModel, loadingModel } = useModel()
+  const { t } = useTranslation()
   const isLoadingModel = loadingModel !== null
   // Reflect what's actually loaded, not just selected: a model that was picked
   // but never finished loading (canceled or failed) shouldn't show its name.
-  const modelLabel = loadedModel ? formatModelName(loadedModel) : 'Select model'
+  const modelLabel = loadedModel
+    ? formatModelName(loadedModel)
+    : t('header.selectModel')
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
@@ -77,8 +81,8 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         )}
       >
         <GhostButton
-          title="Toggle sidebar"
-          ariaLabel="Toggle sidebar"
+          title={t('header.toggleSidebar')}
+          ariaLabel={t('header.toggleSidebar')}
           onClick={onToggleSidebar}
         >
           {isSidebarOpen ? (
@@ -90,8 +94,8 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title={isLoadingModel ? 'Loading model' : modelLabel}
-            ariaLabel="Select model"
+            title={isLoadingModel ? t('header.loadingModel') : modelLabel}
+            ariaLabel={t('header.selectModel')}
             onClick={() => openModal('models')}
           >
             {isLoadingModel ? (
@@ -103,8 +107,8 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
           </GhostButton>
 
           <GhostButton
-            title="Open settings"
-            ariaLabel="Open settings"
+            title={t('header.openSettings')}
+            ariaLabel={t('header.openSettings')}
             onClick={() => openModal('settings')}
           >
             <Settings size={20} />

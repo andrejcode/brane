@@ -1,0 +1,56 @@
+export const en = {
+  'sidebar.chats': 'Chats',
+
+  'header.toggleSidebar': 'Toggle sidebar',
+  'header.selectModel': 'Select model',
+  'header.openSettings': 'Open settings',
+  'header.loadingModel': 'Loading model',
+
+  'chat.inputPlaceholder': 'Ask anything',
+  'chat.sendMessage': 'Send message',
+  'chat.stopGenerating': 'Stop generating',
+  'chat.selectModelAlert': 'Please select a model to send a message.',
+  'chat.sendFailed': 'Failed to send your message. Please try again.',
+
+  'models.title': 'Models',
+  'models.search': 'Search models',
+  'models.close': 'Close models',
+  'models.emptyBeforeExtension': 'No models found. Add ',
+  'models.emptyBetween': ' model files to ',
+  'models.emptyAfterPath': ' to get started.',
+  'models.noMatch': 'No models match “{query}”.',
+  'models.stopLoading': 'Stop loading',
+  'models.unload': 'Unload model',
+  'models.loadFailed': 'Failed to load the model. Please try again.',
+  'models.unloadFailed': 'Failed to unload the model. Please try again.',
+
+  'settings.title': 'Settings',
+  'settings.sections': 'Settings sections',
+  'settings.close': 'Close settings',
+  'settings.tabGeneral': 'General',
+  'settings.tabAppearance': 'Appearance',
+
+  'general.sendWith': 'Send with {shortcut}+Enter',
+  'general.sendWithDescription':
+    'Use {shortcut}+Enter to send a message. Enter adds a new line.',
+  'general.language': 'Language',
+  'general.languageDescription': 'Choose the language used across the app.',
+  'general.logs': 'Logs',
+  'general.openLogs': 'Open logs',
+  'general.openLogsDescription': 'Open the logs folder in your file explorer.',
+  'general.open': 'Open',
+  'general.deleteLogs': 'Delete logs',
+  'general.deleteLogsDescription':
+    'Permanently delete all log files from the logs folder.',
+  'general.delete': 'Delete',
+
+  'appearance.theme': 'Theme',
+  'appearance.dark': 'Dark',
+  'appearance.light': 'Light',
+  'appearance.system': 'System',
+
+  'alert.error': 'Error',
+  'alert.success': 'Success',
+  'alert.info': 'Information',
+  'alert.close': 'Close alert',
+} as const

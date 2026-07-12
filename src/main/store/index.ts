@@ -1,5 +1,5 @@
 import Store from 'electron-store'
-import type { Theme } from '@shared/types'
+import type { Locale, Theme } from '@shared/types'
 
 interface WindowSettings {
   width: number
@@ -18,6 +18,9 @@ interface StoreSchema {
   // When true, Cmd/Ctrl+Enter sends a message and plain Enter inserts a newline.
   // When false (default), plain Enter sends.
   sendWithModifierEnter: boolean
+  // null until the user (or first-run detection) settles on a language, so we
+  // can tell "never chosen" apart from an explicit choice of English.
+  locale: Locale | null
 }
 
 const defaults: StoreSchema = {
@@ -31,6 +34,7 @@ const defaults: StoreSchema = {
   theme: 'system',
   selectedModel: null,
   sendWithModifierEnter: false,
+  locale: null,
 }
 
 const store = new Store<StoreSchema>({
