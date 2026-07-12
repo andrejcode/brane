@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import type { Locale } from '@shared/types'
 import { ChatInput } from './ChatInput'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
@@ -27,9 +26,11 @@ function createMessageId() {
 
 export const introMessages = introMessagesByLocale.en
 
-function pickIntroMessage(locale: Locale) {
-  const options = introMessagesByLocale[locale]
-  return options[Math.floor(Math.random() * options.length)]
+// The locale catalogs share the same greetings by index, so picking an index
+// once keeps the greeting stable across re-renders while still translating it
+// when the language changes.
+function pickIntroIndex() {
+  return Math.floor(Math.random() * introMessagesByLocale.en.length)
 }
 
 export function Chat() {
@@ -40,7 +41,8 @@ export function Chat() {
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [introMessage] = useState(() => pickIntroMessage(locale))
+  const [introIndex] = useState(pickIntroIndex)
+  const introMessage = introMessagesByLocale[locale][introIndex]
   const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
