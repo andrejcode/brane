@@ -1,5 +1,7 @@
+import { clsx } from 'clsx'
 import { useState } from 'react'
 import { CloseButton } from '@/ui/CloseButton'
+import { FOCUS_RING_INSET } from '@/ui/focusRing'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
 import { type SettingsTabId, SettingsSidebar, TABS } from './SettingsSidebar'
@@ -43,7 +45,10 @@ export function SettingsModal() {
             role="tabpanel"
             aria-labelledby={`settings-tab-${activeTab}`}
             tabIndex={0}
-            className="min-h-0 flex-1 overflow-y-auto rounded-br-2xl p-3 focus:outline-none focus-visible:inset-ring"
+            className={clsx(
+              'min-h-0 flex-1 overflow-y-auto rounded-br-2xl p-3',
+              FOCUS_RING_INSET,
+            )}
           >
             <div className="flex flex-col gap-4">
               {activeTab === 'general' && <GeneralSettings />}

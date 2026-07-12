@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+import { FOCUS_RING } from './focusRing'
 
 interface SwitchProps {
   checked: boolean
@@ -30,8 +31,7 @@ export function Switch({
       className={clsx(
         'relative inline-flex h-6 w-10 shrink-0 items-center rounded-full',
         'transition-colors duration-200',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500',
+        FOCUS_RING,
         'cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
         checked
           ? 'bg-neutral-800 dark:bg-neutral-200'

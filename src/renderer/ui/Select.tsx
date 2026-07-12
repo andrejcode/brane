@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { ChevronDown } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { FOCUS_RING_INSET_ACTIVE } from './focusRing'
 
 interface SelectOption<T extends string> {
   value: T
@@ -62,7 +63,7 @@ export function Select<T extends string>({
           'pr-9',
           'border-neutral-300 bg-neutral-50 dark:border-neutral-500 dark:bg-neutral-700',
           'cursor-pointer focus:outline-none',
-          showFocusRing && 'inset-ring',
+          showFocusRing && FOCUS_RING_INSET_ACTIVE,
           'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >

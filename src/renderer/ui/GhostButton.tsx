@@ -46,8 +46,6 @@ export function GhostButton({
       className={clsx(
         '[app-region:no-drag]',
         'rounded-lg p-1 transition-colors duration-200',
-        'focus-visible:ring-offset-2',
-        'focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500',
         'hover:bg-neutral-300 dark:hover:bg-neutral-600',
         isActive && 'bg-neutral-300 dark:bg-neutral-600',
         className,

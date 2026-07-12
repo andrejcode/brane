@@ -13,6 +13,11 @@ class ResizeObserverStub {
 
 vi.stubGlobal('ResizeObserver', ResizeObserverStub)
 
+// jsdom has no layout engine and doesn't implement scrollTo, which the message
+// list calls to bring a freshly sent message to the top. A no-op keeps that
+// effect from throwing during tests.
+Element.prototype.scrollTo = () => {}
+
 afterEach(() => {
   cleanup()
 })

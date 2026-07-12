@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+import { FOCUS_RING } from './focusRing'
 
 interface BaseButtonProps {
   children: React.ReactNode
@@ -36,7 +37,7 @@ export function BaseButton({
   onKeyDown,
 }: BaseButtonProps) {
   const buttonClassName = clsx(
-    'focus:outline-none focus-visible:ring-2',
+    FOCUS_RING,
     'cursor-pointer disabled:cursor-not-allowed',
     className,
   )

@@ -32,7 +32,6 @@ export function ChatActionButton({
         'bg-neutral-800 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-800',
         'hover:bg-neutral-700 dark:hover:bg-neutral-200',
         'disabled:bg-neutral-300 dark:disabled:bg-neutral-600',
-        'focus-visible:ring-neutral-500',
       )}
     >
       {children}
