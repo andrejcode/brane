@@ -16,6 +16,9 @@ export const de: Messages = {
   'chat.sendFailed':
     'Deine Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.',
   'chat.thinking': 'Denkt nach',
+  'chat.copy': 'Kopieren',
+  'chat.copied': 'Kopiert',
+  'chat.copyFailed': 'Fehlgeschlagen',
 
   'models.title': 'Modelle',
   'models.search': 'Modelle suchen',

@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
-import type { ChatMessage } from '@/Chat'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+import type { Message } from '@/Chat'
 import { Messages } from '..'
 
-const conversation: ChatMessage[] = [
+const conversation: Message[] = [
   { id: '1', role: 'user', content: 'first user' },
   { id: '2', role: 'assistant', content: 'first assistant' },
   { id: '3', role: 'user', content: 'second user' },
@@ -85,5 +86,40 @@ describe('Messages', () => {
     )
 
     expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument()
+  })
+
+  it('offers no copy control for an assistant turn without content', () => {
+    render(
+      <Messages
+        messages={[{ id: '1', role: 'assistant', content: '' }]}
+        bottomInset={0}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: 'Copy' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('copies a message to the clipboard and flashes the copied status', async () => {
+    const writeText = vi.fn(() => Promise.resolve())
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    })
+
+    render(
+      <Messages
+        messages={[{ id: '1', role: 'assistant', content: 'copy me' }]}
+        bottomInset={0}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'Copy' }))
+
+    expect(writeText).toHaveBeenCalledWith('copy me')
+    expect(
+      await screen.findByRole('button', { name: 'Copied' }),
+    ).toBeInTheDocument()
   })
 })

@@ -14,6 +14,9 @@ export const sr: Messages = {
   'chat.selectModelAlert': 'Изабери модел за слање поруке.',
   'chat.sendFailed': 'Слање поруке није успело. Покушај поново.',
   'chat.thinking': 'Размишља',
+  'chat.copy': 'Копирај',
+  'chat.copied': 'Копирано',
+  'chat.copyFailed': 'Неуспешно',
 
   'models.title': 'Модели',
   'models.search': 'Претражи моделе',

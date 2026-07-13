@@ -12,6 +12,9 @@ export const en = {
   'chat.selectModelAlert': 'Please select a model to send a message.',
   'chat.sendFailed': 'Failed to send your message. Please try again.',
   'chat.thinking': 'Thinking',
+  'chat.copy': 'Copy',
+  'chat.copied': 'Copied',
+  'chat.copyFailed': 'Failed',
 
   'models.title': 'Models',
   'models.search': 'Search models',

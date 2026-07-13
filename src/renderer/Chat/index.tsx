@@ -16,7 +16,7 @@ import { useModel } from '../contexts/ModelContext'
 
 export { introMessages } from './IntroMessage'
 
-export interface ChatMessage {
+export interface Message {
   id: string
   role: 'assistant' | 'user'
   content: string
@@ -35,7 +35,7 @@ export function Chat() {
   const { t } = useTranslation()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
