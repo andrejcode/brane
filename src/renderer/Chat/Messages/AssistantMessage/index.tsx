@@ -1,5 +1,6 @@
 import type { Message } from '@/Chat'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
+import { MarkdownRenderer } from './MarkdownRenderer'
 import { ReasoningSection } from './ReasoningSection'
 
 interface AssistantMessageProps {
@@ -25,9 +26,7 @@ export function AssistantMessage({ message }: AssistantMessageProps) {
         <LoadingSpinner isLoading size={16} className="text-neutral-500" />
       )}
 
-      {hasContent && (
-        <div className="whitespace-pre-wrap">{message.content}</div>
-      )}
+      {hasContent && <MarkdownRenderer content={message.content} />}
     </div>
   )
 }
