@@ -7,12 +7,14 @@ import {
   useState,
 } from 'react'
 import { ChatInput } from './ChatInput'
+import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
 import { useAlert } from '../contexts/AlertContext'
 import { useChatSettings } from '../contexts/ChatSettingsContext'
 import { useTranslation } from '../contexts/LocaleContext'
 import { useModel } from '../contexts/ModelContext'
-import { introMessagesByLocale } from '../i18n'
+
+export { introMessages } from './IntroMessage'
 
 export interface ChatMessage {
   id: string
@@ -26,25 +28,14 @@ function createMessageId() {
   return crypto.randomUUID()
 }
 
-export const introMessages = introMessagesByLocale.en
-
-// The locale catalogs share the same greetings by index, so picking an index
-// once keeps the greeting stable across re-renders while still translating it
-// when the language changes.
-function pickIntroIndex() {
-  return Math.floor(Math.random() * introMessagesByLocale.en.length)
-}
-
 export function Chat() {
   const { showAlert } = useAlert()
   const { selectedModel } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
-  const { t, locale } = useTranslation()
+  const { t } = useTranslation()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [introIndex] = useState(pickIntroIndex)
-  const introMessage = introMessagesByLocale[locale][introIndex]
   const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
@@ -268,17 +259,7 @@ export function Chat() {
       >
         <div className="mx-auto w-full max-w-4xl">
           <div className="pointer-events-auto relative">
-            <h1
-              data-testid="intro-greeting"
-              className={clsx(
-                'pointer-events-none absolute inset-x-0 bottom-full mb-10 text-center',
-                'text-2xl font-normal',
-                'transition-opacity duration-300 ease-out',
-                isEmpty ? 'opacity-100' : 'opacity-0',
-              )}
-            >
-              {introMessage}
-            </h1>
+            <IntroMessage isVisible={isEmpty} />
 
             <div
               ref={bottomFadeRef}
