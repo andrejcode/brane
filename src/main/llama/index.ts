@@ -6,7 +6,11 @@ import {
   type LlamaChatResponseChunk,
   type LlamaModel,
 } from 'node-llama-cpp'
-import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
+import {
+  IpcChannels,
+  type LlamaResponseSegment,
+  type LlamaStreamEvent,
+} from '@shared/types'
 import { logger } from '../logger'
 import { getModelPath, getSelectedModelPath } from '../model'
 
@@ -190,20 +194,26 @@ function sendStreamEvent(webContents: WebContents, event: LlamaStreamEvent) {
   webContents.send(IpcChannels.llamaStreamResponse, event)
 }
 
-function formatResponseChunk(chunk: LlamaChatResponseChunk) {
-  let text = ''
+interface ClassifiedChunk {
+  text: string
+  segment?: LlamaResponseSegment
+}
 
-  if (chunk.type === 'segment' && chunk.segmentStartTime != null) {
-    text += ` [segment start: ${chunk.segmentType}] `
+// Returns null for chunks that should be dropped entirely. `comment` segments
+// are only produced by a few models and aren't shown to the user, so we skip
+// them rather than relying on the renderer to parse them back out of the text.
+function classifyResponseChunk(
+  chunk: LlamaChatResponseChunk,
+): ClassifiedChunk | null {
+  if (chunk.type === 'segment' && chunk.segmentType === 'comment') {
+    return null
   }
 
-  text += chunk.text
-
-  if (chunk.type === 'segment' && chunk.segmentEndTime != null) {
-    text += ` [segment end: ${chunk.segmentType}] `
+  if (chunk.type === 'segment' && chunk.segmentType === 'thought') {
+    return { text: chunk.text, segment: 'thought' }
   }
 
-  return text
+  return { text: chunk.text }
 }
 
 async function streamPrompt(
@@ -220,12 +230,24 @@ async function streamPrompt(
       signal: abortController.signal,
       stopOnAbortSignal: true,
       onResponseChunk(chunk) {
-        const text = formatResponseChunk(chunk)
+        const classified = classifyResponseChunk(chunk)
 
-        responseChunks.push(text)
+        if (classified === null) {
+          return
+        }
+
+        if (classified.segment === undefined) {
+          // Keep thoughts out of the final response text; only the user-facing
+          // answer is accumulated for the `done` fallback.
+          responseChunks.push(classified.text)
+          sendStreamEvent(sender, { type: 'chunk', text: classified.text })
+          return
+        }
+
         sendStreamEvent(sender, {
           type: 'chunk',
-          text,
+          text: classified.text,
+          segment: classified.segment,
         })
       },
     })

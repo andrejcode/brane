@@ -13,6 +13,7 @@ import {
   computeScrollbarMetrics,
   computeTailBottomInset,
 } from './messagesLayout'
+import { ReasoningSection } from './ReasoningSection'
 
 interface MessagesProps {
   bottomInset: number
@@ -336,24 +337,40 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   }
 
   const renderMessage = (message: ChatMessage) => {
-    // An assistant turn with no content yet is awaiting the first stream chunk
-    const isAwaitingResponse =
-      message.role === 'assistant' && message.content.length === 0
+    if (message.role === 'user') {
+      return (
+        <article
+          key={message.id}
+          ref={
+            message.id === lastUserMessageId ? lastUserMessageRef : undefined
+          }
+          className="self-end rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700"
+        >
+          {message.content}
+        </article>
+      )
+    }
+
+    const reasoning = message.reasoning ?? ''
+    const hasContent = message.content.length > 0
+    // Nothing has streamed yet, so we're still waiting on the first chunk.
+    const isAwaitingResponse = reasoning.length === 0 && !hasContent
 
     return (
-      <article
-        key={message.id}
-        ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
-        className={
-          message.role === 'user'
-            ? 'self-end rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700'
-            : 'self-start whitespace-pre-wrap'
-        }
-      >
-        {isAwaitingResponse ? (
-          <LoadingSpinner isLoading className="text-neutral-500" />
-        ) : (
-          message.content
+      <article key={message.id} className="flex flex-col gap-2 self-start">
+        {reasoning.length > 0 && (
+          <ReasoningSection
+            reasoning={reasoning}
+            isThinking={message.isThinking ?? false}
+          />
+        )}
+
+        {isAwaitingResponse && (
+          <LoadingSpinner isLoading size={16} className="text-neutral-500" />
+        )}
+
+        {hasContent && (
+          <div className="whitespace-pre-wrap">{message.content}</div>
         )}
       </article>
     )

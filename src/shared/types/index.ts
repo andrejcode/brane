@@ -41,10 +41,16 @@ export interface ModelState {
   selectedModel: string | null
 }
 
+// Models emit their output in segments. A `thought` segment is the model's
+// reasoning; its absence means the chunk is part of the user-facing answer.
+// `comment` segments are dropped in the main process and never reach here.
+export type LlamaResponseSegment = 'thought'
+
 export type LlamaStreamEvent =
   | {
       type: 'chunk'
       text: string
+      segment?: LlamaResponseSegment
     }
   | {
       type: 'done'

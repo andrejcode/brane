@@ -108,6 +108,46 @@ describe('Chat streaming', () => {
     expect(screen.getByText('Hello!')).toBeInTheDocument()
   })
 
+  it('collapses thought segments into a reasoning toggle kept out of the answer', async () => {
+    renderChat()
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({
+        type: 'chunk',
+        text: 'let me reason',
+        segment: 'thought',
+      })
+    })
+
+    const toggle = screen.getByRole('button', { name: 'Thinking' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+
+    act(() => {
+      mock.emitStream({ type: 'chunk', text: 'the answer' })
+    })
+
+    // The answer renders on its own; the reasoning stays behind the toggle.
+    expect(screen.getByText('the answer')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Thinking' })).toBeInTheDocument()
+
+    await userEvent.setup().click(toggle)
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText('let me reason')).toBeInTheDocument()
+  })
+
+  it('trims leading blank lines from the streamed answer', async () => {
+    renderChat()
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({ type: 'chunk', text: '\n\nHello there' })
+    })
+
+    expect(screen.getByText('Hello there')).toBeInTheDocument()
+  })
+
   it('fills the response on done when nothing streamed', async () => {
     renderChat()
     await submitPrompt('hi')

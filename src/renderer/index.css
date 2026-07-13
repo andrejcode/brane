@@ -1,1 +1,17 @@
 @import 'tailwindcss';
+
+@theme {
+  --animate-wipe: wipe 2s linear infinite;
+}
+
+/* Sweeps a bright band across clipped text to signal the model is thinking.
+   Pair with a symmetric gradient and bg-[length:200%_100%] so the loop is
+   seamless. */
+@keyframes wipe {
+  from {
+    background-position: 200% center;
+  }
+  to {
+    background-position: -200% center;
+  }
+}

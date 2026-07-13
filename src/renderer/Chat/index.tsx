@@ -18,6 +18,8 @@ export interface ChatMessage {
   id: string
   role: 'assistant' | 'user'
   content: string
+  reasoning?: string
+  isThinking?: boolean
 }
 
 function createMessageId() {
@@ -72,11 +74,35 @@ export function Chat() {
 
       if (event.type === 'chunk') {
         setMessages((currentMessages) =>
-          currentMessages.map((message) =>
-            message.id === activeMessageId
-              ? { ...message, content: message.content + event.text }
-              : message,
-          ),
+          currentMessages.map((message) => {
+            if (message.id !== activeMessageId) {
+              return message
+            }
+
+            if (event.segment === 'thought') {
+              const reasoning = message.reasoning ?? ''
+
+              return {
+                ...message,
+                // Models often lead a segment with blank lines; drop them so the
+                // text doesn't open with an empty gap.
+                reasoning:
+                  reasoning.length === 0
+                    ? event.text.trimStart()
+                    : reasoning + event.text,
+                isThinking: true,
+              }
+            }
+
+            return {
+              ...message,
+              content:
+                message.content.length === 0
+                  ? event.text.trimStart()
+                  : message.content + event.text,
+              isThinking: false,
+            }
+          }),
         )
 
         return
@@ -89,16 +115,25 @@ export function Chat() {
               return [message]
             }
 
-            // Stopped before any text streamed: drop the empty placeholder so
+            // Stopped before anything streamed: drop the empty placeholder so
             // its loading spinner doesn't linger forever.
-            if (message.content.length === 0 && event.response.length === 0) {
+            if (
+              message.content.length === 0 &&
+              (message.reasoning ?? '').length === 0 &&
+              event.response.length === 0
+            ) {
               return []
             }
 
             return [
-              message.content.length === 0
-                ? { ...message, content: event.response }
-                : message,
+              {
+                ...message,
+                content:
+                  message.content.length === 0
+                    ? event.response.trimStart()
+                    : message.content,
+                isThinking: false,
+              },
             ]
           }),
         )

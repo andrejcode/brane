@@ -13,6 +13,7 @@ export const hr: Messages = {
   'chat.stopGenerating': 'Zaustavi generiranje',
   'chat.selectModelAlert': 'Odaberi model za slanje poruke.',
   'chat.sendFailed': 'Slanje poruke nije uspjelo. Pokušaj ponovno.',
+  'chat.thinking': 'Razmišlja',
 
   'models.title': 'Modeli',
   'models.search': 'Pretraži modele',

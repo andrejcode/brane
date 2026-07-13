@@ -11,6 +11,7 @@ export const en = {
   'chat.stopGenerating': 'Stop generating',
   'chat.selectModelAlert': 'Please select a model to send a message.',
   'chat.sendFailed': 'Failed to send your message. Please try again.',
+  'chat.thinking': 'Thinking',
 
   'models.title': 'Models',
   'models.search': 'Search models',

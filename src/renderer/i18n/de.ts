@@ -15,6 +15,7 @@ export const de: Messages = {
     'Bitte wähle ein Modell aus, um eine Nachricht zu senden.',
   'chat.sendFailed':
     'Deine Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.',
+  'chat.thinking': 'Denkt nach',
 
   'models.title': 'Modelle',
   'models.search': 'Modelle suchen',

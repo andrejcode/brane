@@ -14,6 +14,7 @@ interface BaseButtonProps {
   id?: string | undefined
   role?: string | undefined
   ariaSelected?: boolean | undefined
+  ariaExpanded?: boolean | undefined
   ariaControls?: string | undefined
   tabIndex?: number | undefined
   onKeyDown?:
@@ -32,6 +33,7 @@ export function BaseButton({
   id,
   role,
   ariaSelected,
+  ariaExpanded,
   ariaControls,
   tabIndex,
   onKeyDown,
@@ -53,6 +55,7 @@ export function BaseButton({
       id={id}
       role={role}
       aria-selected={ariaSelected}
+      aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
       tabIndex={tabIndex}
       onKeyDown={onKeyDown}

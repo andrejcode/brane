@@ -31,10 +31,12 @@ describe('Messages', () => {
   it('styles user and assistant turns differently', () => {
     render(<Messages messages={conversation} bottomInset={0} />)
 
-    expect(screen.getByText('first user').className).toContain('self-end')
-    expect(screen.getByText('first assistant').className).toContain(
-      'self-start',
-    )
+    expect(
+      screen.getByText('first user').closest('article')?.className,
+    ).toContain('self-end')
+    expect(
+      screen.getByText('first assistant').closest('article')?.className,
+    ).toContain('self-start')
   })
 
   it('keeps the last two turns in the tail container and the rest above it', () => {

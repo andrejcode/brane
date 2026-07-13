@@ -13,6 +13,7 @@ export const sr: Messages = {
   'chat.stopGenerating': 'Заустави генерисање',
   'chat.selectModelAlert': 'Изабери модел за слање поруке.',
   'chat.sendFailed': 'Слање поруке није успело. Покушај поново.',
+  'chat.thinking': 'Размишља',
 
   'models.title': 'Модели',
   'models.search': 'Претражи моделе',
