@@ -11,6 +11,7 @@ export const sr: Messages = {
   'chat.inputPlaceholder': 'Питај било шта',
   'chat.sendMessage': 'Пошаљи поруку',
   'chat.stopGenerating': 'Заустави генерисање',
+  'chat.scrollToBottom': 'Помери на дно',
   'chat.selectModelAlert': 'Изабери модел за слање поруке.',
   'chat.sendFailed': 'Слање поруке није успело. Покушај поново.',
   'chat.thinking': 'Размишља',

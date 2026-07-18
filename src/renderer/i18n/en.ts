@@ -9,6 +9,7 @@ export const en = {
   'chat.inputPlaceholder': 'Ask anything',
   'chat.sendMessage': 'Send message',
   'chat.stopGenerating': 'Stop generating',
+  'chat.scrollToBottom': 'Scroll to bottom',
   'chat.selectModelAlert': 'Please select a model to send a message.',
   'chat.sendFailed': 'Failed to send your message. Please try again.',
   'chat.thinking': 'Thinking',

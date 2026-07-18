@@ -13,6 +13,7 @@ import {
   computeScrollbarMetrics,
   computeTailBottomInset,
 } from './messagesLayout'
+import { ScrollToBottomButton } from './ScrollToBottomButton'
 
 interface MessagesProps {
   bottomInset: number
@@ -25,6 +26,8 @@ const messageTailCount = 2
 const minimumThumbHeight = 20
 const scrollbarThumbScale = 0.85
 const scrollbarHideDelay = 900
+// Slack before the exact bottom so the button hides once effectively there
+const scrollToBottomThreshold = 24
 
 export function Messages({ bottomInset, messages }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -41,6 +44,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     thumbTop: 0,
   })
   const [isScrollbarActive, setIsScrollbarActive] = useState(false)
+  const [isAwayFromBottom, setIsAwayFromBottom] = useState(false)
   const [tailBottomInset, setTailBottomInset] = useState(0)
   const contentBottomInset = Math.max(bottomInset, tailBottomInset)
   const tailStartIndex = Math.max(messages.length - messageTailCount, 0)
@@ -64,6 +68,13 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     if (!scrollContainer) {
       return
     }
+
+    const maxScrollTop =
+      scrollContainer.scrollHeight - scrollContainer.clientHeight
+    setIsAwayFromBottom(
+      maxScrollTop > scrollToBottomThreshold &&
+        maxScrollTop - scrollContainer.scrollTop > scrollToBottomThreshold,
+    )
 
     const metrics = computeScrollbarMetrics({
       scrollHeight: scrollContainer.scrollHeight,
@@ -260,6 +271,19 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     showScrollbarTemporarily()
   }, [showScrollbarTemporarily, updateScrollbar])
 
+  const scrollToBottom = useCallback(() => {
+    const scrollContainer = scrollContainerRef.current
+
+    if (!scrollContainer) {
+      return
+    }
+
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [])
+
   const handleTrackPointerDown: PointerEventHandler<HTMLDivElement> = (
     event,
   ) => {
@@ -364,6 +388,13 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
           </div>
         </div>
       </div>
+
+      {isAwayFromBottom && (
+        <ScrollToBottomButton
+          bottomInset={bottomInset}
+          onClick={scrollToBottom}
+        />
+      )}
 
       {scrollbar.isVisible && (
         <div

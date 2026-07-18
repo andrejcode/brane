@@ -11,6 +11,7 @@ export const de: Messages = {
   'chat.inputPlaceholder': 'Frag mich etwas',
   'chat.sendMessage': 'Nachricht senden',
   'chat.stopGenerating': 'Generierung stoppen',
+  'chat.scrollToBottom': 'Nach unten scrollen',
   'chat.selectModelAlert':
     'Bitte wähle ein Modell aus, um eine Nachricht zu senden.',
   'chat.sendFailed':
