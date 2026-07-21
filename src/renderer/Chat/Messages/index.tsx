@@ -28,6 +28,9 @@ const scrollbarThumbScale = 0.85
 const scrollbarHideDelay = 900
 // Slack before the exact bottom so the button hides once effectively there
 const scrollToBottomThreshold = 24
+// Content grows a frame before the tail spacer shrinks to match, so require the
+// reading to hold before flipping the button, absorbing that transient spike.
+const scrollToBottomStabilizeDelay = 160
 
 export function Messages({ bottomInset, messages }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -38,6 +41,11 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   const scrollbarHideTimeoutRef = useRef<number | null>(null)
   const lastUserMessageRef = useRef<HTMLElement | null>(null)
   const scrolledUserMessageIdRef = useRef<string | null>(null)
+  const awayFromBottomRef = useRef(false)
+  const awayFromBottomStabilizeTimeoutRef = useRef<number | null>(null)
+  // Pinning a sent message to the top is a programmatic jump, not the reader
+  // scrolling away, so keep the button hidden until they scroll themselves.
+  const suppressAwayUntilUserScrollRef = useRef(false)
   const [scrollbar, setScrollbar] = useState({
     isVisible: false,
     thumbHeight: minimumThumbHeight,
@@ -62,6 +70,28 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     return null
   }, [messages])
 
+  const stabilizeAwayFromBottom = useCallback((nextAway: boolean) => {
+    const targetAway = suppressAwayUntilUserScrollRef.current ? false : nextAway
+
+    if (targetAway === awayFromBottomRef.current) {
+      if (awayFromBottomStabilizeTimeoutRef.current !== null) {
+        window.clearTimeout(awayFromBottomStabilizeTimeoutRef.current)
+        awayFromBottomStabilizeTimeoutRef.current = null
+      }
+      return
+    }
+
+    if (awayFromBottomStabilizeTimeoutRef.current !== null) {
+      return
+    }
+
+    awayFromBottomStabilizeTimeoutRef.current = window.setTimeout(() => {
+      awayFromBottomStabilizeTimeoutRef.current = null
+      awayFromBottomRef.current = targetAway
+      setIsAwayFromBottom(targetAway)
+    }, scrollToBottomStabilizeDelay)
+  }, [])
+
   const updateScrollbar = useCallback(() => {
     const scrollContainer = scrollContainerRef.current
 
@@ -71,7 +101,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
 
     const maxScrollTop =
       scrollContainer.scrollHeight - scrollContainer.clientHeight
-    setIsAwayFromBottom(
+    stabilizeAwayFromBottom(
       maxScrollTop > scrollToBottomThreshold &&
         maxScrollTop - scrollContainer.scrollTop > scrollToBottomThreshold,
     )
@@ -99,7 +129,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       thumbHeight: metrics.thumbHeight,
       thumbTop: metrics.thumbTop,
     })
-  }, [])
+  }, [stabilizeAwayFromBottom])
 
   const scheduleScrollbarUpdate = useCallback(() => {
     if (scrollbarUpdateAnimationFrameRef.current !== null) {
@@ -159,6 +189,30 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
   }, [clearScrollbarHideTimeout])
 
   useEffect(() => {
+    const scrollContainer = scrollContainerRef.current
+
+    if (!scrollContainer) {
+      return
+    }
+
+    const releaseSuppression = () => {
+      suppressAwayUntilUserScrollRef.current = false
+    }
+
+    scrollContainer.addEventListener('wheel', releaseSuppression, {
+      passive: true,
+    })
+    scrollContainer.addEventListener('touchmove', releaseSuppression, {
+      passive: true,
+    })
+
+    return () => {
+      scrollContainer.removeEventListener('wheel', releaseSuppression)
+      scrollContainer.removeEventListener('touchmove', releaseSuppression)
+    }
+  }, [])
+
+  useEffect(() => {
     scheduleScrollbarUpdate()
   }, [contentBottomInset, messages, scheduleScrollbarUpdate])
 
@@ -177,6 +231,13 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
     }
 
     scrolledUserMessageIdRef.current = lastUserMessageId
+
+    suppressAwayUntilUserScrollRef.current = true
+
+    if (awayFromBottomStabilizeTimeoutRef.current !== null) {
+      window.clearTimeout(awayFromBottomStabilizeTimeoutRef.current)
+      awayFromBottomStabilizeTimeoutRef.current = null
+    }
 
     let secondFrame: number | null = null
 
@@ -260,6 +321,10 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
 
       if (tailSpacerUpdateAnimationFrameRef.current !== null) {
         cancelAnimationFrame(tailSpacerUpdateAnimationFrameRef.current)
+      }
+
+      if (awayFromBottomStabilizeTimeoutRef.current !== null) {
+        window.clearTimeout(awayFromBottomStabilizeTimeoutRef.current)
       }
 
       clearScrollbarHideTimeout()
