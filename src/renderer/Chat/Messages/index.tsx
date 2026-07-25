@@ -20,7 +20,7 @@ interface MessagesProps {
   messages: Message[]
 }
 
-const headerHeight = 48
+const headerHeight = 56
 // Give short final turns enough scroll room to sit alone below the header
 const messageTailCount = 2
 const minimumThumbHeight = 20
@@ -444,7 +444,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
         onScroll={handleScroll}
       >
         <div
-          className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-8 pt-12"
+          className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-8 pt-14"
           style={{ paddingBottom: contentBottomInset }}
         >
           {earlierMessages.map(renderMessage)}
@@ -463,7 +463,7 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
       {scrollbar.isVisible && (
         <div
           ref={scrollbarTrackRef}
-          className={`absolute top-12 right-0.5 bottom-0 z-20 w-2 transition-opacity duration-150 ${
+          className={`absolute top-14 right-0.5 bottom-0 z-20 w-2 transition-opacity duration-150 ${
             isScrollbarActive ? 'opacity-100' : 'opacity-0'
           }`}
           onPointerDown={handleTrackPointerDown}
