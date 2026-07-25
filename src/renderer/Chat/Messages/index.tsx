@@ -454,12 +454,11 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
         </div>
       </div>
 
-      {isAwayFromBottom && (
-        <ScrollToBottomButton
-          bottomInset={bottomInset}
-          onClick={scrollToBottom}
-        />
-      )}
+      <ScrollToBottomButton
+        bottomInset={bottomInset}
+        isVisible={isAwayFromBottom}
+        onClick={scrollToBottom}
+      />
 
       {scrollbar.isVisible && (
         <div
