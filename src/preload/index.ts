@@ -110,7 +110,9 @@ const electronApi: ElectronApi = {
     return saved === true
   },
   getShortcuts: async () => {
-    const shortcuts: unknown = await ipcRenderer.invoke(IpcChannels.getShortcuts)
+    const shortcuts: unknown = await ipcRenderer.invoke(
+      IpcChannels.getShortcuts,
+    )
     return normalizeShortcuts(shortcuts)
   },
   setShortcuts: async (shortcuts: ShortcutMap) => {

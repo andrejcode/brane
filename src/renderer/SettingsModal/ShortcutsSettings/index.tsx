@@ -1,14 +1,14 @@
 import { useState } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { useShortcuts } from '@/contexts/ShortcutsContext'
+import type { MessageKey } from '@/i18n'
+import { Button } from '@/ui/Button'
+import { bindingsEqual } from '@/utils/shortcut'
 import {
   SHORTCUT_ACTIONS,
   type ShortcutAction,
   type ShortcutBinding,
 } from '@shared/types'
-import { useShortcuts } from '@/contexts/ShortcutsContext'
-import { useTranslation } from '@/contexts/LocaleContext'
-import type { MessageKey } from '@/i18n'
-import { Button } from '@/ui/Button'
-import { bindingsEqual } from '@/utils/shortcut'
 import { ShortcutRecorder } from './ShortcutRecorder'
 
 const ACTION_MESSAGES: Record<

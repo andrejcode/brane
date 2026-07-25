@@ -42,15 +42,17 @@ describe('eventToBinding', () => {
   })
 
   it('maps the primary modifier to Cmd on macOS and Ctrl elsewhere', () => {
-    expect(eventToBinding(keyEvent({ key: 'M', metaKey: true }), true)).toEqual({
-      key: 'm',
-      mod: true,
-      shift: false,
-      alt: false,
-    })
-    expect(eventToBinding(keyEvent({ key: 'M', ctrlKey: true }), false)).toEqual(
-      { key: 'm', mod: true, shift: false, alt: false },
+    expect(eventToBinding(keyEvent({ key: 'M', metaKey: true }), true)).toEqual(
+      {
+        key: 'm',
+        mod: true,
+        shift: false,
+        alt: false,
+      },
     )
+    expect(
+      eventToBinding(keyEvent({ key: 'M', ctrlKey: true }), false),
+    ).toEqual({ key: 'm', mod: true, shift: false, alt: false })
   })
 })
 

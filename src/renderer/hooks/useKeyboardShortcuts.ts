@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { SHORTCUT_ACTIONS, type ShortcutAction, type ShortcutMap } from '@shared/types'
+import {
+  SHORTCUT_ACTIONS,
+  type ShortcutAction,
+  type ShortcutMap,
+} from '@shared/types'
 import { matchesBinding } from '../utils/shortcut'
 
 type ShortcutHandlers = Record<ShortcutAction, () => void>

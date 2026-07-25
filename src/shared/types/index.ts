@@ -69,19 +69,17 @@ function isValidBinding(value: unknown): value is ShortcutBinding {
 
   const binding = value as Record<string, unknown>
   return (
-    typeof binding.key === 'string' &&
-    binding.key.length > 0 &&
-    typeof binding.mod === 'boolean' &&
-    typeof binding.shift === 'boolean' &&
-    typeof binding.alt === 'boolean'
+    typeof binding['key'] === 'string' &&
+    binding['key'].length > 0 &&
+    typeof binding['mod'] === 'boolean' &&
+    typeof binding['shift'] === 'boolean' &&
+    typeof binding['alt'] === 'boolean'
   )
 }
 
 export function normalizeShortcuts(value: unknown): ShortcutMap {
   const source =
-    value && typeof value === 'object'
-      ? (value as Record<string, unknown>)
-      : {}
+    value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
 
   const result = {} as ShortcutMap
   for (const action of SHORTCUT_ACTIONS) {

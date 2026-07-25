@@ -45,10 +45,10 @@ describe('Messages', () => {
       <Messages messages={conversation} bottomInset={0} />,
     )
 
-    const earlier = [...container.querySelectorAll('.pt-12 > article')].map(
+    const earlier = [...container.querySelectorAll('.pt-14 > article')].map(
       (article) => article.textContent,
     )
-    const tail = [...container.querySelectorAll('.pt-12 > div > article')].map(
+    const tail = [...container.querySelectorAll('.pt-14 > div > article')].map(
       (article) => article.textContent,
     )
 
@@ -64,8 +64,8 @@ describe('Messages', () => {
       />,
     )
 
-    expect(container.querySelectorAll('.pt-12 > article')).toHaveLength(0)
-    expect(container.querySelectorAll('.pt-12 > div > article')).toHaveLength(1)
+    expect(container.querySelectorAll('.pt-14 > article')).toHaveLength(0)
+    expect(container.querySelectorAll('.pt-14 > div > article')).toHaveLength(1)
   })
 
   it('renders nothing in the message list when empty', () => {
