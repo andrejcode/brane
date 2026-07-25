@@ -39,6 +39,7 @@ export function MarkdownRenderer({
         // Tailwind Typography wraps inline code in decorative backticks; drop them.
         "prose-code:before:content-[''] prose-code:after:content-['']",
         'prose-pre:w-full prose-pre:bg-transparent prose-pre:p-0',
+        'prose-hr:my-4',
         className,
       )}
     >
