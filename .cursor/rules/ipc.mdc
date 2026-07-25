@@ -1,0 +1,44 @@
+---
+globs: src/main/**/*.ts,src/preload/**/*.ts,src/shared/types/**/*.ts
+alwaysApply: false
+---
+
+# IPC & Main Process
+
+All main↔renderer communication goes through named channels defined once in
+`@shared/types`. Adding a feature that crosses the process boundary touches four
+files in this order.
+
+## Adding a channel end-to-end
+
+1. `src/shared/types/index.ts` — add the channel to the `IpcChannels` `as const`
+   object (`domain:action` string), plus any payload/return types.
+2. `src/main/<feature>.ts` — register the handler inside an exported
+   `register<Feature>Handlers()` function using `ipcMain.handle`.
+3. `src/main/index.ts` — call `register<Feature>Handlers()` inside
+   `app.whenReady()`.
+4. `src/preload/index.ts` — add a method to `electronApi` that wraps
+   `ipcRenderer.invoke`, and declare it on the global `ElectronApi` interface in
+   `src/preload/api.d.ts`.
+
+## Main-process handlers
+
+- Treat every incoming argument as `unknown` and validate it with a type guard
+  before use; reject invalid input by throwing an `Error` with a user-facing
+  message (see `registerModelHandlers`, `isValidTheme`, `normalizeShortcuts`).
+- Log meaningful events and every rejection with `logger` (`info`/`warn`/`error`).
+- Persist state through `getStoreValue`/`setStoreValue` against the typed
+  `StoreSchema` in `main/store` — don't touch `electron-store` directly elsewhere.
+- Stream long-running output by sending events to `webContents` (guard with
+  `isDestroyed()`), not by resolving the invoke; support cancellation with
+  `AbortController` (see `main/llama`).
+
+## Preload bridge
+
+- The preload layer is the trust boundary: normalize/validate values coming back
+  from `invoke` (cast `unknown`, coerce with helpers like `normalizeShortcuts`)
+  so the renderer receives well-typed, safe data.
+- Expose exactly one `electronApi` object via `contextBridge`; never leak
+  `ipcRenderer` to the renderer.
+- Subscription methods (`on...`) return an unsubscribe function that calls
+  `removeListener`.

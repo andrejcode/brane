@@ -3,10 +3,39 @@ globs: src/renderer/**/*.tsx
 alwaysApply: false
 ---
 
-# React
+# React (Renderer)
 
-- Function components only; name the props interface `<Component>Props`.
-- Stabilize values passed down or into deps with `useCallback`/`useMemo`.
-- Guard effect async work with an `isMounted` flag and clean up listeners on unmount.
-- Context hooks (`useModel`) throw a clear error when used outside their provider.
-- Compose class names with `clsx`; group related Tailwind classes across lines.
+React 19 function components only. The renderer reaches the main process solely
+through `window.electronApi`.
+
+## Components
+
+- Function components; name the props interface `<Component>Props`.
+- Compose class names with `clsx`; group related Tailwind (v4) classes across
+  lines for readability.
+- Use `lucide-react` for icons and the shared primitives in `@/ui` (`Button`,
+  `Modal`, `Switch`, …) instead of re-building them.
+
+## Hooks & effects
+
+- Stabilize values passed into deps or down to children with `useCallback` /
+  `useMemo`.
+- Guard async effect work with an `isMounted` flag and clean up listeners /
+  subscriptions on unmount (unsubscribe functions returned by `electronApi`).
+- Track superseded async work (e.g. rapid model reloads) with a request-id `ref`
+  so a stale in-flight result can't clobber newer state (see `ModelContext`).
+
+## Context
+
+- Providers memoize their value object and expose a `use<Name>` hook.
+- The hook throws a clear error when used outside its provider
+  (`useModel must be used within a ModelProvider`), unless a documented
+  fallback is intentional (see `LocaleContext`, used by leaf components in tests).
+- Create context with `createContext<T | null>(null)` and read it with `use()`.
+
+## User-facing text & i18n
+
+- Never hard-code display strings. Use `const { t } = useTranslation()` and a
+  message key; interpolate with `t(key, params)`.
+- Surface recoverable errors through `useAlert().showAlert(t('...'), 'error')`
+  rather than throwing to the user.

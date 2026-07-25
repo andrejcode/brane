@@ -1,0 +1,55 @@
+---
+description: TypeScript style, naming, typing, error handling, and comment discipline
+alwaysApply: true
+---
+
+# Code Style
+
+Write self-explanatory code through good names and small, single-purpose
+functions. Prefer early-return guard clauses over deep nesting.
+
+## Formatting
+
+- No semicolons, single quotes, 2-space indentation (Prettier enforces this).
+- `verbatimModuleSyntax` is on: import types with `import type { X }`.
+- Imports are sorted by `import/order` (builtin → external → internal →
+  sibling/parent → index, alphabetized, no blank lines between groups). Run
+  `npm run lint:fix` rather than hand-sorting.
+
+## Naming & structure
+
+- Descriptive, verb-first functions (`resolveSelectedModel`, `registerThemeHandlers`,
+  `normalizeShortcuts`).
+- `UPPER_SNAKE_CASE` for module-level constants (`MODEL_EXTENSION`,
+  `DEFAULT_SHORTCUTS`, `DEFAULT_LOCALE`).
+- Extract private helpers at module scope; keep the exported surface obvious.
+- Pass a named `interface` options object when a function takes several params
+  (e.g. `RegisterModelHandlersOptions`).
+
+## Types
+
+- `interface` for object shapes; `type` for unions and aliases.
+- Model variants as discriminated unions (see `LlamaStreamEvent`); use
+  `as const` arrays/objects for enum-like sets (`LOCALES`, `SHORTCUT_ACTIONS`,
+  `IpcChannels`) and derive types with `(typeof X)[number]`.
+- Let return types infer when obvious; annotate only when it adds clarity or safety.
+- `strict`, `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes` are on —
+  handle `undefined` from index access and don't pass `undefined` to optional props.
+
+## Error handling
+
+- Swallow-and-fallback for non-critical reads (return `[]`/`null`), as in
+  `listModels`.
+- For actionable failures, throw an `Error` with your own user-facing message and
+  log the raw error separately with `logger` — never surface a caught error's
+  `.message` directly.
+
+## Comments
+
+Default to zero comments. Add one only when it explains something the code cannot:
+a non-obvious "why", trade-off, caveat, or library/platform quirk.
+
+- Never narrate the code, restate a name, or log your edit (`// added retry`).
+- No commented-out code, section banners, or redundant JSDoc.
+- When suppressing a lint rule, justify it inline
+  (`// eslint-disable-next-line ... -- reason`).

@@ -1,0 +1,39 @@
+---
+description: High-level architecture, process model, and layout of the Brane Electron app
+alwaysApply: true
+---
+
+# Architecture
+
+Brane is an Electron desktop chat app that runs local GGUF models on-device via
+`node-llama-cpp`. There is no backend or network; everything happens across three
+Electron processes plus a shared layer.
+
+## Process layers
+
+- `src/main/**` — Node/Electron main process. Owns the window, the model runtime
+  (`main/llama`), model discovery (`main/model`), persistence (`main/store`),
+  logging (`main/logger`), and all `ipcMain` handlers.
+- `src/preload/**` — the context-isolated bridge. Exposes a single typed
+  `electronApi` object on `window` via `contextBridge`; declares its shape in
+  `preload/api.d.ts` (global `ElectronApi`).
+- `src/renderer/**` — the React 19 UI. Talks to the main process only through
+  `window.electronApi`; it never imports from `main` or uses `ipcRenderer`.
+- `src/shared/**` — types and constants shared across processes (notably
+  `IpcChannels` and all IPC payload types). The single safe cross-layer import.
+
+## Import boundaries
+
+- Renderer code must not import from `src/main`. Cross-process contracts live in
+  `@shared/types`.
+- Use path aliases, never long relative chains: `@shared/types`, `@shared/*`,
+  `@/*` (renderer root), `@test/*`.
+
+## Commands
+
+- `npm start` — run the app (electron-forge + Vite).
+- `npm test` / `npm run test:watch` — Vitest.
+- `npm run lint` / `npm run lint:fix` — ESLint (type-checked).
+- `npm run format` — Prettier.
+- `npm run typecheck` — project-wide `tsc -b`. Each layer has its own tsconfig
+  (`typecheck:main|preload|renderer|test`).

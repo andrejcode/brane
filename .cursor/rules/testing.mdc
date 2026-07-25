@@ -1,0 +1,35 @@
+---
+globs: src/**/*.{test,spec}.{ts,tsx}
+alwaysApply: false
+---
+
+# Testing
+
+Vitest with `globals: true` (no need to import `describe`/`it`/`expect`) and the
+`jsdom` environment. `src/test/setup.ts` stubs browser APIs missing from jsdom
+(`ResizeObserver`, `matchMedia`, `Element.scrollTo`).
+
+## Conventions
+
+- Co-locate tests in a `tests/` folder next to the code, named `*.test.ts(x)`.
+- Test through the public interface and assert on user-visible behavior, not
+  implementation details.
+
+## Component tests
+
+- Use `@testing-library/react` (`render`, `screen`) and `@testing-library/user-event`.
+- Query by accessible role and name (`screen.getByRole('switch', { name: 'Toggle' })`),
+  not by test ids or class names.
+- `cleanup()` runs automatically after each test.
+
+## Mocking the Electron bridge
+
+- Components that read `window.electronApi` must install the fake bridge with
+  `installMockElectronApi(options)` from `@test/electronApi`; drive IPC callbacks
+  with the returned `emitStream` / `emitFullScreenChange` helpers.
+- Tear down with `clearMockElectronApi()` when a test mutates the global.
+
+## Main-process tests
+
+- Pure logic (`main/model`, `main/logger`, `main/locale`) is unit-tested directly;
+  keep such logic free of Electron singletons so it stays testable.

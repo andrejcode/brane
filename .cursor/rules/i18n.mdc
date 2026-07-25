@@ -1,0 +1,23 @@
+---
+globs: src/renderer/i18n/**/*.ts
+alwaysApply: false
+---
+
+# Internationalization
+
+The app ships four locales: `en`, `de`, `hr`, `sr` (`LOCALES` in `@shared/types`).
+English is the source of truth — `MessageKey` is `keyof typeof en`, and
+`Messages` forces every other catalog to define exactly the same keys.
+
+## Adding or changing a message
+
+- Add the key to `en.ts` first, then to `de.ts`, `hr.ts`, and `sr.ts`. A missing
+  or misspelled key is a compile error in that catalog — don't leave it untranslated
+  or duplicated from English.
+- Use `{name}` placeholders for interpolation; `translate` substitutes them from
+  `TranslationParams`. Keep placeholder names identical across locales.
+- Register a new locale by extending `LOCALES`, adding its catalog to `messages`,
+  and adding an autonym entry to `LOCALE_OPTIONS`.
+
+Consume translations in components via `useTranslation()`, never by importing
+catalogs directly.
