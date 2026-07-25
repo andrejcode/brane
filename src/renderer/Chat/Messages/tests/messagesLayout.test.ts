@@ -19,6 +19,7 @@ describe('clamp', () => {
 describe('computeScrollbarMetrics', () => {
   const base = {
     headerHeight: 48,
+    bottomInset: 0,
     minimumThumbHeight: 20,
     thumbScale: 0.85,
   }
@@ -92,6 +93,23 @@ describe('computeScrollbarMetrics', () => {
       return
     }
     expect(metrics.thumbTop).toBeCloseTo(952 - metrics.thumbHeight, 5)
+  })
+
+  it('shortens the track by the bottom inset so it ends at the composer top', () => {
+    const metrics = computeScrollbarMetrics({
+      ...base,
+      scrollHeight: 2000,
+      clientHeight: 1000,
+      scrollTop: 1000,
+      bottomInset: 200,
+    })
+
+    expect(metrics.isVisible).toBe(true)
+    if (!metrics.isVisible) {
+      return
+    }
+    // trackHeight 1000 - 48 - 200 = 752; thumb bottoms out at trackHeight - thumbHeight
+    expect(metrics.thumbTop).toBeCloseTo(752 - metrics.thumbHeight, 5)
   })
 })
 

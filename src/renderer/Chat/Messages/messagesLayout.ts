@@ -7,6 +7,8 @@ export interface ScrollbarMetricsInput {
   clientHeight: number
   scrollTop: number
   headerHeight: number
+  // Space reserved for the docked composer so the track ends at its top edge
+  bottomInset: number
   minimumThumbHeight: number
   thumbScale: number
 }
@@ -21,11 +23,12 @@ export function computeScrollbarMetrics({
   clientHeight,
   scrollTop,
   headerHeight,
+  bottomInset,
   minimumThumbHeight,
   thumbScale,
 }: ScrollbarMetricsInput): ScrollbarMetrics {
   const maxScrollTop = scrollHeight - clientHeight
-  const trackHeight = clientHeight - headerHeight
+  const trackHeight = clientHeight - headerHeight - bottomInset
 
   if (maxScrollTop <= 0 || trackHeight <= 0) {
     return { isVisible: false }
