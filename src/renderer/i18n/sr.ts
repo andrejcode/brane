@@ -36,6 +36,7 @@ export const sr: Messages = {
   'settings.close': 'Затвори подешавања',
   'settings.tabGeneral': 'Опште',
   'settings.tabAppearance': 'Изглед',
+  'settings.tabShortcuts': 'Пречице',
 
   'general.sendWith': 'Шаљи са {shortcut}+Enter',
   'general.sendWithDescription':
@@ -56,6 +57,18 @@ export const sr: Messages = {
   'appearance.dark': 'Тамна',
   'appearance.light': 'Светла',
   'appearance.system': 'Систем',
+
+  'shortcuts.title': 'Тастатурне пречице',
+  'shortcuts.reset': 'Врати на подразумевано',
+  'shortcuts.recording': 'Притисни тастере…',
+  'shortcuts.conflict': 'Та пречица се већ користи.',
+  'shortcuts.toggleSettings': 'Прикажи/сакриј подешавања',
+  'shortcuts.toggleSettingsDescription':
+    'Отвори или затвори прозор подешавања.',
+  'shortcuts.toggleModels': 'Прикажи/сакриј моделе',
+  'shortcuts.toggleModelsDescription': 'Отвори или затвори прозор модела.',
+  'shortcuts.toggleSidebar': 'Прикажи/сакриј бочну траку',
+  'shortcuts.toggleSidebarDescription': 'Прикажи или сакриј бочну траку.',
 
   'alert.error': 'Грешка',
   'alert.success': 'Успех',

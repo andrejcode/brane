@@ -7,6 +7,7 @@ import { initializeLocale, registerLocaleHandlers } from './locale'
 import { cleanupOldLogs, logger } from './logger'
 import { registerLogsHandlers } from './logs'
 import { registerModelHandlers } from './model'
+import { registerShortcutsHandlers } from './shortcuts'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
 
@@ -40,6 +41,7 @@ void app.whenReady().then(() => {
   registerThemeHandlers()
   registerLocaleHandlers()
   registerChatSettingsHandlers()
+  registerShortcutsHandlers()
   registerLogsHandlers()
   registerLlamaHandlers()
   registerModelHandlers({

@@ -1,4 +1,10 @@
-import type { LlamaStreamEvent, Locale, ModelState, Theme } from '@shared/types'
+import type {
+  LlamaStreamEvent,
+  Locale,
+  ModelState,
+  ShortcutMap,
+  Theme,
+} from '@shared/types'
 
 declare global {
   interface ElectronApi {
@@ -21,6 +27,8 @@ declare global {
     setSelectedModel: (model: string | null) => Promise<string | null>
     getSendWithModifierEnter: () => Promise<boolean>
     setSendWithModifierEnter: (enabled: boolean) => Promise<boolean>
+    getShortcuts: () => Promise<ShortcutMap>
+    setShortcuts: (shortcuts: ShortcutMap) => Promise<ShortcutMap>
     openLogs: () => Promise<void>
     deleteLogs: () => Promise<void>
   }

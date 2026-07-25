@@ -1,10 +1,10 @@
-import { type LucideIcon, Palette, Settings } from 'lucide-react'
+import { Keyboard, type LucideIcon, Palette, Settings } from 'lucide-react'
 import { useRef } from 'react'
 import type { MessageKey } from '@/i18n'
 import { GhostButton } from '@/ui/GhostButton'
 import { useTranslation } from '../contexts/LocaleContext'
 
-export type SettingsTabId = 'general' | 'appearance'
+export type SettingsTabId = 'general' | 'appearance' | 'shortcuts'
 
 export const TABS: ReadonlyArray<{
   id: SettingsTabId
@@ -13,6 +13,7 @@ export const TABS: ReadonlyArray<{
 }> = [
   { id: 'general', labelKey: 'settings.tabGeneral', icon: Settings },
   { id: 'appearance', labelKey: 'settings.tabAppearance', icon: Palette },
+  { id: 'shortcuts', labelKey: 'settings.tabShortcuts', icon: Keyboard },
 ]
 
 type SettingsSidebarProps = {

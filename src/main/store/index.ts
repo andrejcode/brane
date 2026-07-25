@@ -1,5 +1,10 @@
 import Store from 'electron-store'
-import type { Locale, Theme } from '@shared/types'
+import {
+  DEFAULT_SHORTCUTS,
+  type Locale,
+  type ShortcutMap,
+  type Theme,
+} from '@shared/types'
 
 interface WindowSettings {
   width: number
@@ -21,6 +26,8 @@ interface StoreSchema {
   // null until the user (or first-run detection) settles on a language, so we
   // can tell "never chosen" apart from an explicit choice of English.
   locale: Locale | null
+  // User-customizable keyboard shortcuts, keyed by action.
+  shortcuts: ShortcutMap
 }
 
 const defaults: StoreSchema = {
@@ -35,6 +42,7 @@ const defaults: StoreSchema = {
   selectedModel: null,
   sendWithModifierEnter: false,
   locale: null,
+  shortcuts: DEFAULT_SHORTCUTS,
 }
 
 const store = new Store<StoreSchema>({

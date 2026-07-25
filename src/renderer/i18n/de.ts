@@ -40,6 +40,7 @@ export const de: Messages = {
   'settings.close': 'Einstellungen schließen',
   'settings.tabGeneral': 'Allgemein',
   'settings.tabAppearance': 'Darstellung',
+  'settings.tabShortcuts': 'Tastenkürzel',
 
   'general.sendWith': 'Mit {shortcut}+Enter senden',
   'general.sendWithDescription':
@@ -60,6 +61,20 @@ export const de: Messages = {
   'appearance.dark': 'Dunkel',
   'appearance.light': 'Hell',
   'appearance.system': 'System',
+
+  'shortcuts.title': 'Tastenkürzel',
+  'shortcuts.reset': 'Auf Standard zurücksetzen',
+  'shortcuts.recording': 'Tasten drücken …',
+  'shortcuts.conflict': 'Dieses Tastenkürzel wird bereits verwendet.',
+  'shortcuts.toggleSettings': 'Einstellungen umschalten',
+  'shortcuts.toggleSettingsDescription':
+    'Das Einstellungsfenster öffnen oder schließen.',
+  'shortcuts.toggleModels': 'Modelle umschalten',
+  'shortcuts.toggleModelsDescription':
+    'Das Modellfenster öffnen oder schließen.',
+  'shortcuts.toggleSidebar': 'Seitenleiste umschalten',
+  'shortcuts.toggleSidebarDescription':
+    'Die Seitenleiste ein- oder ausblenden.',
 
   'alert.error': 'Fehler',
   'alert.success': 'Erfolg',

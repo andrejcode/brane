@@ -36,6 +36,7 @@ export const hr: Messages = {
   'settings.close': 'Zatvori postavke',
   'settings.tabGeneral': 'Općenito',
   'settings.tabAppearance': 'Izgled',
+  'settings.tabShortcuts': 'Prečaci',
 
   'general.sendWith': 'Šalji s {shortcut}+Enter',
   'general.sendWithDescription':
@@ -56,6 +57,17 @@ export const hr: Messages = {
   'appearance.dark': 'Tamna',
   'appearance.light': 'Svijetla',
   'appearance.system': 'Sustav',
+
+  'shortcuts.title': 'Tipkovnički prečaci',
+  'shortcuts.reset': 'Vrati na zadano',
+  'shortcuts.recording': 'Pritisni tipke…',
+  'shortcuts.conflict': 'Taj se prečac već koristi.',
+  'shortcuts.toggleSettings': 'Prikaži/sakrij postavke',
+  'shortcuts.toggleSettingsDescription': 'Otvori ili zatvori prozor postavki.',
+  'shortcuts.toggleModels': 'Prikaži/sakrij modele',
+  'shortcuts.toggleModelsDescription': 'Otvori ili zatvori prozor modela.',
+  'shortcuts.toggleSidebar': 'Prikaži/sakrij bočnu traku',
+  'shortcuts.toggleSidebarDescription': 'Prikaži ili sakrij bočnu traku.',
 
   'alert.error': 'Pogreška',
   'alert.success': 'Uspjeh',

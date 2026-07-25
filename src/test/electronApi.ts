@@ -1,5 +1,11 @@
 import { vi } from 'vitest'
-import type { Locale, LlamaStreamEvent, Theme } from '@shared/types'
+import {
+  DEFAULT_SHORTCUTS,
+  type Locale,
+  type LlamaStreamEvent,
+  type ShortcutMap,
+  type Theme,
+} from '@shared/types'
 
 export interface MockElectronApi {
   electronApi: ElectronApi
@@ -19,6 +25,8 @@ export interface MockElectronApi {
   setSelectedModel: ReturnType<typeof vi.fn>
   getSendWithModifierEnter: ReturnType<typeof vi.fn>
   setSendWithModifierEnter: ReturnType<typeof vi.fn>
+  getShortcuts: ReturnType<typeof vi.fn>
+  setShortcuts: ReturnType<typeof vi.fn>
   openLogs: ReturnType<typeof vi.fn>
   deleteLogs: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
@@ -35,6 +43,7 @@ export interface MockElectronApiOptions {
   models?: string[]
   selectedModel?: string | null
   sendWithModifierEnter?: boolean
+  shortcuts?: ShortcutMap
 }
 
 // Installs a fake `window.electronApi` so renderer components that talk to the
@@ -51,6 +60,7 @@ export function installMockElectronApi(
     models = [],
     selectedModel = null,
     sendWithModifierEnter = false,
+    shortcuts = DEFAULT_SHORTCUTS,
   } = options
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
@@ -82,6 +92,12 @@ export function installMockElectronApi(
   )
   const setSendWithModifierEnter = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
+  )
+  const getShortcuts = vi.fn(
+    (): Promise<ShortcutMap> => Promise.resolve(shortcuts),
+  )
+  const setShortcuts = vi.fn(
+    (next: ShortcutMap): Promise<ShortcutMap> => Promise.resolve(next),
   )
   const openLogs = vi.fn((): Promise<void> => Promise.resolve())
   const deleteLogs = vi.fn((): Promise<void> => Promise.resolve())
@@ -126,6 +142,8 @@ export function installMockElectronApi(
     setSelectedModel,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    getShortcuts,
+    setShortcuts,
     openLogs,
     deleteLogs,
   }
@@ -150,6 +168,8 @@ export function installMockElectronApi(
     setSelectedModel,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    getShortcuts,
+    setShortcuts,
     openLogs,
     deleteLogs,
     streamUnsubscribe,

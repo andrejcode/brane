@@ -22,6 +22,9 @@ export const IpcChannels = {
   getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',
   setSendWithModifierEnter: 'chat-settings:set-send-with-modifier-enter',
 
+  getShortcuts: 'shortcuts:get',
+  setShortcuts: 'shortcuts:set',
+
   openLogs: 'logs:open',
   deleteLogs: 'logs:delete',
 } as const
@@ -33,6 +36,68 @@ export const LOCALES = ['en', 'de', 'hr', 'sr'] as const
 export type Locale = (typeof LOCALES)[number]
 
 export const DEFAULT_LOCALE: Locale = 'en'
+
+export const SHORTCUT_ACTIONS = [
+  'toggleSettings',
+  'toggleModels',
+  'toggleSidebar',
+] as const
+
+export type ShortcutAction = (typeof SHORTCUT_ACTIONS)[number]
+
+// A key combination. `mod` is the platform's primary modifier (Cmd on macOS,
+// Ctrl on Windows/Linux) so a single stored binding works on every platform.
+export interface ShortcutBinding {
+  key: string
+  mod: boolean
+  shift: boolean
+  alt: boolean
+}
+
+export type ShortcutMap = Record<ShortcutAction, ShortcutBinding>
+
+export const DEFAULT_SHORTCUTS: ShortcutMap = {
+  toggleSettings: { key: ',', mod: true, shift: false, alt: false },
+  toggleModels: { key: 'm', mod: true, shift: true, alt: false },
+  toggleSidebar: { key: 'b', mod: true, shift: false, alt: false },
+}
+
+function isValidBinding(value: unknown): value is ShortcutBinding {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const binding = value as Record<string, unknown>
+  return (
+    typeof binding.key === 'string' &&
+    binding.key.length > 0 &&
+    typeof binding.mod === 'boolean' &&
+    typeof binding.shift === 'boolean' &&
+    typeof binding.alt === 'boolean'
+  )
+}
+
+export function normalizeShortcuts(value: unknown): ShortcutMap {
+  const source =
+    value && typeof value === 'object'
+      ? (value as Record<string, unknown>)
+      : {}
+
+  const result = {} as ShortcutMap
+  for (const action of SHORTCUT_ACTIONS) {
+    const candidate = source[action]
+    result[action] = isValidBinding(candidate)
+      ? {
+          key: candidate.key.toLowerCase(),
+          mod: candidate.mod,
+          shift: candidate.shift,
+          alt: candidate.alt,
+        }
+      : { ...DEFAULT_SHORTCUTS[action] }
+  }
+
+  return result
+}
 
 // The available models and the persisted selection (validated against disk),
 // fetched together in a single round-trip.

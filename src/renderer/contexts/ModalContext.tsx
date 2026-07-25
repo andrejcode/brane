@@ -6,6 +6,7 @@ interface ModalContextValue {
   activeModal: ModalName | null
   openModal: (modal: ModalName) => void
   closeModal: () => void
+  toggleModal: (modal: ModalName) => void
 }
 
 const ModalContext = createContext<ModalContextValue | null>(null)
@@ -23,9 +24,13 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     setActiveModal(null)
   }, [])
 
+  const toggleModal = useCallback((modal: ModalName) => {
+    setActiveModal((current) => (current === modal ? null : modal))
+  }, [])
+
   const value = useMemo(
-    () => ({ activeModal, openModal, closeModal }),
-    [activeModal, openModal, closeModal],
+    () => ({ activeModal, openModal, closeModal, toggleModal }),
+    [activeModal, openModal, closeModal, toggleModal],
   )
 
   return <ModalContext value={value}>{children}</ModalContext>

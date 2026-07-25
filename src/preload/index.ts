@@ -4,6 +4,8 @@ import {
   type LlamaStreamEvent,
   type Locale,
   type ModelState,
+  normalizeShortcuts,
+  type ShortcutMap,
   type Theme,
 } from '@shared/types'
 
@@ -106,6 +108,17 @@ const electronApi: ElectronApi = {
       enabled,
     )
     return saved === true
+  },
+  getShortcuts: async () => {
+    const shortcuts: unknown = await ipcRenderer.invoke(IpcChannels.getShortcuts)
+    return normalizeShortcuts(shortcuts)
+  },
+  setShortcuts: async (shortcuts: ShortcutMap) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setShortcuts,
+      shortcuts,
+    )
+    return normalizeShortcuts(saved)
   },
   openLogs: async () => {
     await ipcRenderer.invoke(IpcChannels.openLogs)

@@ -34,6 +34,7 @@ export const en = {
   'settings.close': 'Close settings',
   'settings.tabGeneral': 'General',
   'settings.tabAppearance': 'Appearance',
+  'settings.tabShortcuts': 'Shortcuts',
 
   'general.sendWith': 'Send with {shortcut}+Enter',
   'general.sendWithDescription':
@@ -53,6 +54,17 @@ export const en = {
   'appearance.dark': 'Dark',
   'appearance.light': 'Light',
   'appearance.system': 'System',
+
+  'shortcuts.title': 'Keyboard shortcuts',
+  'shortcuts.reset': 'Reset to defaults',
+  'shortcuts.recording': 'Press keys…',
+  'shortcuts.conflict': 'That shortcut is already in use.',
+  'shortcuts.toggleSettings': 'Toggle settings',
+  'shortcuts.toggleSettingsDescription': 'Open or close the settings window.',
+  'shortcuts.toggleModels': 'Toggle models',
+  'shortcuts.toggleModelsDescription': 'Open or close the models window.',
+  'shortcuts.toggleSidebar': 'Toggle sidebar',
+  'shortcuts.toggleSidebarDescription': 'Show or hide the sidebar.',
 
   'alert.error': 'Error',
   'alert.success': 'Success',

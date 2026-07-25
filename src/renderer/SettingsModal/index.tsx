@@ -5,6 +5,7 @@ import { FOCUS_RING_INSET } from '@/ui/focusRing'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
 import { type SettingsTabId, SettingsSidebar, TABS } from './SettingsSidebar'
+import { ShortcutsSettings } from './ShortcutsSettings'
 import { useTranslation } from '../contexts/LocaleContext'
 import { useModals } from '../contexts/ModalContext'
 import { Modal } from '../ui/Modal'
@@ -53,6 +54,7 @@ export function SettingsModal() {
             <div className="flex flex-col gap-4">
               {activeTab === 'general' && <GeneralSettings />}
               {activeTab === 'appearance' && <ApperanceSettings />}
+              {activeTab === 'shortcuts' && <ShortcutsSettings />}
             </div>
           </div>
         </div>

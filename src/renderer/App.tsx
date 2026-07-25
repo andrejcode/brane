@@ -8,11 +8,13 @@ import {
   useLocale,
   useTranslation,
 } from './contexts/LocaleContext'
-import { ModalProvider } from './contexts/ModalContext'
+import { ModalProvider, useModals } from './contexts/ModalContext'
 import { ModelProvider, useModel } from './contexts/ModelContext'
+import { ShortcutsProvider, useShortcuts } from './contexts/ShortcutsContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { GlobalAlert } from './GlobalAlert'
 import { Header } from './Header'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { ModelsModal } from './ModelsModal'
 import { SettingsModal } from './SettingsModal'
 import { Sidebar } from './ui/Sidebar'
@@ -25,7 +27,9 @@ export function App() {
           <ModelProvider>
             <ThemeProvider>
               <ChatSettingsProvider>
-                <AppContent />
+                <ShortcutsProvider>
+                  <AppContent />
+                </ShortcutsProvider>
               </ChatSettingsProvider>
             </ThemeProvider>
           </ModelProvider>
@@ -39,6 +43,8 @@ function AppContent() {
   const { selectedModel, isReady: isModelReady } = useModel()
   const { isReady: isThemeReady } = useTheme()
   const { isReady: isLocaleReady } = useLocale()
+  const { shortcuts } = useShortcuts()
+  const { toggleModal } = useModals()
   const { t } = useTranslation()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -61,6 +67,12 @@ function AppContent() {
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((open) => !open)
   }, [])
+
+  useKeyboardShortcuts(shortcuts, {
+    toggleSettings: () => toggleModal('settings'),
+    toggleModels: () => toggleModal('models'),
+    toggleSidebar,
+  })
 
   return (
     <div
