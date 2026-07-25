@@ -27,7 +27,17 @@
     "typecheck:main": "tsc -p tsconfig.main.json --noEmit",
     "typecheck:preload": "tsc -p tsconfig.preload.json --noEmit",
     "typecheck:renderer": "tsc -p tsconfig.renderer.json --noEmit",
-    "typecheck:test": "tsc -p tsconfig.vitest.json --noEmit"
+    "typecheck:test": "tsc -p tsconfig.vitest.json --noEmit",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md,html,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -62,7 +72,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.2.0",
     "prettier": "^3.8.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
