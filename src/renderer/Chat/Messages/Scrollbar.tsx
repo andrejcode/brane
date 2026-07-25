@@ -29,7 +29,7 @@ export function Scrollbar({ controller }: ScrollbarProps) {
     <div
       ref={trackRef}
       className={clsx(
-        'absolute right-0.5 z-20 w-2 transition-opacity duration-150',
+        'group absolute right-0.5 z-20 w-2 transition-opacity duration-150',
         isActive ? 'opacity-100' : 'opacity-0',
       )}
       // Start below the header and stop at the composer top for an accurate map
@@ -40,12 +40,16 @@ export function Scrollbar({ controller }: ScrollbarProps) {
     >
       <div
         className={clsx(
-          'absolute right-0 w-1.5 rounded-full',
+          'absolute right-0 rounded-full',
           'bg-neutral-500/70 dark:bg-neutral-600/70',
+          // Widen on hover (and while dragging) so it's an easier grab target
+          'w-1.5 group-hover:w-2.5',
+          isDraggingThumb && 'w-2.5',
           // Smooth streaming resizes, but let dragging track the pointer
-          // without lag.
-          !isDraggingThumb &&
-            'transition-[height,transform] duration-100 ease-out',
+          // without lag; keep width animating either way.
+          isDraggingThumb
+            ? 'transition-[width] duration-100 ease-out'
+            : 'transition-[height,transform,width] duration-100 ease-out',
         )}
         onPointerDown={onThumbPointerDown}
         style={{
