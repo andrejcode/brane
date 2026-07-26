@@ -10,7 +10,8 @@ import { AlertProvider } from '../../contexts/AlertContext'
 import { ChatSettingsProvider } from '../../contexts/ChatSettingsContext'
 import { ModelProvider } from '../../contexts/ModelContext'
 import { GlobalAlert } from '../../GlobalAlert'
-import { Chat, introMessages } from '../index'
+import { Chat } from '../index'
+import { introMessages } from '../IntroMessage'
 
 let mock: MockElectronApi
 

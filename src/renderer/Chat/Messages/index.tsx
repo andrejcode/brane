@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { Message } from '..'
+import type { Message } from '@/types'
 import { ChatMessage } from './ChatMessage'
 import { computeTailBottomInset } from './messagesLayout'
 import { Scrollbar } from './Scrollbar'

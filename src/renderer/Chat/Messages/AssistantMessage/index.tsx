@@ -1,4 +1,4 @@
-import type { Message } from '@/Chat'
+import type { Message } from '@/types'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { ReasoningSection } from './ReasoningSection'

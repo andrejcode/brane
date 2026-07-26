@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { useEffect, useState } from 'react'
 import { FOCUS_RING } from '@/ui/focusRing'
-import { eventToBinding, formatShortcut } from '@/utils/shortcut'
+import { eventToBinding, formatShortcut } from '@/utils'
 import type { ShortcutBinding } from '@shared/types'
 
 interface ShortcutRecorderProps {

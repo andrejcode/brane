@@ -3,7 +3,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import type { MessageKey } from '@/i18n'
 import { Button } from '@/ui/Button'
-import { bindingsEqual } from '@/utils/shortcut'
+import { bindingsEqual } from '@/utils'
 import {
   SHORTCUT_ACTIONS,
   type ShortcutAction,

@@ -13,20 +13,8 @@ import { useAlert } from '../contexts/AlertContext'
 import { useChatSettings } from '../contexts/ChatSettingsContext'
 import { useTranslation } from '../contexts/LocaleContext'
 import { useModel } from '../contexts/ModelContext'
-
-export { introMessages } from './IntroMessage'
-
-export interface Message {
-  id: string
-  role: 'assistant' | 'user'
-  content: string
-  reasoning?: string
-  isThinking?: boolean
-}
-
-function createMessageId() {
-  return crypto.randomUUID()
-}
+import type { Message } from '../types'
+import { createMessageId } from '../utils'
 
 export function Chat() {
   const { showAlert } = useAlert()

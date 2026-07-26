@@ -4,7 +4,7 @@ import {
   type ShortcutAction,
   type ShortcutMap,
 } from '@shared/types'
-import { matchesBinding } from '../utils/shortcut'
+import { matchesBinding } from '../utils'
 
 type ShortcutHandlers = Record<ShortcutAction, () => void>
 

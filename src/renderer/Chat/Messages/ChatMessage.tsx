@@ -1,8 +1,8 @@
 import { clsx } from 'clsx'
 import type { Ref } from 'react'
-import type { Message } from '@/Chat'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import type { Message } from '@/types'
 import { CopyButton } from '@/ui/CopyButton'
 import { AssistantMessage } from './AssistantMessage'
 

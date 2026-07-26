@@ -7,7 +7,7 @@ import { useModel } from '../contexts/ModelContext'
 import { GhostButton } from '../ui/GhostButton'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { Modal } from '../ui/Modal'
-import { formatModelName } from '../utils/formatModelName'
+import { formatModelName } from '../utils'
 
 export const SEARCH_DEBOUNCE_MS = 200
 
