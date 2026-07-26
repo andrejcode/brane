@@ -65,6 +65,9 @@
 
 body {
   font-family: var(--font-sans);
+  /* Match native apps: UI chrome isn't selectable by default. Content that
+     should be selectable (message text, code) opts back in with select-text. */
+  user-select: none;
 }
 
 /* Sweeps a bright band across clipped text to signal the model is thinking.

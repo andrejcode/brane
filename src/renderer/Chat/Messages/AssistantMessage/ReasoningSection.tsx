@@ -48,7 +48,13 @@ export function ReasoningSection({
         )}
       >
         <div className="overflow-hidden">
-          <p className="mt-1 border-l-2 border-neutral-200 pl-3 text-sm whitespace-pre-wrap text-neutral-500 dark:border-neutral-600 dark:text-neutral-400">
+          <p
+            className={clsx(
+              'mt-1 border-l-2  pl-3 text-sm whitespace-pre-wrap select-text',
+              'text-neutral-500 dark:text-neutral-400',
+              'border-neutral-200 dark:border-neutral-600',
+            )}
+          >
             {reasoning}
           </p>
         </div>

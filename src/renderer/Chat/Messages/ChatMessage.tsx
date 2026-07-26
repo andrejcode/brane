@@ -26,7 +26,12 @@ export function ChatMessage({ message, ref }: ChatMessageProps) {
       )}
     >
       {isUser ? (
-        <div className="rounded-2xl bg-neutral-200 px-4 py-2 whitespace-pre-wrap dark:bg-neutral-700">
+        <div
+          className={clsx(
+            'rounded-2xl px-4 py-2 whitespace-pre-wrap select-text',
+            'bg-neutral-200 dark:bg-neutral-700',
+          )}
+        >
           {message.content}
         </div>
       ) : (
