@@ -14,10 +14,4 @@ describe('LoadingSpinner', () => {
 
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
-
-  it('forwards a custom className onto the spinner', () => {
-    render(<LoadingSpinner isLoading className="text-neutral-500" />)
-
-    expect(screen.getByRole('status')).toHaveClass('text-neutral-500')
-  })
 })

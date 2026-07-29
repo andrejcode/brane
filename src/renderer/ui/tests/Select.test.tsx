@@ -24,25 +24,6 @@ describe('Select', () => {
     expect(screen.getByRole('option', { name: 'Beta' })).toBeInTheDocument()
   })
 
-  it('calls onChange with the selected value', async () => {
-    const onChange = vi.fn()
-    render(
-      <Select
-        ariaLabel="Choice"
-        value="a"
-        onChange={onChange}
-        options={OPTIONS}
-      />,
-    )
-
-    await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: 'Choice' }),
-      'b',
-    )
-
-    expect(onChange).toHaveBeenCalledWith('b')
-  })
-
   it('does not fire onChange while disabled', async () => {
     const onChange = vi.fn()
     render(

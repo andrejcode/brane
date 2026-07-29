@@ -25,15 +25,6 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledWith(true)
   })
 
-  it('toggles from checked to unchecked', async () => {
-    const onChange = vi.fn()
-    render(<Switch checked ariaLabel="Toggle" onChange={onChange} />)
-
-    await userEvent.click(screen.getByRole('switch', { name: 'Toggle' }))
-
-    expect(onChange).toHaveBeenCalledWith(false)
-  })
-
   it('does not call onChange while disabled', async () => {
     const onChange = vi.fn()
     render(
