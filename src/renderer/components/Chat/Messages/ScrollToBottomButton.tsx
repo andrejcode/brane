@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { ArrowDown } from 'lucide-react'
+import { useTranslation } from '@/contexts/LocaleContext'
 import { BaseButton } from '@/ui/buttons/BaseButton'
-import { useTranslation } from '../../contexts/LocaleContext'
 
 interface ScrollToBottomButtonProps {
   bottomInset: number

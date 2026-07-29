@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
-import { useTranslation } from '../contexts/LocaleContext'
-import { introMessagesByLocale } from '../i18n'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { introMessagesByLocale } from '@/i18n'
 
 export const introMessages = introMessagesByLocale.en
 

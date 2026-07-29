@@ -4,12 +4,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
-import { Header } from '@/Header'
 import {
   clearMockElectronApi,
   installMockElectronApi,
   type MockElectronApi,
 } from '@test/electronApi'
+import { Header } from '..'
 
 let mock: MockElectronApi
 

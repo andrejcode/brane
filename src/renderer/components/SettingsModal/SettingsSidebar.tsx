@@ -1,8 +1,8 @@
 import { Keyboard, type LucideIcon, Palette, Settings } from 'lucide-react'
 import { useRef } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
 import type { MessageKey } from '@/i18n'
 import { GhostButton } from '@/ui/buttons/GhostButton'
-import { useTranslation } from '../contexts/LocaleContext'
 
 export type SettingsTabId = 'general' | 'appearance' | 'shortcuts'
 

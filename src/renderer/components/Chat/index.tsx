@@ -6,15 +6,15 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useAlert } from '@/contexts/AlertContext'
+import { useChatSettings } from '@/contexts/ChatSettingsContext'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { useModel } from '@/contexts/ModelContext'
+import type { Message } from '@/types'
+import { createMessageId } from '@/utils'
 import { ChatInput } from './ChatInput'
 import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
-import { useAlert } from '../contexts/AlertContext'
-import { useChatSettings } from '../contexts/ChatSettingsContext'
-import { useTranslation } from '../contexts/LocaleContext'
-import { useModel } from '../contexts/ModelContext'
-import type { Message } from '../types'
-import { createMessageId } from '../utils'
 
 export function Chat() {
   const { showAlert } = useAlert()

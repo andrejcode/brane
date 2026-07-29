@@ -1,13 +1,13 @@
 import { Check, CircleStop, Search } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { useModals } from '@/contexts/ModalContext'
+import { useModel } from '@/contexts/ModelContext'
 import { CloseButton } from '@/ui/buttons/CloseButton'
 import { GhostButton } from '@/ui/buttons/GhostButton'
-import { useTranslation } from '../contexts/LocaleContext'
-import { useModals } from '../contexts/ModalContext'
-import { useModel } from '../contexts/ModelContext'
-import { LoadingSpinner } from '../ui/LoadingSpinner'
-import { Modal } from '../ui/Modal'
-import { formatModelName } from '../utils'
+import { LoadingSpinner } from '@/ui/LoadingSpinner'
+import { Modal } from '@/ui/Modal'
+import { formatModelName } from '@/utils'
 
 export const SEARCH_DEBOUNCE_MS = 200
 

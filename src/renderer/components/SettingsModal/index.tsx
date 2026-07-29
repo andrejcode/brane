@@ -1,14 +1,14 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { useModals } from '@/contexts/ModalContext'
 import { CloseButton } from '@/ui/buttons/CloseButton'
+import { Modal } from '@/ui/Modal'
 import { FOCUS_RING_INSET } from '@/ui/styles/focusRing'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
 import { type SettingsTabId, SettingsSidebar, TABS } from './SettingsSidebar'
 import { ShortcutsSettings } from './ShortcutsSettings'
-import { useTranslation } from '../contexts/LocaleContext'
-import { useModals } from '../contexts/ModalContext'
-import { Modal } from '../ui/Modal'
 
 export function SettingsModal() {
   const { activeModal, closeModal } = useModals()

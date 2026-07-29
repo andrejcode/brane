@@ -25,12 +25,7 @@ const variantLabelKey: Record<AlertVariant, MessageKey> = {
   info: 'alert.info',
 }
 
-export default function Alert({
-  message,
-  variant,
-  className,
-  onDismiss,
-}: AlertProps) {
+export function Alert({ message, variant, className, onDismiss }: AlertProps) {
   const { t } = useTranslation()
   const [showAlert, setShowAlert] = useState(true)
   const [fadeClass, setFadeClass] = useState<'opacity-0' | 'opacity-100'>(

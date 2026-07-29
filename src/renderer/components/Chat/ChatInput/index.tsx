@@ -13,10 +13,10 @@ import type {
   SetStateAction,
   SubmitEventHandler,
 } from 'react'
+import { useTranslation } from '@/contexts/LocaleContext'
+import { useIsAnyModalOpen } from '@/contexts/ModalContext'
 import { ChatActionButton } from './ChatActionButton'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
-import { useTranslation } from '../../contexts/LocaleContext'
-import { useIsAnyModalOpen } from '../../contexts/ModalContext'
 
 const MAX_ROWS = 8
 // Right padding (px) of the textarea

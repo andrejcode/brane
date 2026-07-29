@@ -1,7 +1,7 @@
-import { useAlert } from './contexts/AlertContext'
-import Alert from './ui/Alert'
+import { useAlert } from '@/contexts/AlertContext'
+import { Alert } from '@/ui/Alert'
 
-export function GlobalAlert() {
+export function AppAlert() {
   const { alert, dismissAlert } = useAlert()
 
   if (!alert) {

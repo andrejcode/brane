@@ -1,23 +1,23 @@
 import { clsx } from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Chat } from './Chat'
-import { AlertProvider } from './contexts/AlertContext'
-import { ChatSettingsProvider } from './contexts/ChatSettingsContext'
+import { AppAlert } from '@/components/AppAlert'
+import { Chat } from '@/components/Chat'
+import { Header } from '@/components/Header'
+import { ModelsModal } from '@/components/ModelsModal'
+import { SettingsModal } from '@/components/SettingsModal'
+import { AlertProvider } from '@/contexts/AlertContext'
+import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   LocaleProvider,
   useLocale,
   useTranslation,
-} from './contexts/LocaleContext'
-import { ModalProvider, useModals } from './contexts/ModalContext'
-import { ModelProvider, useModel } from './contexts/ModelContext'
-import { ShortcutsProvider, useShortcuts } from './contexts/ShortcutsContext'
-import { ThemeProvider, useTheme } from './contexts/ThemeContext'
-import { GlobalAlert } from './GlobalAlert'
-import { Header } from './Header'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { ModelsModal } from './ModelsModal'
-import { SettingsModal } from './SettingsModal'
-import { Sidebar } from './ui/Sidebar'
+} from '@/contexts/LocaleContext'
+import { ModalProvider, useModals } from '@/contexts/ModalContext'
+import { ModelProvider, useModel } from '@/contexts/ModelContext'
+import { ShortcutsProvider, useShortcuts } from '@/contexts/ShortcutsContext'
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { Sidebar } from '@/ui/Sidebar'
 
 export function App() {
   return (
@@ -81,7 +81,7 @@ function AppContent() {
         'bg-neutral-50 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100',
       )}
     >
-      <GlobalAlert />
+      <AppAlert />
 
       <Header isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
       <div className="flex min-h-0 w-full flex-1">
