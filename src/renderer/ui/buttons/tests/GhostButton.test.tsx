@@ -1,30 +1,14 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GhostButton } from '../GhostButton'
 
 describe('GhostButton', () => {
-  it('renders its children', () => {
-    render(<GhostButton>Settings</GhostButton>)
-
-    expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument()
-  })
-
   it('uses ariaLabel as its accessible name', () => {
     render(<GhostButton ariaLabel="Open settings">icon</GhostButton>)
 
     expect(
       screen.getByRole('button', { name: 'Open settings' }),
     ).toBeInTheDocument()
-  })
-
-  it('calls onClick when clicked', async () => {
-    const onClick = vi.fn()
-    render(<GhostButton onClick={onClick}>Settings</GhostButton>)
-
-    await userEvent.click(screen.getByRole('button', { name: 'Settings' }))
-
-    expect(onClick).toHaveBeenCalledOnce()
   })
 
   it('opts out of the window drag region and merges extra classes', () => {

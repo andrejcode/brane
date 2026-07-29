@@ -6,25 +6,18 @@ interface GhostButtonProps {
   className?: string
   title?: string
   ariaLabel?: string
-  // Renders the button with its hover background applied permanently, used to
-  // mark the active/selected item (e.g. the currently selected model).
+  // Renders the button with its hover background applied permanently.
   isActive?: boolean
   disabled?: boolean
   onClick?: (() => void) | undefined
-  // Optional pass-through attributes for composing ARIA widget patterns such
-  // as a tablist (see the settings dialog).
   id?: string | undefined
   role?: string | undefined
   ariaSelected?: boolean | undefined
   ariaControls?: string | undefined
   tabIndex?: number | undefined
-  onKeyDown?:
-    | ((event: React.KeyboardEvent<HTMLButtonElement>) => void)
-    | undefined
 }
 
-// A transparent button that reveals a subtle background on hover. Used for
-// toolbar icons in the header and for selectable rows like the model list.
+// A transparent button that reveals a subtle background on hover.
 export function GhostButton({
   children,
   className,
@@ -38,7 +31,6 @@ export function GhostButton({
   ariaSelected,
   ariaControls,
   tabIndex,
-  onKeyDown,
 }: GhostButtonProps) {
   return (
     <BaseButton
@@ -59,7 +51,6 @@ export function GhostButton({
       ariaSelected={ariaSelected}
       ariaControls={ariaControls}
       tabIndex={tabIndex}
-      onKeyDown={onKeyDown}
     >
       {children}
     </BaseButton>

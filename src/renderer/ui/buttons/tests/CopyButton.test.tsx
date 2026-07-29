@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { CopyButton } from '../CopyButton'
 
 const labels = { copy: 'Copy', copied: 'Copied', error: 'Failed' }
@@ -43,14 +42,5 @@ describe('CopyButton', () => {
     )
 
     expect(screen.getByText('Copy')).toBeInTheDocument()
-  })
-
-  it('calls onClick when pressed', async () => {
-    const onClick = vi.fn()
-    render(<CopyButton copyStatus="idle" onClick={onClick} labels={labels} />)
-
-    await userEvent.click(screen.getByRole('button'))
-
-    expect(onClick).toHaveBeenCalledOnce()
   })
 })

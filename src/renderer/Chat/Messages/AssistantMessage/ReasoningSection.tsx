@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { useId, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
-import { ChevronToggleButton } from '@/ui/ChevronToggleButton'
+import { ChevronToggleButton } from '@/ui/buttons/ChevronToggleButton'
 
 interface ReasoningSectionProps {
   reasoning: string

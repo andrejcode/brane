@@ -3,7 +3,7 @@ import type { Ref } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import type { Message } from '@/types'
-import { CopyButton } from '@/ui/CopyButton'
+import { CopyButton } from '@/ui/buttons/CopyButton'
 import { AssistantMessage } from './AssistantMessage'
 
 interface ChatMessageProps {

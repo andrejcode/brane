@@ -1,7 +1,7 @@
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale, useTranslation } from '@/contexts/LocaleContext'
 import { LOCALE_OPTIONS } from '@/i18n'
-import { Button } from '@/ui/Button'
+import { Button } from '@/ui/buttons/Button'
 import { Select } from '@/ui/Select'
 import { Switch } from '@/ui/Switch'
 import type { Locale } from '@shared/types'

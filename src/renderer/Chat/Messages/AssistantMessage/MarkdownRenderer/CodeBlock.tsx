@@ -6,7 +6,7 @@ import {
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
-import { CopyButton } from '@/ui/CopyButton'
+import { CopyButton } from '@/ui/buttons/CopyButton'
 
 interface CodeBlockProps {
   language: string

@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { ChevronDown } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { FOCUS_RING_INSET_ACTIVE } from './focusRing'
+import { FOCUS_RING_INSET_ACTIVE } from '@/ui/styles/focusRing'
 
 interface SelectOption<T extends string> {
   value: T

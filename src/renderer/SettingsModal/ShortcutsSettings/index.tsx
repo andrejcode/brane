@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import type { MessageKey } from '@/i18n'
-import { Button } from '@/ui/Button'
+import { Button } from '@/ui/buttons/Button'
 import { bindingsEqual } from '@/utils'
 import {
   SHORTCUT_ACTIONS,

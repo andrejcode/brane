@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { useEffect, useState } from 'react'
-import { FOCUS_RING } from '@/ui/focusRing'
+import { FOCUS_RING } from '@/ui/styles/focusRing'
 import { eventToBinding, formatShortcut } from '@/utils'
 import type { ShortcutBinding } from '@shared/types'
 

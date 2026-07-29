@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING } from './focusRing'
+import { FOCUS_RING } from '@/ui/styles/focusRing'
 
 interface SwitchProps {
   checked: boolean

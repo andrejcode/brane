@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { BaseButton } from '@/ui/BaseButton'
+import { BaseButton } from '@/ui/buttons/BaseButton'
 
 interface ChatActionButtonProps {
   children: React.ReactNode

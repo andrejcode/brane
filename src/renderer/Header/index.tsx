@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
-import { GhostButton } from '@/ui/GhostButton'
+import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { formatModelName } from '@/utils'
 

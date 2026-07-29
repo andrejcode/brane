@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING_INSET } from '@/ui/focusRing'
+import { FOCUS_RING_INSET } from '@/ui/styles/focusRing'
 
 interface ThemeButtonProps {
   active: boolean

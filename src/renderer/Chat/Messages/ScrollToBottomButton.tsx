@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { ArrowDown } from 'lucide-react'
-import { BaseButton } from '@/ui/BaseButton'
+import { BaseButton } from '@/ui/buttons/BaseButton'
 import { useTranslation } from '../../contexts/LocaleContext'
 
 interface ScrollToBottomButtonProps {

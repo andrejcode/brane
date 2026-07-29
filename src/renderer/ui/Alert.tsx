@@ -2,7 +2,7 @@ import { clsx } from 'clsx'
 import { useEffect, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import type { MessageKey } from '@/i18n'
-import { CloseButton } from './CloseButton'
+import { CloseButton } from './buttons/CloseButton'
 
 export type AlertVariant = 'error' | 'success' | 'info'
 

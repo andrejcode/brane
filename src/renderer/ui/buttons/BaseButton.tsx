@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING } from './focusRing'
+import { FOCUS_RING } from '@/ui/styles/focusRing'
 
 interface BaseButtonProps {
   children: React.ReactNode
@@ -9,19 +9,16 @@ interface BaseButtonProps {
   title?: string | undefined
   ariaLabel?: string | undefined
   onClick?: (() => void) | undefined
-  // Optional pass-through attributes, used to compose ARIA widget patterns
-  // (e.g. the tablist in the settings dialog) on top of the base button.
+  // Optional pass-through attributes, used to compose ARIA widget patterns.
   id?: string | undefined
   role?: string | undefined
   ariaSelected?: boolean | undefined
   ariaExpanded?: boolean | undefined
   ariaControls?: string | undefined
   tabIndex?: number | undefined
-  onKeyDown?:
-    | ((event: React.KeyboardEvent<HTMLButtonElement>) => void)
-    | undefined
 }
 
+// Unstyled button primitive. Compose new button styles on top of this.
 export function BaseButton({
   children,
   className,
@@ -36,7 +33,6 @@ export function BaseButton({
   ariaExpanded,
   ariaControls,
   tabIndex,
-  onKeyDown,
 }: BaseButtonProps) {
   const buttonClassName = clsx(
     FOCUS_RING,
@@ -58,7 +54,6 @@ export function BaseButton({
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
       tabIndex={tabIndex}
-      onKeyDown={onKeyDown}
     >
       {children}
     </button>

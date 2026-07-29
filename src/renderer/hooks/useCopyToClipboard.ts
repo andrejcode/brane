@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { CopyStatus } from '@/ui/CopyButton'
+import type { CopyStatus } from '@/ui/buttons/CopyButton'
 
 const STATUS_RESET_DELAY = 2000
 
