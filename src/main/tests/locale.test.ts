@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels } from '@shared/types'
 import { initializeLocale, registerLocaleHandlers } from '../locale'
 

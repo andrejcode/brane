@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
 import { registerLlamaHandlers } from '../index'
 

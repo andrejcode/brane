@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels } from '@shared/types'
 import {
   getModelState,

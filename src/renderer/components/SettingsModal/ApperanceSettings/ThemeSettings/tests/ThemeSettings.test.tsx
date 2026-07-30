@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, type Mock } from 'vitest'
+import type { Mock } from 'vitest'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import {
   clearMockElectronApi,

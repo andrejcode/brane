@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanupOldLogs, logger } from '../index'
 
 // Built from the `process` global (available before imports initialize) so the

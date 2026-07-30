@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
 import { CopyButton } from '../CopyButton'
 
 const labels = { copy: 'Copy', copied: 'Copied', error: 'Failed' }

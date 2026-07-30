@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { isMultilineHeight, resolveTextareaHeight } from '../chatInputLayout'
 
 describe('isMultilineHeight', () => {

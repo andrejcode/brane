@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import type { ShortcutBinding } from '@shared/types'
 import {
   bindingsEqual,

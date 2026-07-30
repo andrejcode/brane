@@ -5,5 +5,11 @@
     "types": ["node"],
     "composite": true
   },
-  "include": ["src/main/**/*.ts", "src/shared/**/*.ts", "forge.env.d.ts"]
+  "include": ["src/main/**/*.ts", "src/shared/**/*.ts", "forge.env.d.ts"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx"
+  ]
 }

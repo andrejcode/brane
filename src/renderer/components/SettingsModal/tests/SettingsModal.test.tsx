@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   type ModalName,

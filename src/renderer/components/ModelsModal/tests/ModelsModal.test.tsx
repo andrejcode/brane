@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AlertProvider } from '@/contexts/AlertContext'
 import {
   type ModalName,
