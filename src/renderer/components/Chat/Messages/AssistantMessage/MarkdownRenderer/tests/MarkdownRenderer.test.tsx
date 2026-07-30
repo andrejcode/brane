@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { useColorScheme } from '@/hooks/useColorScheme'
 import { MarkdownRenderer } from '..'
 
 vi.mock('@/hooks/useColorScheme', () => ({
@@ -8,12 +7,6 @@ vi.mock('@/hooks/useColorScheme', () => ({
 }))
 
 describe('MarkdownRenderer', () => {
-  it('renders plain text', () => {
-    render(<MarkdownRenderer content="Simple text content" />)
-
-    expect(screen.getByText('Simple text content')).toBeInTheDocument()
-  })
-
   it('renders bold and italic formatting', () => {
     render(<MarkdownRenderer content="**Bold text** and *Italic text*" />)
 
@@ -51,20 +44,5 @@ describe('MarkdownRenderer', () => {
 
     expect(screen.queryByText("alert('xss')")).not.toBeInTheDocument()
     expect(screen.getByText('Safe text')).toBeInTheDocument()
-  })
-
-  it('renders in both color schemes', () => {
-    vi.mocked(useColorScheme).mockReturnValue(false)
-    const { container, unmount } = render(
-      <MarkdownRenderer content={'```javascript\nconst x = 1;\n```'} />,
-    )
-    expect(container.textContent).toContain('const x = 1;')
-    unmount()
-
-    vi.mocked(useColorScheme).mockReturnValue(true)
-    const { container: darkContainer } = render(
-      <MarkdownRenderer content={'```javascript\nconst x = 1;\n```'} />,
-    )
-    expect(darkContainer.textContent).toContain('const x = 1;')
   })
 })

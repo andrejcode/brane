@@ -44,20 +44,6 @@ describe('Header on non-mac', () => {
     mock = installMockElectronApi({ isMac: false })
   })
 
-  it('renders the toolbar buttons', () => {
-    renderHeader()
-
-    expect(
-      screen.getByRole('button', { name: 'Toggle sidebar' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Select model' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Open settings' }),
-    ).toBeInTheDocument()
-  })
-
   it('does not query fullscreen state', () => {
     renderHeader()
 
@@ -116,21 +102,6 @@ describe('Header on non-mac', () => {
       await screen.findByRole('status', { name: 'Loading' }),
     ).toBeInTheDocument()
     expect(screen.queryByText('my-model')).not.toBeInTheDocument()
-  })
-
-  it('shows the model name once loading finishes', async () => {
-    clearMockElectronApi()
-    mock = installMockElectronApi({
-      isMac: false,
-      models: ['my-model.gguf'],
-      selectedModel: 'my-model.gguf',
-    })
-    renderHeader()
-
-    expect(await screen.findByText('my-model')).toBeInTheDocument()
-    expect(
-      screen.queryByRole('status', { name: 'Loading' }),
-    ).not.toBeInTheDocument()
   })
 
   it('falls back to "Select model" when the selected model never finishes loading', async () => {

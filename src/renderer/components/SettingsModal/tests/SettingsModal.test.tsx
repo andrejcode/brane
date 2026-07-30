@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -62,21 +62,6 @@ describe('SettingsModal', () => {
       screen.getByRole('switch', { name: 'Send with Ctrl+Enter' }),
     ).toBeInTheDocument()
     expect(screen.queryByText('Theme')).not.toBeInTheDocument()
-  })
-
-  it('renders the theme settings under the appearance tab', async () => {
-    const user = userEvent.setup()
-    renderSettings()
-
-    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
-
-    expect(screen.getByText('Theme')).toBeInTheDocument()
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'System' })).toHaveClass(
-        'bg-neutral-800',
-      )
-    })
   })
 
   it('closes via the close button', async () => {

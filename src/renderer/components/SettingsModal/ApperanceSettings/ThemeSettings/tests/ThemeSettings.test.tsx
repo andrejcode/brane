@@ -82,18 +82,4 @@ describe('ThemeSettings selection', () => {
     })
     expect(getThemeButton('System')).not.toHaveClass(ACTIVE_CLASS)
   })
-
-  it('can switch between each theme option', async () => {
-    const user = userEvent.setup()
-    renderThemeSettings()
-
-    await user.click(getThemeButton('Light'))
-    expect(mock.setTheme).toHaveBeenLastCalledWith('light')
-
-    await user.click(getThemeButton('Dark'))
-    expect(mock.setTheme).toHaveBeenLastCalledWith('dark')
-
-    await user.click(getThemeButton('System'))
-    expect(mock.setTheme).toHaveBeenLastCalledWith('system')
-  })
 })

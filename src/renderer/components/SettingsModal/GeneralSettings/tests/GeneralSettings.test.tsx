@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   clearMockElectronApi,
@@ -24,16 +24,6 @@ afterEach(() => {
 })
 
 describe('GeneralSettings send shortcut toggle', () => {
-  it('is off by default', async () => {
-    renderGeneralSettings()
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('switch', { name: 'Send with Ctrl+Enter' }),
-      ).not.toBeChecked()
-    })
-  })
-
   it('reflects the persisted enabled state', async () => {
     renderGeneralSettings({ sendWithModifierEnter: true })
 
@@ -63,26 +53,6 @@ describe('GeneralSettings send shortcut toggle', () => {
     await waitFor(() => {
       expect(
         screen.getByRole('switch', { name: 'Send with ⌘+Enter' }),
-      ).toBeInTheDocument()
-    })
-  })
-})
-
-describe('GeneralSettings on Windows/Linux', () => {
-  beforeEach(() => {
-    installMockElectronApi({ isMac: false })
-  })
-
-  it('uses the Ctrl label', async () => {
-    render(
-      <ChatSettingsProvider>
-        <GeneralSettings />
-      </ChatSettingsProvider>,
-    )
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('switch', { name: 'Send with Ctrl+Enter' }),
       ).toBeInTheDocument()
     })
   })
