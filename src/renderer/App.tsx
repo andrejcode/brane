@@ -3,8 +3,7 @@ import { AppAlert } from '@/components/AppAlert'
 import { AppSidebar } from '@/components/AppSidebar'
 import { Chat } from '@/components/Chat'
 import { Header } from '@/components/Header'
-import { ModelsModal } from '@/components/ModelsModal'
-import { SettingsModal } from '@/components/SettingsModal'
+import { Modals } from '@/components/Modals'
 import { useModel } from '@/contexts/ModelContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useReady } from './hooks/useReady'
@@ -30,8 +29,7 @@ export function App() {
         <Chat key={selectedModel ?? 'no-model'} />
       </div>
 
-      <SettingsModal />
-      <ModelsModal />
+      <Modals />
     </div>
   )
 }
