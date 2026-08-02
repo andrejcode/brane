@@ -1,29 +1,20 @@
 import { IpcChannels, type LlamaStreamEvent } from '@shared/types'
+import {
+  createElectronMock,
+  getIpcHandler,
+  resetElectronMock,
+} from '@test/main/electron'
 import { registerLlamaHandlers } from '../index'
 
-type IpcHandler = (...args: unknown[]) => unknown
+const { promptWithMeta, dispose, loadModelMock, createContextMock } =
+  vi.hoisted(() => ({
+    promptWithMeta: vi.fn(),
+    dispose: vi.fn(() => Promise.resolve()),
+    loadModelMock: vi.fn(),
+    createContextMock: vi.fn(),
+  }))
 
-const {
-  ipcHandlers,
-  promptWithMeta,
-  dispose,
-  loadModelMock,
-  createContextMock,
-} = vi.hoisted(() => ({
-  ipcHandlers: new Map<string, IpcHandler>(),
-  promptWithMeta: vi.fn(),
-  dispose: vi.fn(() => Promise.resolve()),
-  loadModelMock: vi.fn(),
-  createContextMock: vi.fn(),
-}))
-
-vi.mock('electron', () => ({
-  ipcMain: {
-    handle: (channel: string, handler: IpcHandler) => {
-      ipcHandlers.set(channel, handler)
-    },
-  },
-}))
+vi.mock('electron', () => createElectronMock())
 
 vi.mock('../../model', () => ({
   getSelectedModelPath: vi.fn(() => '/fake/models/model.gguf'),
@@ -50,16 +41,6 @@ function createFakeModel() {
   }
 }
 
-function getHandler(channel: string): IpcHandler {
-  const handler = ipcHandlers.get(channel)
-
-  if (!handler) {
-    throw new Error(`No handler registered for ${channel}`)
-  }
-
-  return handler
-}
-
 function createEvent() {
   const send = vi.fn()
   const event = { sender: { isDestroyed: () => false, send } }
@@ -74,6 +55,7 @@ function getStreamEvents(send: ReturnType<typeof vi.fn>): LlamaStreamEvent[] {
 }
 
 beforeEach(() => {
+  resetElectronMock()
   promptWithMeta.mockReset()
   loadModelMock.mockReset()
   createContextMock.mockReset()
@@ -86,7 +68,7 @@ beforeEach(() => {
 afterEach(async () => {
   // The llama module keeps the loaded model/session in module state, so reset it
   // between tests to keep them independent.
-  await getHandler(IpcChannels.llamaUnloadModel)()
+  await getIpcHandler(IpcChannels.llamaUnloadModel)()
   vi.clearAllMocks()
 })
 
@@ -98,7 +80,7 @@ describe('llama send-prompt handler', () => {
     })
 
     const { event, send } = createEvent()
-    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'done',
@@ -114,7 +96,7 @@ describe('llama send-prompt handler', () => {
     })
 
     const { event, send } = createEvent()
-    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'done',
@@ -127,12 +109,12 @@ describe('llama send-prompt handler', () => {
     // Aborting before any chunk is generated makes node-llama-cpp reject,
     // so simulate that by aborting from inside the pending generation.
     promptWithMeta.mockImplementationOnce(async () => {
-      await getHandler(IpcChannels.llamaStopGeneration)()
+      await getIpcHandler(IpcChannels.llamaStopGeneration)()
       throw new Error('This operation was aborted')
     })
 
     const { event, send } = createEvent()
-    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
 
     const events = getStreamEvents(send)
 
@@ -150,7 +132,7 @@ describe('llama send-prompt handler', () => {
     promptWithMeta.mockRejectedValueOnce(new Error('boom'))
 
     const { event, send } = createEvent()
-    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'error',
@@ -162,21 +144,92 @@ describe('llama send-prompt handler', () => {
     const { event } = createEvent()
 
     await expect(
-      getHandler(IpcChannels.llamaSendPrompt)(event, '   '),
+      getIpcHandler(IpcChannels.llamaSendPrompt)(event, '   '),
     ).rejects.toThrow('Prompt must be a non-empty string.')
+  })
+
+  it('rejects a second prompt while a response is already streaming', async () => {
+    let finishPrompt!: (value: {
+      responseText: string
+      stopReason: string
+    }) => void
+
+    promptWithMeta.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishPrompt = resolve
+        }),
+    )
+
+    const { event } = createEvent()
+    const first = getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'first')
+
+    await vi.waitFor(() => {
+      expect(promptWithMeta).toHaveBeenCalled()
+    })
+
+    await expect(
+      getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'second'),
+    ).rejects.toThrow('A response is already streaming.')
+
+    finishPrompt({ responseText: 'done', stopReason: 'eogToken' })
+    await first
+  })
+
+  it('streams text chunks, tags thoughts, and drops comments', async () => {
+    promptWithMeta.mockImplementationOnce(
+      (
+        _prompt: string,
+        options: {
+          onResponseChunk: (chunk: {
+            type?: string
+            segmentType?: string
+            text: string
+          }) => void
+        },
+      ) => {
+        options.onResponseChunk({
+          type: 'segment',
+          segmentType: 'thought',
+          text: 'reasoning',
+        })
+        options.onResponseChunk({
+          type: 'segment',
+          segmentType: 'comment',
+          text: 'hidden',
+        })
+        options.onResponseChunk({ text: 'Hello' })
+        options.onResponseChunk({ text: ' world' })
+
+        return Promise.resolve({
+          responseText: 'fallback',
+          stopReason: 'eogToken',
+        })
+      },
+    )
+
+    const { event, send } = createEvent()
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+
+    expect(getStreamEvents(send)).toEqual([
+      { type: 'chunk', text: 'reasoning', segment: 'thought' },
+      { type: 'chunk', text: 'Hello' },
+      { type: 'chunk', text: ' world' },
+      { type: 'done', response: 'Hello world', stopped: false },
+    ])
   })
 })
 
 describe('llama load/unload handlers', () => {
   it('loads the model without sending a prompt', async () => {
     await expect(
-      getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
+      getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
     ).resolves.toBeUndefined()
   })
 
   it('rejects a load with a clear message when no model is provided', async () => {
     await expect(
-      getHandler(IpcChannels.llamaLoadModel)({}, undefined),
+      getIpcHandler(IpcChannels.llamaLoadModel)({}, undefined),
     ).rejects.toThrow('No model selected. Please select a model in settings.')
   })
 
@@ -186,11 +239,12 @@ describe('llama load/unload handlers', () => {
       stopReason: 'eogToken',
     })
 
-    await getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
+    await getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
 
     const { event, send } = createEvent()
-    await getHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
 
+    expect(loadModelMock).toHaveBeenCalledTimes(1)
     expect(getStreamEvents(send)).toContainEqual({
       type: 'done',
       response: 'hi',
@@ -199,10 +253,10 @@ describe('llama load/unload handlers', () => {
   })
 
   it('unloads without throwing when no generation is in flight', async () => {
-    await getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
+    await getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
 
     await expect(
-      getHandler(IpcChannels.llamaUnloadModel)(),
+      getIpcHandler(IpcChannels.llamaUnloadModel)(),
     ).resolves.toBeUndefined()
     expect(dispose).toHaveBeenCalled()
   })
@@ -220,7 +274,7 @@ describe('llama load/unload handlers', () => {
     )
 
     const { event, send } = createEvent()
-    const prompt = getHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+    const prompt = getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
 
     // Generation only begins once the session resolves, so wait for it to start
     // before unloading.
@@ -228,7 +282,7 @@ describe('llama load/unload handlers', () => {
       expect(promptWithMeta).toHaveBeenCalled()
     })
 
-    await getHandler(IpcChannels.llamaUnloadModel)()
+    await getIpcHandler(IpcChannels.llamaUnloadModel)()
     await prompt
 
     expect(getStreamEvents(send)).toContainEqual({
@@ -251,7 +305,7 @@ describe('llama load/unload handlers', () => {
         }),
     )
 
-    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)(
+    const canceledLoad = getIpcHandler(IpcChannels.llamaLoadModel)(
       {},
       'model.gguf',
     )
@@ -259,12 +313,12 @@ describe('llama load/unload handlers', () => {
       expect(loadModelMock).toHaveBeenCalledTimes(1)
     })
 
-    await getHandler(IpcChannels.llamaUnloadModel)()
+    await getIpcHandler(IpcChannels.llamaUnloadModel)()
     await expect(canceledLoad).rejects.toThrow()
 
     // The next load uses the default resolving mock and should complete.
     await expect(
-      getHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
+      getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
     ).resolves.toBeUndefined()
     expect(loadModelMock).toHaveBeenCalledTimes(2)
   })
@@ -279,7 +333,7 @@ describe('llama load/unload handlers', () => {
         }),
     )
 
-    const canceledLoad = getHandler(IpcChannels.llamaLoadModel)(
+    const canceledLoad = getIpcHandler(IpcChannels.llamaLoadModel)(
       {},
       'model.gguf',
     )
@@ -287,7 +341,7 @@ describe('llama load/unload handlers', () => {
       expect(createContextMock).toHaveBeenCalled()
     })
 
-    await getHandler(IpcChannels.llamaUnloadModel)()
+    await getIpcHandler(IpcChannels.llamaUnloadModel)()
     await expect(canceledLoad).rejects.toThrow()
     // The model finished loading before the cancel, so it must be disposed.
     expect(dispose).toHaveBeenCalled()

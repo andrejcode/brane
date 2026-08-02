@@ -1,42 +1,24 @@
 import { IpcChannels } from '@shared/types'
+import {
+  appLocales,
+  createElectronMock,
+  getIpcHandler,
+  resetElectronMock,
+} from '@test/main/electron'
+import { createStoreMock, resetStoreMock, storeValues } from '@test/main/store'
 import { initializeLocale, registerLocaleHandlers } from '../locale'
 
-type IpcHandler = (...args: unknown[]) => unknown
+vi.mock('electron', () => createElectronMock({ includeApp: true }))
 
-const { storeValues, ipcHandlers, appLocales } = vi.hoisted(() => ({
-  storeValues: new Map<string, unknown>(),
-  ipcHandlers: new Map<string, IpcHandler>(),
-  appLocales: { preferred: [] as string[], current: 'en-US' },
-}))
-
-vi.mock('electron', () => ({
-  ipcMain: {
-    handle: (channel: string, handler: IpcHandler) => {
-      ipcHandlers.set(channel, handler)
-    },
-  },
-  app: {
-    getPreferredSystemLanguages: () => appLocales.preferred,
-    getLocale: () => appLocales.current,
-  },
-}))
-
-vi.mock('../store', () => ({
-  getStoreValue: (key: string) => storeValues.get(key),
-  setStoreValue: (key: string, value: unknown) => {
-    storeValues.set(key, value)
-  },
-}))
+vi.mock('../store', () => createStoreMock())
 
 vi.mock('../logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn() },
 }))
 
 beforeEach(() => {
-  storeValues.clear()
-  ipcHandlers.clear()
-  appLocales.preferred = []
-  appLocales.current = 'en-US'
+  resetStoreMock()
+  resetElectronMock()
 })
 
 afterEach(() => {
@@ -69,7 +51,16 @@ describe('initializeLocale', () => {
     expect(storeValues.get('locale')).toBe('sr')
   })
 
-  it('falls back to English when no preferred language is supported', () => {
+  it('falls back to the system locale when preferred languages are unsupported', () => {
+    appLocales.preferred = ['fr-FR', 'es-ES']
+    appLocales.current = 'de-DE'
+
+    initializeLocale()
+
+    expect(storeValues.get('locale')).toBe('de')
+  })
+
+  it('falls back to English when no preferred or system language is supported', () => {
     appLocales.preferred = ['fr-FR', 'es-ES']
     appLocales.current = 'fr-FR'
 
@@ -77,16 +68,21 @@ describe('initializeLocale', () => {
 
     expect(storeValues.get('locale')).toBe('en')
   })
+
+  it('re-detects when the stored locale is invalid', () => {
+    storeValues.set('locale', 'xx')
+    appLocales.preferred = ['hr-HR']
+
+    initializeLocale()
+
+    expect(storeValues.get('locale')).toBe('hr')
+  })
 })
 
 describe('registerLocaleHandlers', () => {
-  function getHandler(channel: string): IpcHandler {
+  function getHandler(channel: string) {
     registerLocaleHandlers()
-    const handler = ipcHandlers.get(channel)
-    if (!handler) {
-      throw new Error(`handler ${channel} was not registered`)
-    }
-    return handler
+    return getIpcHandler(channel)
   }
 
   it('returns the stored locale', () => {

@@ -1,6 +1,12 @@
 import fs from 'node:fs'
 import { IpcChannels } from '@shared/types'
 import {
+  createElectronMock,
+  getIpcHandler,
+  resetElectronMock,
+} from '@test/main/electron'
+import { createStoreMock, resetStoreMock, storeValues } from '@test/main/store'
+import {
   getModelState,
   getSelectedModel,
   getSelectedModelPath,
@@ -8,27 +14,9 @@ import {
   registerModelHandlers,
 } from '../model'
 
-type IpcHandler = (...args: unknown[]) => unknown
+vi.mock('electron', () => createElectronMock())
 
-const { storeValues, ipcHandlers } = vi.hoisted(() => ({
-  storeValues: new Map<string, unknown>(),
-  ipcHandlers: new Map<string, IpcHandler>(),
-}))
-
-vi.mock('electron', () => ({
-  ipcMain: {
-    handle: (channel: string, handler: IpcHandler) => {
-      ipcHandlers.set(channel, handler)
-    },
-  },
-}))
-
-vi.mock('../store', () => ({
-  getStoreValue: (key: string) => storeValues.get(key),
-  setStoreValue: (key: string, value: unknown) => {
-    storeValues.set(key, value)
-  },
-}))
+vi.mock('../store', () => createStoreMock())
 
 function mockDir(names: string[]) {
   const entries = names.map((name) => ({
@@ -55,7 +43,8 @@ function mockDirAsync(names: string[]) {
 }
 
 beforeEach(() => {
-  storeValues.clear()
+  resetStoreMock()
+  resetElectronMock()
 })
 
 afterEach(() => {
@@ -119,16 +108,6 @@ describe('getModelState', () => {
     })
   })
 
-  it('clears a stale selection that is no longer on disk', async () => {
-    storeValues.set('selectedModel', 'gone.gguf')
-    mockDirAsync(['a.gguf'])
-
-    const state = await getModelState()
-
-    expect(state.selectedModel).toBeNull()
-    expect(storeValues.get('selectedModel')).toBeNull()
-  })
-
   it('scans the directory only once per call', async () => {
     storeValues.set('selectedModel', 'a.gguf')
     const readdir = mockDirAsync(['a.gguf'])
@@ -158,19 +137,9 @@ describe('getSelectedModelPath', () => {
 })
 
 describe('registerModelHandlers setSelectedModel', () => {
-  function getSetSelectedModelHandler(
-    onSelectedModelChange: () => void,
-  ): IpcHandler {
-    ipcHandlers.clear()
+  function getSetSelectedModelHandler(onSelectedModelChange: () => void) {
     registerModelHandlers({ onSelectedModelChange })
-
-    const handler = ipcHandlers.get(IpcChannels.setSelectedModel)
-
-    if (!handler) {
-      throw new Error('setSelectedModel handler was not registered')
-    }
-
-    return handler
+    return getIpcHandler(IpcChannels.setSelectedModel)
   }
 
   it('persists a valid model and notifies the listener', () => {

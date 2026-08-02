@@ -61,14 +61,17 @@ describe('cleanupOldLogs', () => {
     expect(fs.existsSync(path.join(testLogsDir, 'recent.log'))).toBe(true)
   })
 
-  it('keeps a file exactly at the boundary and only removes clearly older ones', async () => {
-    writeLog('fresh.log', 0)
-    writeLog('stale.log', 30 * DAY_MS)
+  it('keeps a file exactly at the max age and removes one just over it', async () => {
+    const now = 1_700_000_000_000
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+
+    writeLog('at-max-age.log', 7 * DAY_MS)
+    writeLog('just-over.log', 7 * DAY_MS + 1)
 
     await cleanupOldLogs()
 
-    expect(fs.existsSync(path.join(testLogsDir, 'fresh.log'))).toBe(true)
-    expect(fs.existsSync(path.join(testLogsDir, 'stale.log'))).toBe(false)
+    expect(fs.existsSync(path.join(testLogsDir, 'at-max-age.log'))).toBe(true)
+    expect(fs.existsSync(path.join(testLogsDir, 'just-over.log'))).toBe(false)
   })
 
   it('ignores files without a .log extension even when old', async () => {
