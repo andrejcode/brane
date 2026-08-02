@@ -9,21 +9,18 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
+import { useSidebar } from '@/contexts/SidebarContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { formatModelName } from '@/utils'
 
-interface HeaderProps {
-  isSidebarOpen?: boolean
-  onToggleSidebar?: () => void
-}
-
 // On macOS the title bar is hidden, so we use this header component as a replacement
 // Also icons are positioned differently on macOS because of the traffic lights
-export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
+export function Header() {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
   const { loadedModel, loadingModel } = useModel()
+  const { isSidebarOpen, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
   const isLoadingModel = loadingModel !== null
   // Reflect what's actually loaded, not just selected: a model that was picked
@@ -83,7 +80,7 @@ export function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
         <GhostButton
           title={t('header.toggleSidebar')}
           ariaLabel={t('header.toggleSidebar')}
-          onClick={onToggleSidebar}
+          onClick={toggleSidebar}
         >
           {isSidebarOpen ? (
             <PanelLeftClose size={20} />

@@ -4,6 +4,7 @@ import { LocaleProvider } from './contexts/LocaleContext'
 import { ModalProvider } from './contexts/ModalContext'
 import { ModelProvider } from './contexts/ModelContext'
 import { ShortcutsProvider } from './contexts/ShortcutsContext'
+import { SidebarProvider } from './contexts/SidebarContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
@@ -14,7 +15,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           <ModelProvider>
             <ThemeProvider>
               <ChatSettingsProvider>
-                <ShortcutsProvider>{children}</ShortcutsProvider>
+                <ShortcutsProvider>
+                  <SidebarProvider>{children}</SidebarProvider>
+                </ShortcutsProvider>
               </ChatSettingsProvider>
             </ThemeProvider>
           </ModelProvider>

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
+import { SidebarProvider } from '@/contexts/SidebarContext'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -19,15 +20,15 @@ function ActiveModalProbe() {
   return <div data-testid="active-modal">{activeModal ?? 'none'}</div>
 }
 
-function renderHeader(
-  props: Partial<React.ComponentProps<typeof Header>> = {},
-) {
+function renderHeader() {
   return render(
     <AlertProvider>
       <ModalProvider>
         <ModelProvider>
-          <Header {...props} />
-          <ActiveModalProbe />
+          <SidebarProvider>
+            <Header />
+            <ActiveModalProbe />
+          </SidebarProvider>
         </ModelProvider>
       </ModalProvider>
     </AlertProvider>,
