@@ -1,23 +1,31 @@
 import { useEffect, useRef } from 'react'
-import {
-  SHORTCUT_ACTIONS,
-  type ShortcutAction,
-  type ShortcutMap,
-} from '@shared/types'
-import { matchesBinding } from '../utils'
+import { useModals } from '@/contexts/ModalContext'
+import { useShortcuts } from '@/contexts/ShortcutsContext'
+import { useSidebar } from '@/contexts/SidebarContext'
+import { matchesBinding } from '@/utils'
+import { SHORTCUT_ACTIONS, type ShortcutAction } from '@shared/types'
 
 type ShortcutHandlers = Record<ShortcutAction, () => void>
 
 // Handlers are kept in a ref so changing them (they are recreated on every
 // render) never re-attaches the window listener.
-export function useKeyboardShortcuts(
-  shortcuts: ShortcutMap,
-  handlers: ShortcutHandlers,
-) {
-  const handlersRef = useRef(handlers)
+export function useKeyboardShortcuts() {
+  const { shortcuts } = useShortcuts()
+  const { toggleModal } = useModals()
+  const { toggleSidebar } = useSidebar()
+
+  const handlersRef = useRef<ShortcutHandlers>({
+    toggleSettings: () => toggleModal('settings'),
+    toggleModels: () => toggleModal('models'),
+    toggleSidebar,
+  })
   useEffect(() => {
-    handlersRef.current = handlers
-  }, [handlers])
+    handlersRef.current = {
+      toggleSettings: () => toggleModal('settings'),
+      toggleModels: () => toggleModal('models'),
+      toggleSidebar,
+    }
+  }, [toggleModal, toggleSidebar])
 
   useEffect(() => {
     const isMac = window.electronApi.isMac

@@ -5,25 +5,15 @@ import { Chat } from '@/components/Chat'
 import { Header } from '@/components/Header'
 import { ModelsModal } from '@/components/ModelsModal'
 import { SettingsModal } from '@/components/SettingsModal'
-import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
-import { useShortcuts } from '@/contexts/ShortcutsContext'
-import { useSidebar } from '@/contexts/SidebarContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useReady } from './hooks/useReady'
 
 export function App() {
   useReady()
-  const { selectedModel } = useModel()
-  const { shortcuts } = useShortcuts()
-  const { toggleModal } = useModals()
-  const { toggleSidebar } = useSidebar()
+  useKeyboardShortcuts()
 
-  useKeyboardShortcuts(shortcuts, {
-    toggleSettings: () => toggleModal('settings'),
-    toggleModels: () => toggleModal('models'),
-    toggleSidebar,
-  })
+  const { selectedModel } = useModel()
 
   return (
     <div
