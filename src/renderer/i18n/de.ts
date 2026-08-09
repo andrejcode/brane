@@ -4,6 +4,7 @@ export const de: Messages = {
   'sidebar.chats': 'Chats',
 
   'header.toggleSidebar': 'Seitenleiste umschalten',
+  'header.newChat': 'Neuer Chat',
   'header.selectModel': 'Modell auswählen',
   'header.openSettings': 'Einstellungen öffnen',
   'header.loadingModel': 'Modell wird geladen',

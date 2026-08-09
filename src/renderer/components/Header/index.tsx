@@ -3,9 +3,11 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   Settings,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
@@ -19,6 +21,7 @@ import { formatModelName } from '@/utils'
 export function Header() {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
+  const { startNewChat } = useChat()
   const { loadedModel, loadingModel } = useModel()
   const { isSidebarOpen, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
@@ -77,17 +80,28 @@ export function Header() {
           isMac && !isFullScreen ? 'ml-24' : 'ml-4',
         )}
       >
-        <GhostButton
-          title={t('header.toggleSidebar')}
-          ariaLabel={t('header.toggleSidebar')}
-          onClick={toggleSidebar}
-        >
-          {isSidebarOpen ? (
-            <PanelLeftClose size={20} />
-          ) : (
-            <PanelLeftOpen size={20} />
-          )}
-        </GhostButton>
+        <div className="flex items-center gap-3">
+          <GhostButton
+            title={t('header.toggleSidebar')}
+            ariaLabel={t('header.toggleSidebar')}
+            onClick={toggleSidebar}
+          >
+            {isSidebarOpen ? (
+              <PanelLeftClose size={20} />
+            ) : (
+              <PanelLeftOpen size={20} />
+            )}
+          </GhostButton>
+
+          <GhostButton
+            title={t('header.newChat')}
+            ariaLabel={t('header.newChat')}
+            onClick={startNewChat}
+          >
+            <Plus size={20} />
+          </GhostButton>
+        </div>
+
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"

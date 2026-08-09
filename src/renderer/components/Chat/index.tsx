@@ -7,11 +7,11 @@ import {
   useState,
 } from 'react'
 import { useAlert } from '@/contexts/AlertContext'
+import { useChat } from '@/contexts/ChatContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
-import type { Message } from '@/types'
-import { createMessageId } from '@/utils'
+import { createId } from '@/utils'
 import { ChatInput } from './ChatInput'
 import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
@@ -20,16 +20,20 @@ export function Chat() {
   const { showAlert } = useAlert()
   const { selectedModel } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
+  const {
+    messages,
+    setMessages,
+    isSending,
+    setIsSending,
+    streamingAssistantMessageIdRef,
+  } = useChat()
   const { t } = useTranslation()
   const [input, setInput] = useState('')
-  const [isSending, setIsSending] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
   const isEmpty = messages.length === 0
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
   const bottomOverlayRef = useRef<HTMLDivElement>(null)
   const bottomFadeRef = useRef<HTMLDivElement>(null)
-  const streamingAssistantMessageId = useRef<string | null>(null)
 
   const updateBottomOverlayInset = useCallback(() => {
     const bottomOverlay = bottomOverlayRef.current
@@ -49,7 +53,12 @@ export function Chat() {
 
   useEffect(() => {
     const unsubscribe = window.electronApi.streamResponse((event) => {
-      const activeMessageId = streamingAssistantMessageId.current
+      const activeMessageId = streamingAssistantMessageIdRef.current
+
+      // New chat clears this ref while an abort may still emit late events.
+      if (activeMessageId === null) {
+        return
+      }
 
       if (event.type === 'chunk') {
         setMessages((currentMessages) =>
@@ -116,7 +125,7 @@ export function Chat() {
             ]
           }),
         )
-        streamingAssistantMessageId.current = null
+        streamingAssistantMessageIdRef.current = null
         setIsSending(false)
 
         return
@@ -131,14 +140,14 @@ export function Chat() {
             !(message.id === activeMessageId && message.content.length === 0),
         ),
       )
-      streamingAssistantMessageId.current = null
+      streamingAssistantMessageIdRef.current = null
       setIsSending(false)
     })
 
     return () => {
       unsubscribe()
     }
-  }, [showAlert])
+  }, [setIsSending, setMessages, showAlert, streamingAssistantMessageIdRef])
 
   useEffect(() => {
     const bottomOverlay = bottomOverlayRef.current
@@ -201,15 +210,15 @@ export function Chat() {
       return
     }
 
-    const assistantMessageId = createMessageId()
+    const assistantMessageId = createId()
 
-    streamingAssistantMessageId.current = assistantMessageId
+    streamingAssistantMessageIdRef.current = assistantMessageId
     setInput('')
     setIsSending(true)
     setMessages((currentMessages) => [
       ...currentMessages,
       {
-        id: createMessageId(),
+        id: createId(),
         role: 'user',
         content: prompt,
       },
@@ -225,7 +234,7 @@ export function Chat() {
       setMessages((currentMessages) =>
         currentMessages.filter((message) => message.id !== assistantMessageId),
       )
-      streamingAssistantMessageId.current = null
+      streamingAssistantMessageIdRef.current = null
       setIsSending(false)
     })
   }

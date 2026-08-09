@@ -1,6 +1,8 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useEffect } from 'react'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
@@ -20,14 +22,74 @@ function ActiveModalProbe() {
   return <div data-testid="active-modal">{activeModal ?? 'none'}</div>
 }
 
-function renderHeader() {
+// Seeds a mid-flight turn so New chat can assert stop + UI reset.
+function ChatStateProbe() {
+  const {
+    messages,
+    setMessages,
+    isSending,
+    setIsSending,
+    streamingAssistantMessageIdRef,
+  } = useChat()
+
+  useEffect(() => {
+    streamingAssistantMessageIdRef.current = 'assistant-1'
+    setIsSending(true)
+    setMessages([
+      { id: 'user-1', role: 'user', content: 'hi' },
+      { id: 'assistant-1', role: 'assistant', content: 'partial' },
+    ])
+  }, [setIsSending, setMessages, streamingAssistantMessageIdRef])
+
+  return (
+    <div
+      data-testid="chat-state"
+      data-message-count={messages.length}
+      data-sending={String(isSending)}
+    />
+  )
+}
+
+function StreamingIdProbe({
+  onStreamingId,
+}: {
+  onStreamingId: (id: string | null) => void
+}) {
+  const { streamingAssistantMessageIdRef } = useChat()
+
+  return (
+    <button
+      type="button"
+      data-testid="read-streaming-id"
+      onClick={() => {
+        onStreamingId(streamingAssistantMessageIdRef.current)
+      }}
+    >
+      Read streaming id
+    </button>
+  )
+}
+
+function renderHeader({
+  withChatState = false,
+  onStreamingId,
+}: {
+  withChatState?: boolean
+  onStreamingId?: (id: string | null) => void
+} = {}) {
   return render(
     <AlertProvider>
       <ModalProvider>
         <ModelProvider>
           <SidebarProvider>
-            <Header />
-            <ActiveModalProbe />
+            <ChatProvider>
+              <Header />
+              <ActiveModalProbe />
+              {withChatState ? <ChatStateProbe /> : null}
+              {onStreamingId ? (
+                <StreamingIdProbe onStreamingId={onStreamingId} />
+              ) : null}
+            </ChatProvider>
           </SidebarProvider>
         </ModelProvider>
       </ModalProvider>
@@ -72,6 +134,38 @@ describe('Header on non-mac', () => {
     await user.click(screen.getByRole('button', { name: 'Select model' }))
 
     expect(screen.getByTestId('active-modal')).toHaveTextContent('models')
+  })
+
+  it('stops generation and resets chat UI when New chat is clicked', async () => {
+    const user = userEvent.setup()
+    let streamingId: string | null = 'unset'
+    renderHeader({
+      withChatState: true,
+      onStreamingId: (id) => {
+        streamingId = id
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('chat-state')).toHaveAttribute(
+        'data-message-count',
+        '2',
+      )
+    })
+
+    await user.click(screen.getByRole('button', { name: 'New chat' }))
+    await user.click(screen.getByTestId('read-streaming-id'))
+
+    expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-message-count',
+      '0',
+    )
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-sending',
+      'false',
+    )
+    expect(streamingId).toBeNull()
   })
 
   it('shows the selected model name on the button', async () => {

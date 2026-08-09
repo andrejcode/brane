@@ -148,32 +148,37 @@ describe('llama send-prompt handler', () => {
     ).rejects.toThrow('Prompt must be a non-empty string.')
   })
 
-  it('rejects a second prompt while a response is already streaming', async () => {
-    let finishPrompt!: (value: {
-      responseText: string
-      stopReason: string
-    }) => void
+  it('aborts an in-flight generation when a second prompt arrives', async () => {
+    promptWithMeta
+      .mockImplementationOnce(
+        (_prompt: string, options: { signal: AbortSignal }) =>
+          new Promise((resolve) => {
+            options.signal.addEventListener('abort', () => {
+              resolve({ responseText: 'partial', stopReason: 'abort' })
+            })
+          }),
+      )
+      .mockResolvedValueOnce({
+        responseText: 'second answer',
+        stopReason: 'eogToken',
+      })
 
-    promptWithMeta.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          finishPrompt = resolve
-        }),
-    )
-
-    const { event } = createEvent()
+    const { event, send } = createEvent()
     const first = getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'first')
 
     await vi.waitFor(() => {
-      expect(promptWithMeta).toHaveBeenCalled()
+      expect(promptWithMeta).toHaveBeenCalledTimes(1)
     })
 
-    await expect(
-      getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'second'),
-    ).rejects.toThrow('A response is already streaming.')
-
-    finishPrompt({ responseText: 'done', stopReason: 'eogToken' })
+    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'second')
     await first
+
+    expect(promptWithMeta).toHaveBeenCalledTimes(2)
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'done',
+      response: 'second answer',
+      stopped: false,
+    })
   })
 
   it('streams text chunks, tags thoughts, and drops comments', async () => {

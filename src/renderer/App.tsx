@@ -4,15 +4,12 @@ import { AppSidebar } from '@/components/AppSidebar'
 import { Chat } from '@/components/Chat'
 import { Header } from '@/components/Header'
 import { Modals } from '@/components/Modals'
-import { useModel } from '@/contexts/ModelContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useReady } from './hooks/useReady'
 
 export function App() {
   useReady()
   useKeyboardShortcuts()
-
-  const { selectedModel } = useModel()
 
   return (
     <div
@@ -26,7 +23,7 @@ export function App() {
       <Header />
       <div className="flex min-h-0 w-full flex-1">
         <AppSidebar />
-        <Chat key={selectedModel ?? 'no-model'} />
+        <Chat />
       </div>
 
       <Modals />

@@ -2,6 +2,7 @@ export const en = {
   'sidebar.chats': 'Chats',
 
   'header.toggleSidebar': 'Toggle sidebar',
+  'header.newChat': 'New chat',
   'header.selectModel': 'Select model',
   'header.openSettings': 'Open settings',
   'header.loadingModel': 'Loading model',

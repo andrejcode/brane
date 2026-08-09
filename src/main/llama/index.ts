@@ -294,20 +294,29 @@ export function registerLlamaHandlers() {
         throw new Error('Prompt must be a non-empty string.')
       }
 
+      // New chat (or a rapid re-send) may abort while the previous turn is still
+      // settling; wait it out instead of rejecting so the model stays single-flight.
       if (isGenerating) {
-        logger.warn('Rejected prompt: a response is already streaming')
-        throw new Error('A response is already streaming.')
+        logger.info(
+          'Aborting in-flight generation before starting a new prompt',
+        )
+        activeAbortController?.abort()
+        await activeGeneration
       }
 
       isGenerating = true
       const abortController = new AbortController()
       activeAbortController = abortController
-      activeGeneration = streamPrompt(event.sender, prompt, abortController)
+      const generation = streamPrompt(event.sender, prompt, abortController)
+      activeGeneration = generation
 
       try {
-        await activeGeneration
+        await generation
       } finally {
-        activeGeneration = undefined
+        // A newer prompt may already own this slot after abort-and-replace.
+        if (activeGeneration === generation) {
+          activeGeneration = undefined
+        }
       }
     },
   )

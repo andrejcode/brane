@@ -2,6 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { ChatProvider } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import {
@@ -33,8 +34,10 @@ function renderChat() {
     <AlertProvider>
       <ModelProvider>
         <ChatSettingsProvider>
-          <Chat />
-          <AppAlert />
+          <ChatProvider>
+            <Chat />
+            <AppAlert />
+          </ChatProvider>
         </ChatSettingsProvider>
       </ModelProvider>
     </AlertProvider>,

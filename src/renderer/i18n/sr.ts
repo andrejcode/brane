@@ -4,6 +4,7 @@ export const sr: Messages = {
   'sidebar.chats': 'Разговори',
 
   'header.toggleSidebar': 'Прикажи/сакриј бочну траку',
+  'header.newChat': 'Нови разговор',
   'header.selectModel': 'Изабери модел',
   'header.openSettings': 'Отвори подешавања',
   'header.loadingModel': 'Учитавање модела',

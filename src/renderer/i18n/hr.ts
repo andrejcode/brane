@@ -4,6 +4,7 @@ export const hr: Messages = {
   'sidebar.chats': 'Razgovori',
 
   'header.toggleSidebar': 'Prikaži/sakrij bočnu traku',
+  'header.newChat': 'Novi razgovor',
   'header.selectModel': 'Odaberi model',
   'header.openSettings': 'Otvori postavke',
   'header.loadingModel': 'Učitavanje modela',

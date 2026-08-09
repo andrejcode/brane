@@ -1,4 +1,4 @@
-export function createMessageId() {
+export function createId() {
   return crypto.randomUUID()
 }
 

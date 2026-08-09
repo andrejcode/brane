@@ -1,4 +1,5 @@
 import { AlertProvider } from './contexts/AlertContext'
+import { ChatProvider } from './contexts/ChatContext'
 import { ChatSettingsProvider } from './contexts/ChatSettingsContext'
 import { LocaleProvider } from './contexts/LocaleContext'
 import { ModalProvider } from './contexts/ModalContext'
@@ -16,7 +17,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             <ThemeProvider>
               <ChatSettingsProvider>
                 <ShortcutsProvider>
-                  <SidebarProvider>{children}</SidebarProvider>
+                  <SidebarProvider>
+                    <ChatProvider>{children}</ChatProvider>
+                  </SidebarProvider>
                 </ShortcutsProvider>
               </ChatSettingsProvider>
             </ThemeProvider>
