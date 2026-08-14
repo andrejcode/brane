@@ -1,7 +1,11 @@
 import { ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import { IpcChannels, type ModelState } from '@shared/types'
+import {
+  IpcChannels,
+  type ModelAvailability,
+  type ModelState,
+} from '@shared/types'
 import { logger } from './logger'
 import { modelsDir } from './paths'
 import { getStoreValue, setStoreValue } from './store'
@@ -81,6 +85,29 @@ export function getSelectedModelPath(): string | null {
 // Resolves a specific model name to its path, or null if it no longer exists.
 export function getModelPath(name: string): string | null {
   return modelExists(name) ? path.join(modelsDir, name) : null
+}
+
+export function getModelFileSize(name: string): number | null {
+  try {
+    const stats = fs.statSync(path.join(modelsDir, name))
+
+    return stats.isFile() ? stats.size : null
+  } catch {
+    return null
+  }
+}
+
+export function getModelAvailability(
+  name: string,
+  sizeBytes: number,
+): ModelAvailability {
+  const currentSize = getModelFileSize(name)
+
+  if (currentSize === null) {
+    return 'missing'
+  }
+
+  return currentSize === sizeBytes ? 'available' : 'replaced'
 }
 
 interface RegisterModelHandlersOptions {

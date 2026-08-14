@@ -23,6 +23,7 @@
     "format:check": "prettier . --check",
     "test": "vitest run",
     "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
     "typecheck": "tsc -b --noEmit",
     "typecheck:main": "tsc -p tsconfig.main.json --noEmit",
     "typecheck:preload": "tsc -p tsconfig.preload.json --noEmit",
@@ -57,6 +58,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
@@ -64,6 +66,7 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
+    "drizzle-kit": "^0.31.10",
     "electron": "^41.2.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
@@ -83,7 +86,9 @@
     "vitest": "^4.1.8"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.2",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "katex": "^0.17.0",

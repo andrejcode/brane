@@ -13,7 +13,11 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['electron-squirrel-startup', 'node-llama-cpp'],
+      external: [
+        'better-sqlite3',
+        'electron-squirrel-startup',
+        'node-llama-cpp',
+      ],
       output: {
         format: 'es',
         entryFileNames: 'main.mjs',

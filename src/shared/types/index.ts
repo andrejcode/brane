@@ -104,6 +104,19 @@ export interface ModelState {
   selectedModel: string | null
 }
 
+// Whether a chat's model file can still back a new turn. `replaced` means a file
+// with that name exists but no longer matches what the chat was created with.
+export type ModelAvailability = 'available' | 'missing' | 'replaced'
+
+export const MESSAGE_ROLES = ['user', 'assistant'] as const
+
+export type MessageRole = (typeof MESSAGE_ROLES)[number]
+
+// `stopped` and `error` mean the stored assistant content is partial.
+export const FINISH_REASONS = ['done', 'stopped', 'error'] as const
+
+export type FinishReason = (typeof FINISH_REASONS)[number]
+
 // Models emit their output in segments. A `thought` segment is the model's
 // reasoning; its absence means the chunk is part of the user-facing answer.
 // `comment` segments are dropped in the main process and never reach here.

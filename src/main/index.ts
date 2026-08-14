@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
 import { registerChatSettingsHandlers } from './chatSettings'
+import { closeDatabase, initializeDatabase } from './db'
 import { registerLlamaHandlers, unloadLlamaModel } from './llama'
 import { initializeLocale, registerLocaleHandlers } from './locale'
 import { cleanupOldLogs, logger } from './logger'
@@ -30,6 +31,14 @@ void app.whenReady().then(() => {
   void cleanupOldLogs().catch((error: unknown) => {
     logger.error('Failed to clean up old logs', error)
   })
+
+  // A failed database leaves the app usable for chatting, just without history,
+  // so it must not keep the window from opening.
+  try {
+    initializeDatabase()
+  } catch {
+    logger.warn('Starting without chat history')
+  }
 
   initializeTheme()
   initializeLocale()
@@ -93,6 +102,7 @@ app.on('before-quit', (event) => {
       logger.error('Failed to unload the model during quit', error)
     })
     .finally(() => {
+      closeDatabase()
       app.quit()
     })
 })

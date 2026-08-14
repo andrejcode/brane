@@ -7,6 +7,8 @@ import {
 } from '@test/main/electron'
 import { createStoreMock, resetStoreMock, storeValues } from '@test/main/store'
 import {
+  getModelAvailability,
+  getModelFileSize,
   getModelState,
   getSelectedModel,
   getSelectedModelPath,
@@ -27,6 +29,13 @@ function mockDir(names: string[]) {
   vi.spyOn(fs, 'readdirSync').mockReturnValue(
     entries as unknown as ReturnType<typeof fs.readdirSync>,
   )
+}
+
+function mockStat({ size, isFile = true }: { size: number; isFile?: boolean }) {
+  return vi.spyOn(fs, 'statSync').mockReturnValue({
+    size,
+    isFile: () => isFile,
+  } as unknown as fs.Stats)
 }
 
 function mockDirAsync(names: string[]) {
@@ -133,6 +142,50 @@ describe('getSelectedModelPath', () => {
     mockDir([])
 
     expect(getSelectedModelPath()).toBeNull()
+  })
+})
+
+describe('getModelFileSize', () => {
+  it('returns the size of an existing model file', () => {
+    mockStat({ size: 4096 })
+
+    expect(getModelFileSize('a.gguf')).toBe(4096)
+  })
+
+  it('returns null when the path is not a file', () => {
+    mockStat({ size: 4096, isFile: false })
+
+    expect(getModelFileSize('a.gguf')).toBeNull()
+  })
+
+  it('returns null when the file cannot be read', () => {
+    vi.spyOn(fs, 'statSync').mockImplementation(() => {
+      throw new Error('ENOENT')
+    })
+
+    expect(getModelFileSize('a.gguf')).toBeNull()
+  })
+})
+
+describe('getModelAvailability', () => {
+  it('reports a chat model that is unchanged as available', () => {
+    mockStat({ size: 4096 })
+
+    expect(getModelAvailability('a.gguf', 4096)).toBe('available')
+  })
+
+  it('reports a same-named model of a different size as replaced', () => {
+    mockStat({ size: 8192 })
+
+    expect(getModelAvailability('a.gguf', 4096)).toBe('replaced')
+  })
+
+  it('reports a deleted model as missing', () => {
+    vi.spyOn(fs, 'statSync').mockImplementation(() => {
+      throw new Error('ENOENT')
+    })
+
+    expect(getModelAvailability('a.gguf', 4096)).toBe('missing')
   })
 })
 
