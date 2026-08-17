@@ -23,7 +23,7 @@ export function Header() {
   const { openModal } = useModals()
   const { startNewChat } = useChat()
   const { loadedModel, loadingModel } = useModel()
-  const { isSidebarOpen, toggleSidebar } = useSidebar()
+  const { isSidebarOpen, isReady: isSidebarReady, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
   const isLoadingModel = loadingModel !== null
   // Reflect what's actually loaded, not just selected: a model that was picked
@@ -58,21 +58,23 @@ export function Header() {
     <header
       className={clsx('absolute inset-x-0 top-0 z-30 h-12 [app-region:drag]')}
     >
-      <div
-        className={clsx(
-          // Offset the blur so it never covers the sidebar, which has its own background
-          'pointer-events-none absolute top-0 right-0 h-14',
-          'transition-[left] duration-500 ease-in-out',
-          isSidebarOpen ? 'left-80' : 'left-0',
-          'bg-neutral-50/1 dark:bg-neutral-800/1',
-        )}
-      >
-        {/* Progressive blur: each layer adds a stronger blur masked toward the top,
-            so text is heavily blurred at the top of the header and fades to sharp at the bottom */}
-        <div className="absolute inset-0 backdrop-blur-[1.6px] mask-[linear-gradient(to_bottom,black_0%,black_70%,transparent_100%)]" />
-        <div className="absolute inset-0 backdrop-blur-[2px] mask-[linear-gradient(to_bottom,black_0%,black_35%,transparent_70%)]" />
-        <div className="absolute inset-0 backdrop-blur-xs mask-[linear-gradient(to_bottom,black_0%,black_15%,transparent_45%)]" />
-      </div>
+      {isSidebarReady ? (
+        <div
+          className={clsx(
+            // Offset the blur so it never covers the sidebar, which has its own background
+            'pointer-events-none absolute top-0 right-0 h-14',
+            'transition-[left] duration-500 ease-in-out',
+            isSidebarOpen ? 'left-80' : 'left-0',
+            'bg-neutral-50/1 dark:bg-neutral-800/1',
+          )}
+        >
+          {/* Progressive blur: each layer adds a stronger blur masked toward the top,
+              so text is heavily blurred at the top of the header and fades to sharp at the bottom */}
+          <div className="absolute inset-0 backdrop-blur-[1.6px] mask-[linear-gradient(to_bottom,black_0%,black_70%,transparent_100%)]" />
+          <div className="absolute inset-0 backdrop-blur-[2px] mask-[linear-gradient(to_bottom,black_0%,black_35%,transparent_70%)]" />
+          <div className="absolute inset-0 backdrop-blur-xs mask-[linear-gradient(to_bottom,black_0%,black_15%,transparent_45%)]" />
+        </div>
+      ) : null}
 
       <div
         className={clsx(

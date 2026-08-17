@@ -46,6 +46,18 @@ afterEach(() => {
 })
 
 describe('AppSidebar', () => {
+  it('reopens at full width when the sidebar was left open', async () => {
+    renderSidebar({ isSidebarOpen: true })
+
+    expect(await screen.findByRole('complementary')).toHaveClass('w-80')
+  })
+
+  it('stays collapsed when the sidebar was left closed', async () => {
+    renderSidebar()
+
+    expect(await screen.findByRole('complementary')).toHaveClass('w-0')
+  })
+
   it('tells the user when there are no chats yet', async () => {
     renderSidebar()
 

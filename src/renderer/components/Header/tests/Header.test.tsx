@@ -118,6 +118,15 @@ describe('Header on non-mac', () => {
     expect(container.querySelector('.z-10')?.className).toContain('ml-4')
   })
 
+  it('remembers the sidebar state when it is toggled', async () => {
+    const user = userEvent.setup()
+    renderHeader()
+
+    await user.click(screen.getByRole('button', { name: 'Toggle sidebar' }))
+
+    expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
+  })
+
   it('opens settings when the settings button is clicked', async () => {
     const user = userEvent.setup()
     renderHeader()

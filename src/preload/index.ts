@@ -148,6 +148,17 @@ const electronApi: ElectronApi = {
     )
     return saved === true
   },
+  getSidebarOpen: async () => {
+    const isOpen: unknown = await ipcRenderer.invoke(IpcChannels.getSidebarOpen)
+    return isOpen === true
+  },
+  setSidebarOpen: async (isOpen: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setSidebarOpen,
+      isOpen,
+    )
+    return saved === true
+  },
   getShortcuts: async () => {
     const shortcuts: unknown = await ipcRenderer.invoke(
       IpcChannels.getShortcuts,

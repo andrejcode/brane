@@ -32,6 +32,8 @@ export interface MockElectronApi {
   setSelectedModel: ReturnType<typeof vi.fn>
   getSendWithModifierEnter: ReturnType<typeof vi.fn>
   setSendWithModifierEnter: ReturnType<typeof vi.fn>
+  getSidebarOpen: ReturnType<typeof vi.fn>
+  setSidebarOpen: ReturnType<typeof vi.fn>
   getShortcuts: ReturnType<typeof vi.fn>
   setShortcuts: ReturnType<typeof vi.fn>
   openLogs: ReturnType<typeof vi.fn>
@@ -53,6 +55,7 @@ export interface MockElectronApiOptions {
   models?: string[]
   selectedModel?: string | null
   sendWithModifierEnter?: boolean
+  isSidebarOpen?: boolean
   shortcuts?: ShortcutMap
   chats?: ChatSummary[]
   chatMessages?: StoredMessage[]
@@ -72,6 +75,7 @@ export function installMockElectronApi(
     models = [],
     selectedModel = null,
     sendWithModifierEnter = false,
+    isSidebarOpen = false,
     shortcuts = DEFAULT_SHORTCUTS,
     chats = [],
     chatMessages = [],
@@ -108,6 +112,12 @@ export function installMockElectronApi(
   )
   const setSendWithModifierEnter = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
+  )
+  const getSidebarOpen = vi.fn(
+    (): Promise<boolean> => Promise.resolve(isSidebarOpen),
+  )
+  const setSidebarOpen = vi.fn(
+    (isOpen: boolean): Promise<boolean> => Promise.resolve(isOpen),
   )
   const getShortcuts = vi.fn(
     (): Promise<ShortcutMap> => Promise.resolve(shortcuts),
@@ -189,6 +199,8 @@ export function installMockElectronApi(
     deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    getSidebarOpen,
+    setSidebarOpen,
     getShortcuts,
     setShortcuts,
     openLogs,
@@ -219,6 +231,8 @@ export function installMockElectronApi(
     deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
+    getSidebarOpen,
+    setSidebarOpen,
     getShortcuts,
     setShortcuts,
     openLogs,

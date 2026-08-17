@@ -14,6 +14,7 @@ import {
   watchModels,
 } from './model'
 import { registerShortcutsHandlers } from './shortcuts'
+import { registerSidebarHandlers } from './sidebar'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
 
@@ -75,6 +76,7 @@ void app.whenReady().then(() => {
   registerLocaleHandlers()
   registerChatSettingsHandlers()
   registerChatsHandlers()
+  registerSidebarHandlers()
   registerShortcutsHandlers()
   registerLogsHandlers()
   registerLlamaHandlers()

@@ -3,6 +3,7 @@ import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
+import { useSidebar } from '@/contexts/SidebarContext'
 import { useTheme } from '@/contexts/ThemeContext'
 
 export function useReady() {
@@ -11,6 +12,7 @@ export function useReady() {
   const { isReady: isLocaleReady } = useLocale()
   const { isReady: isChatSettingsReady } = useChatSettings()
   const { isReady: isShortcutsReady } = useShortcuts()
+  const { isReady: isSidebarReady } = useSidebar()
 
   // The main process keeps the window hidden until we confirm the initial state
   // has loaded, so the first visible frame already shows the right model name,
@@ -23,6 +25,7 @@ export function useReady() {
       isLocaleReady &&
       isChatSettingsReady &&
       isShortcutsReady &&
+      isSidebarReady &&
       !hasSignaledReady.current
     ) {
       hasSignaledReady.current = true
@@ -34,5 +37,6 @@ export function useReady() {
     isLocaleReady,
     isChatSettingsReady,
     isShortcutsReady,
+    isSidebarReady,
   ])
 }

@@ -34,6 +34,8 @@ declare global {
     deleteChat: (chatId: string) => Promise<void>
     getSendWithModifierEnter: () => Promise<boolean>
     setSendWithModifierEnter: (enabled: boolean) => Promise<boolean>
+    getSidebarOpen: () => Promise<boolean>
+    setSidebarOpen: (isOpen: boolean) => Promise<boolean>
     getShortcuts: () => Promise<ShortcutMap>
     setShortcuts: (shortcuts: ShortcutMap) => Promise<ShortcutMap>
     openLogs: () => Promise<void>

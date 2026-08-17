@@ -6,12 +6,16 @@ import { ChatListItem } from './ChatListItem'
 
 export function AppSidebar() {
   const { t } = useTranslation()
-  const { isSidebarOpen } = useSidebar()
+  const { isSidebarOpen, isReady } = useSidebar()
   const { chats, activeChatId, isHistoryUnavailable, openChat, removeChat } =
     useChat()
   const emptyMessage = isHistoryUnavailable
     ? t('sidebar.historyUnavailable')
     : t('sidebar.noChats')
+
+  if (!isReady) {
+    return null
+  }
 
   return (
     <Sidebar isSidebarOpen={isSidebarOpen}>

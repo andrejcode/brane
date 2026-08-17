@@ -28,6 +28,9 @@ export const IpcChannels = {
   getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',
   setSendWithModifierEnter: 'chat-settings:set-send-with-modifier-enter',
 
+  getSidebarOpen: 'sidebar:get-open',
+  setSidebarOpen: 'sidebar:set-open',
+
   getShortcuts: 'shortcuts:get',
   setShortcuts: 'shortcuts:set',
 
