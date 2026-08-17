@@ -29,6 +29,8 @@
     "typecheck:preload": "tsc -p tsconfig.preload.json --noEmit",
     "typecheck:renderer": "tsc -p tsconfig.renderer.json --noEmit",
     "typecheck:test": "tsc -p tsconfig.vitest.json --noEmit",
+    "trinity": "npm run lint && npm run typecheck && npm run test",
+    "trinity:force": "npm run lint; npm run typecheck; npm run test",
     "prepare": "husky"
   },
   "lint-staged": {
