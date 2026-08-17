@@ -2,15 +2,18 @@ import { ipcMain, type WebContents } from 'electron'
 import {
   getLlama,
   LlamaChatSession,
+  type ChatHistoryItem,
   type Llama,
   type LlamaChatResponseChunk,
   type LlamaModel,
 } from 'node-llama-cpp'
 import {
   IpcChannels,
+  type FinishReason,
   type LlamaResponseSegment,
   type LlamaStreamEvent,
 } from '@shared/types'
+import { appendMessage, listMessages } from '../db/chats'
 import { logger } from '../logger'
 import { getModelPath, getSelectedModelPath } from '../model'
 
@@ -21,6 +24,9 @@ let pendingTeardown: Promise<void> | undefined
 let isGenerating = false
 let activeAbortController: AbortController | undefined
 let activeGeneration: Promise<void> | undefined
+// Which chat the live session's context belongs to, so switching chats reseeds it
+// while further turns in the same chat keep the context already in memory.
+let primedChatId: string | undefined
 
 async function getSession(modelPath: string | null) {
   // Never load a new model while the previous one is still being disposed.
@@ -53,6 +59,7 @@ async function getSession(modelPath: string | null) {
 // resident models can exhaust the hardware.
 async function resetLlamaSession() {
   sessionPromise = undefined
+  primedChatId = undefined
 
   const modelToDispose = loadedModel
   loadedModel = undefined
@@ -216,16 +223,97 @@ function classifyResponseChunk(
   return { text: chunk.text }
 }
 
+// Thoughts are deliberately left out: they're stored for display but replaying
+// them would spend context on the model's own reasoning.
+function toChatHistory(chatId: string): ChatHistoryItem[] {
+  return listMessages(chatId).flatMap<ChatHistoryItem>((message) => {
+    if (message.role === 'user') {
+      return [{ type: 'user', text: message.content }]
+    }
+
+    return message.content.length === 0
+      ? []
+      : [{ type: 'model', response: [message.content] }]
+  })
+}
+
+// Loads a stored conversation into the session before its next turn. Failing to
+// read history must still clear the context, or this chat would inherit the
+// previous one's.
+function primeSession(session: LlamaChatSession, chatId: string) {
+  if (primedChatId === chatId) {
+    return
+  }
+
+  let history: ChatHistoryItem[] = []
+
+  try {
+    history = toChatHistory(chatId)
+  } catch (error) {
+    logger.error(`Failed to read history for chat ${chatId}`, error)
+  }
+
+  if (history.length === 0) {
+    session.resetChatHistory()
+  } else {
+    session.setChatHistory(history)
+    logger.info(`Primed chat ${chatId} with ${history.length} stored turns`)
+  }
+
+  primedChatId = chatId
+}
+
+// Persistence is best-effort: a chat that can't be written down is still worth
+// answering, so failures are logged rather than surfaced as generation errors.
+function persistTurn(
+  chatId: string,
+  message: Parameters<typeof appendMessage>[0],
+) {
+  try {
+    appendMessage(message)
+  } catch (error) {
+    logger.error(`Failed to store a message for chat ${chatId}`, error)
+  }
+}
+
+function persistAssistantTurn(
+  chatId: string,
+  content: string,
+  reasoning: string,
+  finishReason: FinishReason,
+) {
+  // Nothing was generated, so there's no turn worth keeping. Matches the
+  // renderer dropping its empty placeholder.
+  if (content.length === 0 && reasoning.length === 0) {
+    return
+  }
+
+  persistTurn(chatId, {
+    chatId,
+    role: 'assistant',
+    content,
+    reasoning: reasoning.length === 0 ? null : reasoning,
+    finishReason,
+  })
+}
+
 async function streamPrompt(
   sender: WebContents,
   prompt: string,
+  chatId: string,
   abortController: AbortController,
 ) {
   logger.info(`Prompt received (${prompt.length} chars), generating response`)
 
+  const responseChunks: string[] = []
+  const thoughtChunks: string[] = []
+
   try {
-    const responseChunks: string[] = []
     const session = await getSession(getSelectedModelPath())
+
+    primeSession(session, chatId)
+    persistTurn(chatId, { chatId, role: 'user', content: prompt })
+
     const response = await session.promptWithMeta(prompt, {
       signal: abortController.signal,
       stopOnAbortSignal: true,
@@ -244,6 +332,7 @@ async function streamPrompt(
           return
         }
 
+        thoughtChunks.push(classified.text)
         sendStreamEvent(sender, {
           type: 'chunk',
           text: classified.text,
@@ -253,20 +342,33 @@ async function streamPrompt(
     })
 
     const responseText = responseChunks.join('') || response.responseText
+    const stopped = response.stopReason === 'abort'
     logger.info(
       `Response complete (${responseText.length} chars, stopReason: ${response.stopReason})`,
     )
 
+    persistAssistantTurn(
+      chatId,
+      responseText,
+      thoughtChunks.join(''),
+      stopped ? 'stopped' : 'done',
+    )
     sendStreamEvent(sender, {
       type: 'done',
       response: responseText,
-      stopped: response.stopReason === 'abort',
+      stopped,
     })
   } catch (error) {
     // Aborting before generation starts streaming rejects instead of
     // resolving with a partial response, so treat it as a normal stop.
     if (abortController.signal.aborted) {
       logger.info('Generation aborted')
+      persistAssistantTurn(
+        chatId,
+        responseChunks.join(''),
+        thoughtChunks.join(''),
+        'stopped',
+      )
       sendStreamEvent(sender, {
         type: 'done',
         response: '',
@@ -274,6 +376,12 @@ async function streamPrompt(
       })
     } else {
       logger.error('Generation failed', error)
+      persistAssistantTurn(
+        chatId,
+        responseChunks.join(''),
+        thoughtChunks.join(''),
+        'error',
+      )
       sendStreamEvent(sender, {
         type: 'error',
         message: 'The model failed to generate a response. Please try again.',
@@ -288,10 +396,15 @@ async function streamPrompt(
 export function registerLlamaHandlers() {
   ipcMain.handle(
     IpcChannels.llamaSendPrompt,
-    async (event, prompt: unknown) => {
+    async (event, prompt: unknown, chatId: unknown) => {
       if (typeof prompt !== 'string' || prompt.trim().length === 0) {
         logger.warn('Rejected prompt: not a non-empty string')
         throw new Error('Prompt must be a non-empty string.')
+      }
+
+      if (typeof chatId !== 'string' || chatId.length === 0) {
+        logger.warn('Rejected prompt: missing chat id')
+        throw new Error('Prompt must belong to a chat.')
       }
 
       // New chat (or a rapid re-send) may abort while the previous turn is still
@@ -307,7 +420,12 @@ export function registerLlamaHandlers() {
       isGenerating = true
       const abortController = new AbortController()
       activeAbortController = abortController
-      const generation = streamPrompt(event.sender, prompt, abortController)
+      const generation = streamPrompt(
+        event.sender,
+        prompt,
+        chatId,
+        abortController,
+      )
       activeGeneration = generation
 
       try {

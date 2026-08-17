@@ -2,41 +2,190 @@ import {
   createContext,
   use,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
 import type { Message } from '@/types'
+import { createId } from '@/utils'
+import type { ChatSummary, StoredMessage } from '@shared/types'
+import { useAlert } from './AlertContext'
+import { useTranslation } from './LocaleContext'
 
 interface ChatContextValue {
   messages: Message[]
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   isSending: boolean
   setIsSending: React.Dispatch<React.SetStateAction<boolean>>
-  // A ref rather than state because the stream subscription is registered once
-  // and would otherwise capture a stale id when it persists a finished turn.
-  // `null` means the conversation hasn't been saved yet.
-  activeChatId: React.RefObject<string | null>
   // Tracks the in-flight assistant placeholder the stream subscription updates.
   streamingAssistantMessageIdRef: React.RefObject<string | null>
+  chats: ChatSummary[]
+  activeChatId: string | null
+  activeChat: ChatSummary | null
+  isLoadingChat: boolean
+  isHistoryUnavailable: boolean
+  // The model a freshly opened chat wants back in memory, claimed by the next
+  // send. Once claimed, a model the user picks by hand stays picked.
+  pendingModelRestore: string | null
+  clearPendingModelRestore: () => void
+  refreshChats: () => Promise<void>
+  openChat: (chatId: string) => Promise<void>
+  removeChat: (chatId: string) => Promise<void>
+  ensureActiveChat: () => Promise<string>
   startNewChat: () => void
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
 
+function toMessage(stored: StoredMessage): Message {
+  return {
+    id: stored.id,
+    role: stored.role,
+    content: stored.content,
+    ...(stored.reasoning === null ? {} : { reasoning: stored.reasoning }),
+  }
+}
+
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const { showAlert } = useAlert()
+  const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [isSending, setIsSending] = useState(false)
-  const activeChatId = useRef<string | null>(null)
+  const [chats, setChats] = useState<ChatSummary[]>([])
+  const [activeChatId, setActiveChatId] = useState<string | null>(null)
+  const [isLoadingChat, setIsLoadingChat] = useState(false)
+  const [isHistoryUnavailable, setIsHistoryUnavailable] = useState(false)
+  const [pendingModelRestore, setPendingModelRestore] = useState<string | null>(
+    null,
+  )
   const streamingAssistantMessageIdRef = useRef<string | null>(null)
+  // Switching chats is meant to feel instant, so a slower earlier load must not
+  // land on top of the chat the user is looking at now.
+  const openRequestRef = useRef(0)
 
-  const startNewChat = useCallback(() => {
+  const refreshChats = useCallback(async () => {
+    try {
+      setChats(await window.electronApi.listChats())
+    } catch {
+      // A failed refresh leaves the list as it was; the next one can recover.
+    }
+  }, [])
+
+  // A list that can't be read at all means persistence is broken, which the
+  // sidebar says outright rather than through an alert the user can dismiss.
+  useEffect(() => {
+    let isMounted = true
+
+    void window.electronApi
+      .listChats()
+      .then((storedChats) => {
+        if (isMounted) {
+          setChats(storedChats)
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsHistoryUnavailable(true)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Callers decide which chat, if any, becomes active afterwards.
+  const resetConversation = useCallback(() => {
     void window.electronApi.stopGeneration()
-    activeChatId.current = null
     streamingAssistantMessageIdRef.current = null
     setIsSending(false)
     setMessages([])
   }, [])
+
+  const clearPendingModelRestore = useCallback(() => {
+    setPendingModelRestore(null)
+  }, [])
+
+  const startNewChat = useCallback(() => {
+    openRequestRef.current++
+    resetConversation()
+    setActiveChatId(null)
+    setPendingModelRestore(null)
+  }, [resetConversation])
+
+  // Only the stored messages are loaded here. The chat's model stays untouched
+  // until a prompt is actually sent, so browsing chats costs nothing.
+  const openChat = useCallback(
+    async (chatId: string) => {
+      const requestId = ++openRequestRef.current
+      resetConversation()
+      setActiveChatId(chatId)
+      setPendingModelRestore(
+        chats.find((chat) => chat.id === chatId)?.modelFile ?? null,
+      )
+      setIsLoadingChat(true)
+
+      try {
+        const stored = await window.electronApi.getChatMessages(chatId)
+
+        if (openRequestRef.current === requestId) {
+          setMessages(stored.map(toMessage))
+        }
+      } catch {
+        if (openRequestRef.current === requestId) {
+          showAlert(t('sidebar.openChatFailed'), 'error')
+        }
+      } finally {
+        if (openRequestRef.current === requestId) {
+          setIsLoadingChat(false)
+        }
+      }
+    },
+    [chats, resetConversation, showAlert, t],
+  )
+
+  const removeChat = useCallback(
+    async (chatId: string) => {
+      try {
+        await window.electronApi.deleteChat(chatId)
+
+        if (chatId === activeChatId) {
+          startNewChat()
+        }
+
+        await refreshChats()
+      } catch {
+        showAlert(t('sidebar.deleteChatFailed'), 'error')
+      }
+    },
+    [activeChatId, refreshChats, showAlert, startNewChat, t],
+  )
+
+  // The id is generated here so the conversation stays addressable even when it
+  // can't be stored; the main process then persists turns under that same id.
+  const ensureActiveChat = useCallback(async () => {
+    if (activeChatId !== null) {
+      return activeChatId
+    }
+
+    const chatId = createId()
+    setActiveChatId(chatId)
+
+    try {
+      await window.electronApi.createChat(chatId)
+      await refreshChats()
+    } catch {
+      showAlert(t('chat.historyUnavailable'), 'error')
+    }
+
+    return chatId
+  }, [activeChatId, refreshChats, showAlert, t])
+
+  const activeChat = useMemo(
+    () => chats.find((chat) => chat.id === activeChatId) ?? null,
+    [chats, activeChatId],
+  )
 
   const value = useMemo(
     () => ({
@@ -44,11 +193,36 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setMessages,
       isSending,
       setIsSending,
-      activeChatId,
       streamingAssistantMessageIdRef,
+      chats,
+      activeChatId,
+      activeChat,
+      isLoadingChat,
+      isHistoryUnavailable,
+      pendingModelRestore,
+      clearPendingModelRestore,
+      refreshChats,
+      openChat,
+      removeChat,
+      ensureActiveChat,
       startNewChat,
     }),
-    [messages, isSending, startNewChat],
+    [
+      messages,
+      isSending,
+      chats,
+      activeChatId,
+      activeChat,
+      isLoadingChat,
+      isHistoryUnavailable,
+      pendingModelRestore,
+      clearPendingModelRestore,
+      refreshChats,
+      openChat,
+      removeChat,
+      ensureActiveChat,
+      startNewChat,
+    ],
   )
 
   return <ChatContext value={value}>{children}</ChatContext>

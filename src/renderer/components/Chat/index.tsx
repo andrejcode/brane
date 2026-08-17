@@ -18,7 +18,7 @@ import { Messages } from './Messages'
 
 export function Chat() {
   const { showAlert } = useAlert()
-  const { selectedModel } = useModel()
+  const { selectedModel, loadedModel, selectModel } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
   const {
     messages,
@@ -26,10 +26,18 @@ export function Chat() {
     isSending,
     setIsSending,
     streamingAssistantMessageIdRef,
+    activeChat,
+    isLoadingChat,
+    pendingModelRestore,
+    clearPendingModelRestore,
+    ensureActiveChat,
+    refreshChats,
   } = useChat()
   const { t } = useTranslation()
   const [input, setInput] = useState('')
-  const isEmpty = messages.length === 0
+  // A chat being opened is about to have messages, so it must not flash the
+  // centered greeting on its way in.
+  const isEmpty = messages.length === 0 && !isLoadingChat
   // The composer floats over messages, so messages need matching bottom padding
   const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
   const bottomOverlayRef = useRef<HTMLDivElement>(null)
@@ -127,6 +135,8 @@ export function Chat() {
         )
         streamingAssistantMessageIdRef.current = null
         setIsSending(false)
+        // Storing this turn moved the chat up the list.
+        void refreshChats()
 
         return
       }
@@ -142,12 +152,19 @@ export function Chat() {
       )
       streamingAssistantMessageIdRef.current = null
       setIsSending(false)
+      void refreshChats()
     })
 
     return () => {
       unsubscribe()
     }
-  }, [setIsSending, setMessages, showAlert, streamingAssistantMessageIdRef])
+  }, [
+    refreshChats,
+    setIsSending,
+    setMessages,
+    showAlert,
+    streamingAssistantMessageIdRef,
+  ])
 
   useEffect(() => {
     const bottomOverlay = bottomOverlayRef.current
@@ -196,6 +213,26 @@ export function Chat() {
     void window.electronApi.stopGeneration()
   }, [])
 
+  const needsModelRestore =
+    pendingModelRestore !== null && pendingModelRestore !== loadedModel
+
+  // Sending is the first point a stored chat needs its own model in memory, so a
+  // chat opened from the sidebar loads its model here rather than on open.
+  const loadChatModel = useCallback(async () => {
+    clearPendingModelRestore()
+
+    if (!needsModelRestore || pendingModelRestore === null) {
+      return
+    }
+
+    await selectModel(pendingModelRestore)
+  }, [
+    clearPendingModelRestore,
+    needsModelRestore,
+    pendingModelRestore,
+    selectModel,
+  ])
+
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
@@ -207,6 +244,14 @@ export function Chat() {
 
     if (!selectedModel) {
       showAlert(t('chat.selectModelAlert'), 'info')
+      return
+    }
+
+    // Only blocks when this chat's own model is both needed and gone; after the
+    // warning the user's current selection takes over.
+    if (needsModelRestore && activeChat?.modelAvailability === 'missing') {
+      clearPendingModelRestore()
+      showAlert(t('chat.modelMissingAlert'), 'error')
       return
     }
 
@@ -229,14 +274,21 @@ export function Chat() {
       },
     ])
 
-    void window.electronApi.sendPrompt(prompt).catch(() => {
-      showAlert(t('chat.sendFailed'), 'error')
-      setMessages((currentMessages) =>
-        currentMessages.filter((message) => message.id !== assistantMessageId),
-      )
-      streamingAssistantMessageIdRef.current = null
-      setIsSending(false)
-    })
+    void (async () => {
+      try {
+        await loadChatModel()
+        await window.electronApi.sendPrompt(prompt, await ensureActiveChat())
+      } catch {
+        showAlert(t('chat.sendFailed'), 'error')
+        setMessages((currentMessages) =>
+          currentMessages.filter(
+            (message) => message.id !== assistantMessageId,
+          ),
+        )
+        streamingAssistantMessageIdRef.current = null
+        setIsSending(false)
+      }
+    })()
   }
 
   return (

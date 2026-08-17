@@ -1,9 +1,11 @@
 import { vi } from 'vitest'
 import {
+  type ChatSummary,
   DEFAULT_SHORTCUTS,
   type Locale,
   type LlamaStreamEvent,
   type ShortcutMap,
+  type StoredMessage,
   type Theme,
 } from '@shared/types'
 
@@ -13,6 +15,10 @@ export interface MockElectronApi {
   stopGeneration: ReturnType<typeof vi.fn>
   loadModel: ReturnType<typeof vi.fn>
   unloadModel: ReturnType<typeof vi.fn>
+  listChats: ReturnType<typeof vi.fn>
+  createChat: ReturnType<typeof vi.fn>
+  getChatMessages: ReturnType<typeof vi.fn>
+  deleteChat: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
@@ -44,6 +50,8 @@ export interface MockElectronApiOptions {
   selectedModel?: string | null
   sendWithModifierEnter?: boolean
   shortcuts?: ShortcutMap
+  chats?: ChatSummary[]
+  chatMessages?: StoredMessage[]
 }
 
 // Installs a fake `window.electronApi` so renderer components that talk to the
@@ -61,6 +69,8 @@ export function installMockElectronApi(
     selectedModel = null,
     sendWithModifierEnter = false,
     shortcuts = DEFAULT_SHORTCUTS,
+    chats = [],
+    chatMessages = [],
   } = options
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
@@ -101,6 +111,21 @@ export function installMockElectronApi(
   )
   const openLogs = vi.fn((): Promise<void> => Promise.resolve())
   const deleteLogs = vi.fn((): Promise<void> => Promise.resolve())
+  const listChats = vi.fn((): Promise<ChatSummary[]> => Promise.resolve(chats))
+  const createChat = vi.fn(
+    (chatId: string): Promise<ChatSummary> =>
+      Promise.resolve({
+        id: chatId,
+        title: null,
+        modelFile: selectedModel ?? 'test-model.gguf',
+        modelAvailability: 'available',
+        updatedAt: 0,
+      }),
+  )
+  const getChatMessages = vi.fn(
+    (): Promise<StoredMessage[]> => Promise.resolve(chatMessages),
+  )
+  const deleteChat = vi.fn((): Promise<void> => Promise.resolve())
 
   const streamResponse = vi.fn(
     (callback: (event: LlamaStreamEvent) => void): (() => void) => {
@@ -140,6 +165,10 @@ export function installMockElectronApi(
     setLocale,
     getModelState,
     setSelectedModel,
+    listChats,
+    createChat,
+    getChatMessages,
+    deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
     getShortcuts,
@@ -166,6 +195,10 @@ export function installMockElectronApi(
     setLocale,
     getModelState,
     setSelectedModel,
+    listChats,
+    createChat,
+    getChatMessages,
+    deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
     getShortcuts,

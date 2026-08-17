@@ -2,6 +2,15 @@ import type { Messages } from './types'
 
 export const sr: Messages = {
   'sidebar.chats': 'Разговори',
+  'sidebar.noChats': 'Још нема разговора',
+  'sidebar.historyUnavailable': 'Историја разговора није доступна.',
+  'sidebar.untitledChat': 'Разговор без наслова',
+  'sidebar.deleteChat': 'Избриши разговор',
+  'sidebar.openChatFailed': 'Отварање разговора није успело. Покушај поново.',
+  'sidebar.deleteChatFailed': 'Брисање разговора није успело. Покушај поново.',
+  'sidebar.modelMissing': 'Овај модел више није у твојој фасцикли са моделима.',
+  'sidebar.modelReplaced':
+    'Датотека овог модела променила се након стварања разговора.',
 
   'header.toggleSidebar': 'Прикажи/сакриј бочну траку',
   'header.newChat': 'Нови разговор',
@@ -15,6 +24,10 @@ export const sr: Messages = {
   'chat.scrollToBottom': 'Помери на дно',
   'chat.selectModelAlert': 'Изабери модел за слање поруке.',
   'chat.sendFailed': 'Слање поруке није успело. Покушај поново.',
+  'chat.historyUnavailable':
+    'Историја разговора није доступна, па овај разговор неће бити сачуван.',
+  'chat.modelMissingAlert':
+    'Модел који је овај разговор користио више није доступан. Изабери други модел за наставак.',
   'chat.thinking': 'Размишља',
   'chat.copy': 'Копирај',
   'chat.copied': 'Копирано',

@@ -2,6 +2,18 @@ import type { Messages } from './types'
 
 export const de: Messages = {
   'sidebar.chats': 'Chats',
+  'sidebar.noChats': 'Noch keine Chats',
+  'sidebar.historyUnavailable': 'Der Chatverlauf ist nicht verfügbar.',
+  'sidebar.untitledChat': 'Chat ohne Titel',
+  'sidebar.deleteChat': 'Chat löschen',
+  'sidebar.openChatFailed':
+    'Der Chat konnte nicht geöffnet werden. Bitte versuche es erneut.',
+  'sidebar.deleteChatFailed':
+    'Der Chat konnte nicht gelöscht werden. Bitte versuche es erneut.',
+  'sidebar.modelMissing':
+    'Dieses Modell liegt nicht mehr in deinem Modellordner.',
+  'sidebar.modelReplaced':
+    'Diese Modelldatei hat sich seit dem Erstellen des Chats geändert.',
 
   'header.toggleSidebar': 'Seitenleiste umschalten',
   'header.newChat': 'Neuer Chat',
@@ -17,6 +29,10 @@ export const de: Messages = {
     'Bitte wähle ein Modell aus, um eine Nachricht zu senden.',
   'chat.sendFailed':
     'Deine Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.',
+  'chat.historyUnavailable':
+    'Der Chatverlauf ist nicht verfügbar, dieses Gespräch wird nicht gespeichert.',
+  'chat.modelMissingAlert':
+    'Das Modell dieses Chats ist nicht mehr verfügbar. Wähle ein anderes Modell, um fortzufahren.',
   'chat.thinking': 'Denkt nach',
   'chat.copy': 'Kopieren',
   'chat.copied': 'Kopiert',

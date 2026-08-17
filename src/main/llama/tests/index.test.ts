@@ -6,13 +6,25 @@ import {
 } from '@test/main/electron'
 import { registerLlamaHandlers } from '../index'
 
-const { promptWithMeta, dispose, loadModelMock, createContextMock } =
-  vi.hoisted(() => ({
-    promptWithMeta: vi.fn(),
-    dispose: vi.fn(() => Promise.resolve()),
-    loadModelMock: vi.fn(),
-    createContextMock: vi.fn(),
-  }))
+const {
+  promptWithMeta,
+  dispose,
+  loadModelMock,
+  createContextMock,
+  appendMessage,
+  listMessages,
+  setChatHistory,
+  resetChatHistory,
+} = vi.hoisted(() => ({
+  promptWithMeta: vi.fn(),
+  dispose: vi.fn(() => Promise.resolve()),
+  loadModelMock: vi.fn(),
+  createContextMock: vi.fn(),
+  appendMessage: vi.fn(),
+  listMessages: vi.fn(() => []),
+  setChatHistory: vi.fn(),
+  resetChatHistory: vi.fn(),
+}))
 
 vi.mock('electron', () => createElectronMock())
 
@@ -21,12 +33,22 @@ vi.mock('../../model', () => ({
   getModelPath: vi.fn(() => '/fake/models/model.gguf'),
 }))
 
+vi.mock('../../db/chats', () => ({ appendMessage, listMessages }))
+
 vi.mock('node-llama-cpp', () => ({
   getLlama: vi.fn(() => Promise.resolve({ loadModel: loadModelMock })),
   LlamaChatSession: class {
     promptWithMeta = promptWithMeta
+    setChatHistory = setChatHistory
+    resetChatHistory = resetChatHistory
   },
 }))
+
+const CHAT_ID = 'chat-1'
+
+function sendPrompt(event: unknown, prompt = 'hi', chatId = CHAT_ID) {
+  return getIpcHandler(IpcChannels.llamaSendPrompt)(event, prompt, chatId)
+}
 
 function createFakeModel() {
   return {
@@ -59,6 +81,11 @@ beforeEach(() => {
   promptWithMeta.mockReset()
   loadModelMock.mockReset()
   createContextMock.mockReset()
+  appendMessage.mockReset()
+  listMessages.mockReset()
+  listMessages.mockReturnValue([])
+  setChatHistory.mockReset()
+  resetChatHistory.mockReset()
   dispose.mockClear()
   createContextMock.mockResolvedValue({ getSequence: () => ({}) })
   loadModelMock.mockImplementation(() => Promise.resolve(createFakeModel()))
@@ -80,7 +107,7 @@ describe('llama send-prompt handler', () => {
     })
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await sendPrompt(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'done',
@@ -96,7 +123,7 @@ describe('llama send-prompt handler', () => {
     })
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await sendPrompt(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'done',
@@ -114,7 +141,7 @@ describe('llama send-prompt handler', () => {
     })
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await sendPrompt(event, 'hi')
 
     const events = getStreamEvents(send)
 
@@ -132,7 +159,7 @@ describe('llama send-prompt handler', () => {
     promptWithMeta.mockRejectedValueOnce(new Error('boom'))
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await sendPrompt(event, 'hi')
 
     expect(getStreamEvents(send)).toContainEqual({
       type: 'error',
@@ -146,6 +173,14 @@ describe('llama send-prompt handler', () => {
     await expect(
       getIpcHandler(IpcChannels.llamaSendPrompt)(event, '   '),
     ).rejects.toThrow('Prompt must be a non-empty string.')
+  })
+
+  it('rejects a prompt that does not belong to a chat', async () => {
+    const { event } = createEvent()
+
+    await expect(sendPrompt(event, 'hi', '')).rejects.toThrow(
+      'Prompt must belong to a chat.',
+    )
   })
 
   it('aborts an in-flight generation when a second prompt arrives', async () => {
@@ -164,13 +199,13 @@ describe('llama send-prompt handler', () => {
       })
 
     const { event, send } = createEvent()
-    const first = getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'first')
+    const first = sendPrompt(event, 'first')
 
     await vi.waitFor(() => {
       expect(promptWithMeta).toHaveBeenCalledTimes(1)
     })
 
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'second')
+    await sendPrompt(event, 'second')
     await first
 
     expect(promptWithMeta).toHaveBeenCalledTimes(2)
@@ -179,6 +214,178 @@ describe('llama send-prompt handler', () => {
       response: 'second answer',
       stopped: false,
     })
+  })
+
+  it('stores the prompt and the finished answer', async () => {
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(appendMessage).toHaveBeenNthCalledWith(1, {
+      chatId: CHAT_ID,
+      role: 'user',
+      content: 'hi',
+    })
+    expect(appendMessage).toHaveBeenNthCalledWith(2, {
+      chatId: CHAT_ID,
+      role: 'assistant',
+      content: 'hello',
+      reasoning: null,
+      finishReason: 'done',
+    })
+  })
+
+  it('stores a stopped answer with whatever streamed', async () => {
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'partial',
+      stopReason: 'abort',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(appendMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ content: 'partial', finishReason: 'stopped' }),
+    )
+  })
+
+  it('stores the thoughts a turn produced alongside its answer', async () => {
+    promptWithMeta.mockImplementationOnce(
+      (
+        _prompt: string,
+        options: {
+          onResponseChunk: (chunk: {
+            type?: string
+            segmentType?: string
+            text: string
+          }) => void
+        },
+      ) => {
+        options.onResponseChunk({
+          type: 'segment',
+          segmentType: 'thought',
+          text: 'pondering',
+        })
+        options.onResponseChunk({ text: 'answer' })
+
+        return Promise.resolve({
+          responseText: 'answer',
+          stopReason: 'eogToken',
+        })
+      },
+    )
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(appendMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ content: 'answer', reasoning: 'pondering' }),
+    )
+  })
+
+  it('skips storing an answer when nothing was generated', async () => {
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: '',
+      stopReason: 'abort',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(appendMessage).toHaveBeenCalledTimes(1)
+    expect(appendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'user' }),
+    )
+  })
+
+  it('keeps answering when the turn cannot be stored', async () => {
+    appendMessage.mockImplementation(() => {
+      throw new Error('database is gone')
+    })
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event, send } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'done',
+      response: 'hello',
+      stopped: false,
+    })
+  })
+
+  it('seeds the session with a stored conversation, leaving thoughts out', async () => {
+    listMessages.mockReturnValue([
+      { role: 'user', content: 'earlier question' },
+      { role: 'assistant', content: 'earlier answer', reasoning: 'pondering' },
+    ] as unknown as [])
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(setChatHistory).toHaveBeenCalledWith([
+      { type: 'user', text: 'earlier question' },
+      { type: 'model', response: ['earlier answer'] },
+    ])
+  })
+
+  it('seeds only once for consecutive turns in the same chat', async () => {
+    listMessages.mockReturnValue([
+      { role: 'user', content: 'earlier question' },
+    ] as unknown as [])
+    promptWithMeta.mockResolvedValue({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'first')
+    await sendPrompt(event, 'second')
+
+    expect(setChatHistory).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears the context when switching to a chat with no history', async () => {
+    listMessages.mockReturnValueOnce([
+      { role: 'user', content: 'earlier question' },
+    ] as unknown as [])
+    promptWithMeta.mockResolvedValue({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi', 'chat-with-history')
+    await sendPrompt(event, 'hi', 'fresh-chat')
+
+    expect(resetChatHistory).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears the context when stored history cannot be read', async () => {
+    listMessages.mockImplementation(() => {
+      throw new Error('database is gone')
+    })
+    promptWithMeta.mockResolvedValueOnce({
+      responseText: 'hello',
+      stopReason: 'eogToken',
+    })
+
+    const { event } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(resetChatHistory).toHaveBeenCalledTimes(1)
+    expect(setChatHistory).not.toHaveBeenCalled()
   })
 
   it('streams text chunks, tags thoughts, and drops comments', async () => {
@@ -214,7 +421,7 @@ describe('llama send-prompt handler', () => {
     )
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hi')
+    await sendPrompt(event, 'hi')
 
     expect(getStreamEvents(send)).toEqual([
       { type: 'chunk', text: 'reasoning', segment: 'thought' },
@@ -247,7 +454,7 @@ describe('llama load/unload handlers', () => {
     await getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf')
 
     const { event, send } = createEvent()
-    await getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+    await sendPrompt(event, 'hello')
 
     expect(loadModelMock).toHaveBeenCalledTimes(1)
     expect(getStreamEvents(send)).toContainEqual({
@@ -279,7 +486,7 @@ describe('llama load/unload handlers', () => {
     )
 
     const { event, send } = createEvent()
-    const prompt = getIpcHandler(IpcChannels.llamaSendPrompt)(event, 'hello')
+    const prompt = sendPrompt(event, 'hello')
 
     // Generation only begins once the session resolves, so wait for it to start
     // before unloading.

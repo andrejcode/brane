@@ -19,6 +19,11 @@ export const IpcChannels = {
   getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
 
+  listChats: 'chats:list',
+  createChat: 'chats:create',
+  getChatMessages: 'chats:get-messages',
+  deleteChat: 'chats:delete',
+
   getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',
   setSendWithModifierEnter: 'chat-settings:set-send-with-modifier-enter',
 
@@ -116,6 +121,24 @@ export type MessageRole = (typeof MESSAGE_ROLES)[number]
 export const FINISH_REASONS = ['done', 'stopped', 'error'] as const
 
 export type FinishReason = (typeof FINISH_REASONS)[number]
+
+// A row for the chat list. `title` stays null until a chat is named. Timestamps
+// cross as epoch milliseconds rather than `Date`.
+export interface ChatSummary {
+  id: string
+  title: string | null
+  modelFile: string
+  modelAvailability: ModelAvailability
+  updatedAt: number
+}
+
+export interface StoredMessage {
+  id: string
+  role: MessageRole
+  content: string
+  reasoning: string | null
+  finishReason: FinishReason | null
+}
 
 // Models emit their output in segments. A `thought` segment is the model's
 // reasoning; its absence means the chunk is part of the user-facing answer.

@@ -1,5 +1,14 @@
 export const en = {
   'sidebar.chats': 'Chats',
+  'sidebar.noChats': 'No chats yet',
+  'sidebar.historyUnavailable': 'Chat history is unavailable.',
+  'sidebar.untitledChat': 'Untitled chat',
+  'sidebar.deleteChat': 'Delete chat',
+  'sidebar.openChatFailed': 'Failed to open that chat. Please try again.',
+  'sidebar.deleteChatFailed': 'Failed to delete that chat. Please try again.',
+  'sidebar.modelMissing': 'This model is no longer in your models folder.',
+  'sidebar.modelReplaced':
+    'This model file has changed since the chat was created.',
 
   'header.toggleSidebar': 'Toggle sidebar',
   'header.newChat': 'New chat',
@@ -13,6 +22,10 @@ export const en = {
   'chat.scrollToBottom': 'Scroll to bottom',
   'chat.selectModelAlert': 'Please select a model to send a message.',
   'chat.sendFailed': 'Failed to send your message. Please try again.',
+  'chat.historyUnavailable':
+    "Chat history is unavailable, so this conversation won't be saved.",
+  'chat.modelMissingAlert':
+    'The model this chat used is no longer available. Select another model to continue.',
   'chat.thinking': 'Thinking',
   'chat.copy': 'Copy',
   'chat.copied': 'Copied',

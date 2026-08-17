@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
+import { registerChatsHandlers } from './chats'
 import { registerChatSettingsHandlers } from './chatSettings'
 import { closeDatabase, initializeDatabase } from './db'
 import { registerLlamaHandlers, unloadLlamaModel } from './llama'
@@ -50,6 +51,7 @@ void app.whenReady().then(() => {
   registerThemeHandlers()
   registerLocaleHandlers()
   registerChatSettingsHandlers()
+  registerChatsHandlers()
   registerShortcutsHandlers()
   registerLogsHandlers()
   registerLlamaHandlers()

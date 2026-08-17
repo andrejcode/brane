@@ -1,11 +1,13 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import {
+  type ChatSummary,
   IpcChannels,
   type LlamaStreamEvent,
   type Locale,
   type ModelState,
   normalizeShortcuts,
   type ShortcutMap,
+  type StoredMessage,
   type Theme,
 } from '@shared/types'
 
@@ -29,8 +31,8 @@ const electronApi: ElectronApi = {
       ipcRenderer.removeListener(IpcChannels.windowFullscreenChanged, listener)
     }
   },
-  sendPrompt: async (prompt: string) => {
-    await ipcRenderer.invoke(IpcChannels.llamaSendPrompt, prompt)
+  sendPrompt: async (prompt: string, chatId: string) => {
+    await ipcRenderer.invoke(IpcChannels.llamaSendPrompt, prompt, chatId)
   },
   stopGeneration: async () => {
     await ipcRenderer.invoke(IpcChannels.llamaStopGeneration)
@@ -95,6 +97,27 @@ const electronApi: ElectronApi = {
       model,
     )
     return typeof saved === 'string' ? saved : null
+  },
+  listChats: async () => {
+    const chats: unknown = await ipcRenderer.invoke(IpcChannels.listChats)
+    return Array.isArray(chats) ? (chats as ChatSummary[]) : []
+  },
+  createChat: async (chatId: string) => {
+    const chat: unknown = await ipcRenderer.invoke(
+      IpcChannels.createChat,
+      chatId,
+    )
+    return chat as ChatSummary
+  },
+  getChatMessages: async (chatId: string) => {
+    const messages: unknown = await ipcRenderer.invoke(
+      IpcChannels.getChatMessages,
+      chatId,
+    )
+    return Array.isArray(messages) ? (messages as StoredMessage[]) : []
+  },
+  deleteChat: async (chatId: string) => {
+    await ipcRenderer.invoke(IpcChannels.deleteChat, chatId)
   },
   getSendWithModifierEnter: async () => {
     const enabled: unknown = await ipcRenderer.invoke(
