@@ -18,6 +18,7 @@ export const IpcChannels = {
 
   getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
+  modelStateChanged: 'model:state-changed',
 
   listChats: 'chats:list',
   createChat: 'chats:create',

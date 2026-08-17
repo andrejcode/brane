@@ -24,8 +24,8 @@ export const en = {
   'chat.sendFailed': 'Failed to send your message. Please try again.',
   'chat.historyUnavailable':
     "Chat history is unavailable, so this conversation won't be saved.",
-  'chat.modelMissingAlert':
-    'The model this chat used is no longer available. Select another model to continue.',
+  'chat.readOnlyModelMissing':
+    'This chat can only be read, because its model is no longer available.',
   'chat.thinking': 'Thinking',
   'chat.copy': 'Copy',
   'chat.copied': 'Copied',

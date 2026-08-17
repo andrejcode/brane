@@ -99,6 +99,21 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadIntoMemory])
 
+  // The main process watches the models directory and has already unloaded a
+  // model whose file disappeared, so this only has to catch the UI up.
+  useEffect(() => {
+    return window.electronApi.onModelStateChange((state) => {
+      setModels(state.models)
+      setSelectedModel(state.selectedModel)
+
+      if (state.selectedModel === null) {
+        loadRequestRef.current++
+        setLoadingModel(null)
+        setLoadedModel(null)
+      }
+    })
+  }, [])
+
   const selectModel = useCallback(
     async (model: string) => {
       if (loadingModel !== null || model === loadedModel) {

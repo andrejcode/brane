@@ -26,6 +26,7 @@ declare global {
     getLocale: () => Promise<Locale>
     setLocale: (locale: Locale) => Promise<Locale>
     getModelState: () => Promise<ModelState>
+    onModelStateChange: (callback: (state: ModelState) => void) => () => void
     setSelectedModel: (model: string | null) => Promise<string | null>
     listChats: () => Promise<ChatSummary[]>
     createChat: (chatId: string) => Promise<ChatSummary>

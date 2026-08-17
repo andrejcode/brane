@@ -28,8 +28,8 @@ export const hr: Messages = {
   'chat.sendFailed': 'Slanje poruke nije uspjelo. Pokušaj ponovno.',
   'chat.historyUnavailable':
     'Povijest razgovora nije dostupna, pa ovaj razgovor neće biti sačuvan.',
-  'chat.modelMissingAlert':
-    'Model koji je ovaj razgovor koristio više nije dostupan. Odaberi drugi model za nastavak.',
+  'chat.readOnlyModelMissing':
+    'Ovaj razgovor može se samo čitati jer njegov model više nije dostupan.',
   'chat.thinking': 'Razmišlja',
   'chat.copy': 'Kopiraj',
   'chat.copied': 'Kopirano',

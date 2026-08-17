@@ -87,7 +87,7 @@ describe('AppSidebar', () => {
     expect(screen.queryByText('Untitled chat')).not.toBeInTheDocument()
   })
 
-  it('flags a chat whose model is gone', async () => {
+  it('flags a chat whose model is gone, explaining it on hover', async () => {
     renderSidebar({ chats: [chatSummary({ modelAvailability: 'missing' })] })
 
     expect(
@@ -95,6 +95,28 @@ describe('AppSidebar', () => {
         'This model is no longer in your models folder.',
       ),
     ).toBeInTheDocument()
+    expect(
+      screen.getByTitle('This model is no longer in your models folder.'),
+    ).toBeInTheDocument()
+  })
+
+  it('explains a model that changed since the chat was created', async () => {
+    renderSidebar({ chats: [chatSummary({ modelAvailability: 'replaced' })] })
+
+    expect(
+      await screen.findByTitle(
+        'This model file has changed since the chat was created.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('leaves the model line unexplained when nothing is wrong', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+
+    expect(await screen.findByText('test-model')).toBeInTheDocument()
+    expect(
+      screen.queryByTitle('This model is no longer in your models folder.'),
+    ).not.toBeInTheDocument()
   })
 
   it('loads the messages of the chat that was clicked', async () => {

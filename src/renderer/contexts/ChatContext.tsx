@@ -25,10 +25,6 @@ interface ChatContextValue {
   activeChat: ChatSummary | null
   isLoadingChat: boolean
   isHistoryUnavailable: boolean
-  // The model a freshly opened chat wants back in memory, claimed by the next
-  // send. Once claimed, a model the user picks by hand stays picked.
-  pendingModelRestore: string | null
-  clearPendingModelRestore: () => void
   refreshChats: () => Promise<void>
   openChat: (chatId: string) => Promise<void>
   removeChat: (chatId: string) => Promise<void>
@@ -56,9 +52,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [activeChatId, setActiveChatId] = useState<string | null>(null)
   const [isLoadingChat, setIsLoadingChat] = useState(false)
   const [isHistoryUnavailable, setIsHistoryUnavailable] = useState(false)
-  const [pendingModelRestore, setPendingModelRestore] = useState<string | null>(
-    null,
-  )
   const streamingAssistantMessageIdRef = useRef<string | null>(null)
   // Switching chats is meant to feel instant, so a slower earlier load must not
   // land on top of the chat the user is looking at now.
@@ -95,6 +88,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // A model appearing or disappearing changes whether stored chats can still be
+  // continued, which the list reports per chat.
+  useEffect(() => {
+    return window.electronApi.onModelStateChange(() => {
+      void refreshChats()
+    })
+  }, [refreshChats])
+
   // Callers decide which chat, if any, becomes active afterwards.
   const resetConversation = useCallback(() => {
     void window.electronApi.stopGeneration()
@@ -103,15 +104,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages([])
   }, [])
 
-  const clearPendingModelRestore = useCallback(() => {
-    setPendingModelRestore(null)
-  }, [])
-
   const startNewChat = useCallback(() => {
     openRequestRef.current++
     resetConversation()
     setActiveChatId(null)
-    setPendingModelRestore(null)
   }, [resetConversation])
 
   // Only the stored messages are loaded here. The chat's model stays untouched
@@ -121,9 +117,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       const requestId = ++openRequestRef.current
       resetConversation()
       setActiveChatId(chatId)
-      setPendingModelRestore(
-        chats.find((chat) => chat.id === chatId)?.modelFile ?? null,
-      )
       setIsLoadingChat(true)
 
       try {
@@ -142,7 +135,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [chats, resetConversation, showAlert, t],
+    [resetConversation, showAlert, t],
   )
 
   const removeChat = useCallback(
@@ -199,8 +192,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       activeChat,
       isLoadingChat,
       isHistoryUnavailable,
-      pendingModelRestore,
-      clearPendingModelRestore,
       refreshChats,
       openChat,
       removeChat,
@@ -215,8 +206,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       activeChat,
       isLoadingChat,
       isHistoryUnavailable,
-      pendingModelRestore,
-      clearPendingModelRestore,
       refreshChats,
       openChat,
       removeChat,

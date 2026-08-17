@@ -76,6 +76,52 @@ export async function getModelState(): Promise<ModelState> {
   return { models, selectedModel: resolveSelectedModel(models) }
 }
 
+// Re-reads the directory after it changed on disk. Losing the selection means
+// the file behind it was deleted or renamed, so anything loaded from it is stale.
+export async function reconcileModelState() {
+  const previousSelection = getStoreValue('selectedModel')
+  const state = await getModelState()
+
+  return {
+    state,
+    selectionCleared:
+      previousSelection !== null && state.selectedModel === null,
+  }
+}
+
+// fs.watch reports a rename as two events and copies can arrive in bursts, so
+// collapse them before re-reading the directory.
+const WATCH_DEBOUNCE_MS = 200
+
+export function watchModels(onChange: () => void) {
+  let watcher: fs.FSWatcher
+  let debounce: NodeJS.Timeout | undefined
+
+  try {
+    // There is nothing to watch until the directory exists, and this is the path
+    // users are told to drop their models into.
+    fs.mkdirSync(modelsDir, { recursive: true })
+    watcher = fs.watch(modelsDir)
+  } catch (error) {
+    logger.warn('Not watching the models directory for changes', error)
+    return () => {}
+  }
+
+  watcher.on('change', () => {
+    clearTimeout(debounce)
+    debounce = setTimeout(onChange, WATCH_DEBOUNCE_MS)
+  })
+
+  watcher.on('error', (error) => {
+    logger.error('The models directory watcher failed', error)
+  })
+
+  return () => {
+    clearTimeout(debounce)
+    watcher.close()
+  }
+}
+
 export function getSelectedModelPath(): string | null {
   const selected = getSelectedModel()
 

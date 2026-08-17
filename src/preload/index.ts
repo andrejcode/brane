@@ -11,6 +11,19 @@ import {
   type Theme,
 } from '@shared/types'
 
+function normalizeModelState(value: unknown): ModelState {
+  if (value && typeof value === 'object' && 'models' in value) {
+    const { models, selectedModel } = value as ModelState
+
+    return {
+      models: Array.isArray(models) ? models : [],
+      selectedModel: typeof selectedModel === 'string' ? selectedModel : null,
+    }
+  }
+
+  return { models: [], selectedModel: null }
+}
+
 const electronApi: ElectronApi = {
   isMac: process.platform === 'darwin',
   getIsFullScreen: async () => {
@@ -81,15 +94,18 @@ const electronApi: ElectronApi = {
   getModelState: async () => {
     const state: unknown = await ipcRenderer.invoke(IpcChannels.getModelState)
 
-    if (state && typeof state === 'object' && 'models' in state) {
-      const { models, selectedModel } = state as ModelState
-      return {
-        models: Array.isArray(models) ? models : [],
-        selectedModel: typeof selectedModel === 'string' ? selectedModel : null,
-      }
+    return normalizeModelState(state)
+  },
+  onModelStateChange: (callback: (state: ModelState) => void) => {
+    const listener = (_event: IpcRendererEvent, state: unknown) => {
+      callback(normalizeModelState(state))
     }
 
-    return { models: [], selectedModel: null }
+    ipcRenderer.on(IpcChannels.modelStateChanged, listener)
+
+    return () => {
+      ipcRenderer.removeListener(IpcChannels.modelStateChanged, listener)
+    }
   },
   setSelectedModel: async (model: string | null) => {
     const saved: unknown = await ipcRenderer.invoke(

@@ -4,7 +4,7 @@ import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
-import { ModelProvider } from '@/contexts/ModelContext'
+import { ModelProvider, useModel } from '@/contexts/ModelContext'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -44,10 +44,29 @@ function OpenStoredChat({ chatId }: { chatId: string }) {
   )
 }
 
+// Stands in for picking a model in the models modal.
+function SelectModel({ model }: { model: string }) {
+  const { selectModel } = useModel()
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void selectModel(model)
+      }}
+    >
+      Select {model}
+    </button>
+  )
+}
+
 // Chat raises backend errors through the shared alert, so render it inside the
 // provider alongside the GlobalAlert that displays them. The ModelProvider
 // supplies the selected model that gates sending.
-function renderChat({ storedChatId }: { storedChatId?: string } = {}) {
+function renderChat({
+  storedChatId,
+  selectableModel,
+}: { storedChatId?: string; selectableModel?: string } = {}) {
   return render(
     <AlertProvider>
       <ModelProvider>
@@ -58,6 +77,9 @@ function renderChat({ storedChatId }: { storedChatId?: string } = {}) {
             {storedChatId === undefined ? null : (
               <OpenStoredChat chatId={storedChatId} />
             )}
+            {selectableModel === undefined ? null : (
+              <SelectModel model={selectableModel} />
+            )}
           </ChatProvider>
         </ChatSettingsProvider>
       </ModelProvider>
@@ -65,12 +87,18 @@ function renderChat({ storedChatId }: { storedChatId?: string } = {}) {
   )
 }
 
-async function openStoredChat(options: MockElectronApiOptions) {
+async function openStoredChat(
+  options: MockElectronApiOptions,
+  { selectableModel }: { selectableModel?: string } = {},
+) {
   clearMockElectronApi()
   mock = installMockElectronApi(options)
 
   const [chat] = options.chats ?? []
-  renderChat({ storedChatId: chat?.id ?? 'chat-1' })
+  renderChat({
+    storedChatId: chat?.id ?? 'chat-1',
+    ...(selectableModel === undefined ? {} : { selectableModel }),
+  })
 
   await waitFor(() => {
     expect(mock.listChats).toHaveBeenCalled()
@@ -213,7 +241,7 @@ describe('Chat resuming a stored chat', () => {
     expect(mock.setSelectedModel).not.toHaveBeenCalled()
   })
 
-  it('switches to the chat model on the first send', async () => {
+  it('loads the model the chat belongs to when sending', async () => {
     await openStoredChat({
       models: ['test-model.gguf', 'other-model.gguf'],
       selectedModel: 'test-model.gguf',
@@ -243,7 +271,7 @@ describe('Chat resuming a stored chat', () => {
     expect(mock.createChat).not.toHaveBeenCalled()
   })
 
-  it('stops switching models once the restore has been claimed', async () => {
+  it('loads that model once and keeps it for later turns', async () => {
     await openStoredChat({
       models: ['test-model.gguf', 'other-model.gguf'],
       selectedModel: 'test-model.gguf',
@@ -265,43 +293,190 @@ describe('Chat resuming a stored chat', () => {
     })
     expect(mock.setSelectedModel).toHaveBeenCalledTimes(1)
   })
+})
 
-  it('warns instead of sending when the chat model is gone', async () => {
-    await openStoredChat({
-      models: ['test-model.gguf'],
-      selectedModel: 'test-model.gguf',
-      chats: [{ ...storedChat, modelAvailability: 'missing' }],
-    })
+describe('Chat when another model is selected', () => {
+  const storedChat = {
+    id: 'chat-1',
+    title: null,
+    modelFile: 'other-model.gguf',
+    modelAvailability: 'available' as const,
+    updatedAt: 0,
+  }
 
-    await submitPrompt('follow up')
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'The model this chat used is no longer available. Select another model to continue.',
+  async function openThenSelect(model: string) {
+    await openStoredChat(
+      {
+        models: ['test-model.gguf', 'other-model.gguf'],
+        selectedModel: 'other-model.gguf',
+        chats: [storedChat],
+        chatMessages: [
+          {
+            id: 'message-1',
+            role: 'user',
+            content: 'earlier question',
+            reasoning: null,
+            finishReason: null,
+          },
+        ],
+      },
+      { selectableModel: model },
     )
-    expect(mock.sendPrompt).not.toHaveBeenCalled()
-    // The prompt is kept so a blocked send doesn't lose what was typed.
-    expect(screen.getByPlaceholderText('Ask anything')).toHaveValue('follow up')
-  })
 
-  it('sends with the current model after warning once', async () => {
-    await openStoredChat({
-      models: ['test-model.gguf'],
-      selectedModel: 'test-model.gguf',
-      chats: [{ ...storedChat, modelAvailability: 'missing' }],
-    })
+    expect(screen.getByText('earlier question')).toBeInTheDocument()
 
-    await submitPrompt('follow up')
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: `Select ${model}` }))
+  }
 
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Ask anything')
-    await user.clear(input)
-    await user.type(input, 'second try')
-    await user.click(screen.getByRole('button', { name: 'Send message' }))
+  it('drops back to the starting state, ready for a new chat', async () => {
+    await openThenSelect('test-model.gguf')
 
     await waitFor(() => {
-      expect(mock.sendPrompt).toHaveBeenCalledWith('second try', 'chat-1')
+      expect(screen.queryByText('earlier question')).not.toBeInTheDocument()
     })
+    expect(screen.getByTestId('intro-greeting')).toHaveClass('opacity-100')
+    expect(screen.getByTestId('composer')).toHaveClass('bottom-1/2')
+  })
+
+  it('sends the next message as a new chat on the chosen model', async () => {
+    await openThenSelect('test-model.gguf')
+
+    await submitPrompt('fresh start')
+
+    await waitFor(() => {
+      expect(mock.createChat).toHaveBeenCalledTimes(1)
+    })
+    const [chatId] = mock.createChat.mock.calls[0] as [string]
+    expect(chatId).not.toBe('chat-1')
+    expect(mock.sendPrompt).toHaveBeenCalledWith('fresh start', chatId)
+  })
+
+  it('stays in the chat when its own model is selected again', async () => {
+    await openThenSelect('other-model.gguf')
+
+    expect(screen.getByText('earlier question')).toBeInTheDocument()
+  })
+})
+
+describe('Chat with a model that was deleted', () => {
+  const missingModelChat = {
+    id: 'chat-1',
+    title: null,
+    modelFile: 'other-model.gguf',
+    modelAvailability: 'missing' as const,
+    updatedAt: 0,
+  }
+
+  async function openReadOnlyChat() {
+    await openStoredChat({
+      models: ['test-model.gguf'],
+      selectedModel: 'test-model.gguf',
+      chats: [missingModelChat],
+      chatMessages: [
+        {
+          id: 'message-1',
+          role: 'user',
+          content: 'earlier question',
+          reasoning: null,
+          finishReason: null,
+        },
+      ],
+    })
+  }
+
+  it('explains why the chat cannot be continued', async () => {
+    await openReadOnlyChat()
+
+    expect(screen.getByTestId('read-only-notice')).toHaveTextContent(
+      'This chat can only be read, because its model is no longer available.',
+    )
+  })
+
+  it('still shows the stored messages', async () => {
+    await openReadOnlyChat()
+
+    expect(screen.getByText('earlier question')).toBeInTheDocument()
+  })
+
+  it('offers no way to send', async () => {
+    await openReadOnlyChat()
+
+    expect(
+      screen.queryByPlaceholderText('Ask anything'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Send message' }),
+    ).not.toBeInTheDocument()
+  })
+
+  // Deleting a model clears the selection app-wide, which must not stop another
+  // chat whose own model is still on disk from being continued.
+  it('still continues another chat whose model is there', async () => {
+    await openStoredChat({
+      models: ['other-model.gguf', 'deleted-model.gguf'],
+      selectedModel: 'deleted-model.gguf',
+      chats: [{ ...missingModelChat, modelAvailability: 'available' }],
+    })
+
+    act(() => {
+      mock.emitModelStateChange({
+        models: ['other-model.gguf'],
+        selectedModel: null,
+      })
+    })
+
+    await submitPrompt('follow up')
+
+    await waitFor(() => {
+      expect(mock.setSelectedModel).toHaveBeenCalledWith('other-model.gguf')
+    })
+    expect(mock.sendPrompt).toHaveBeenCalledWith('follow up', 'chat-1')
+    expect(
+      screen.queryByText('Please select a model to send a message.'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('asks for a model when a new chat has none selected', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({ models: [], selectedModel: null })
+    renderChat()
+
+    await submitPrompt('hello')
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Please select a model to send a message.',
+    )
+    expect(mock.sendPrompt).not.toHaveBeenCalled()
+  })
+
+  it('turns the open chat read-only as soon as its model is deleted', async () => {
+    await openStoredChat({
+      models: ['other-model.gguf'],
+      selectedModel: 'other-model.gguf',
+      chats: [{ ...missingModelChat, modelAvailability: 'available' }],
+      chatMessages: [
+        {
+          id: 'message-1',
+          role: 'user',
+          content: 'earlier question',
+          reasoning: null,
+          finishReason: null,
+        },
+      ],
+    })
+
+    expect(screen.getByPlaceholderText('Ask anything')).toBeInTheDocument()
+
+    mock.listChats.mockResolvedValue([missingModelChat])
+    act(() => {
+      mock.emitModelStateChange({ models: [], selectedModel: null })
+    })
+
+    expect(await screen.findByTestId('read-only-notice')).toBeInTheDocument()
+    // Losing the model is not the user moving on, so the chat stays open.
+    expect(screen.getByText('earlier question')).toBeInTheDocument()
   })
 })
 

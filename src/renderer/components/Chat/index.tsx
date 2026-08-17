@@ -28,10 +28,9 @@ export function Chat() {
     streamingAssistantMessageIdRef,
     activeChat,
     isLoadingChat,
-    pendingModelRestore,
-    clearPendingModelRestore,
     ensureActiveChat,
     refreshChats,
+    startNewChat,
   } = useChat()
   const { t } = useTranslation()
   const [input, setInput] = useState('')
@@ -213,25 +212,41 @@ export function Chat() {
     void window.electronApi.stopGeneration()
   }, [])
 
-  const needsModelRestore =
-    pendingModelRestore !== null && pendingModelRestore !== loadedModel
+  // Its model is gone, so this chat can be read but never continued.
+  const isReadOnly = activeChat?.modelAvailability === 'missing'
 
-  // Sending is the first point a stored chat needs its own model in memory, so a
-  // chat opened from the sidebar loads its model here rather than on open.
-  const loadChatModel = useCallback(async () => {
-    clearPendingModelRestore()
+  // Picking a different model leaves the chat behind rather than answering it
+  // with a model it never used: the view drops back to its starting state and
+  // the next message opens a new chat on the model just chosen.
+  const previousSelectedModelRef = useRef(selectedModel)
 
-    if (!needsModelRestore || pendingModelRestore === null) {
+  useEffect(() => {
+    if (selectedModel === previousSelectedModelRef.current) {
       return
     }
 
-    await selectModel(pendingModelRestore)
-  }, [
-    clearPendingModelRestore,
-    needsModelRestore,
-    pendingModelRestore,
-    selectModel,
-  ])
+    previousSelectedModelRef.current = selectedModel
+
+    // A selection cleared because its file vanished isn't the user moving on, so
+    // the chat stays open and turns read-only instead of being left behind.
+    if (
+      activeChat &&
+      selectedModel !== null &&
+      selectedModel !== activeChat.modelFile
+    ) {
+      startNewChat()
+    }
+  }, [activeChat, selectedModel, startNewChat])
+
+  // A chat answers with the model it was created with, so the model is loaded on
+  // send rather than on open, and every later turn uses that same one.
+  const loadChatModel = useCallback(async () => {
+    if (!activeChat || activeChat.modelFile === loadedModel) {
+      return
+    }
+
+    await selectModel(activeChat.modelFile)
+  }, [activeChat, loadedModel, selectModel])
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
@@ -242,16 +257,15 @@ export function Chat() {
       return
     }
 
-    if (!selectedModel) {
-      showAlert(t('chat.selectModelAlert'), 'info')
+    if (isReadOnly) {
       return
     }
 
-    // Only blocks when this chat's own model is both needed and gone; after the
-    // warning the user's current selection takes over.
-    if (needsModelRestore && activeChat?.modelAvailability === 'missing') {
-      clearPendingModelRestore()
-      showAlert(t('chat.modelMissingAlert'), 'error')
+    // A stored chat carries its own model, so it can be continued even with no
+    // model selected — which is the state a deleted model leaves behind. Only a
+    // new chat has nothing to fall back on.
+    if (!selectedModel && !activeChat) {
+      showAlert(t('chat.selectModelAlert'), 'info')
       return
     }
 
@@ -324,14 +338,27 @@ export function Chat() {
             />
 
             <div className="relative z-10">
-              <ChatInput
-                input={input}
-                isSending={isSending}
-                onStop={handleStop}
-                onSubmit={handleSubmit}
-                setInput={setInput}
-                sendWithModifierEnter={sendWithModifierEnter}
-              />
+              {isReadOnly ? (
+                <p
+                  data-testid="read-only-notice"
+                  className={clsx(
+                    'rounded-3xl px-6 py-4 text-center text-sm',
+                    'border border-neutral-200 bg-neutral-50 text-neutral-500',
+                    'dark:border-none dark:bg-neutral-700 dark:text-neutral-400',
+                  )}
+                >
+                  {t('chat.readOnlyModelMissing')}
+                </p>
+              ) : (
+                <ChatInput
+                  input={input}
+                  isSending={isSending}
+                  onStop={handleStop}
+                  onSubmit={handleSubmit}
+                  setInput={setInput}
+                  sendWithModifierEnter={sendWithModifierEnter}
+                />
+              )}
             </div>
           </div>
         </div>

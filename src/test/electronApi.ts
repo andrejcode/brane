@@ -4,6 +4,7 @@ import {
   DEFAULT_SHORTCUTS,
   type Locale,
   type LlamaStreamEvent,
+  type ModelState,
   type ShortcutMap,
   type StoredMessage,
   type Theme,
@@ -35,10 +36,13 @@ export interface MockElectronApi {
   setShortcuts: ReturnType<typeof vi.fn>
   openLogs: ReturnType<typeof vi.fn>
   deleteLogs: ReturnType<typeof vi.fn>
+  onModelStateChange: ReturnType<typeof vi.fn>
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
+  modelStateUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
   emitFullScreenChange: (isFullScreen: boolean) => void
+  emitModelStateChange: (state: ModelState) => void
 }
 
 export interface MockElectronApiOptions {
@@ -75,9 +79,11 @@ export function installMockElectronApi(
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
   const fullScreenListeners = new Set<(isFullScreen: boolean) => void>()
+  const modelStateListeners = new Set<(state: ModelState) => void>()
 
   const streamUnsubscribe = vi.fn()
   const fullScreenUnsubscribe = vi.fn()
+  const modelStateUnsubscribe = vi.fn()
 
   const sendPrompt = vi.fn((): Promise<void> => Promise.resolve())
   const stopGeneration = vi.fn((): Promise<void> => Promise.resolve())
@@ -149,6 +155,17 @@ export function installMockElectronApi(
     },
   )
 
+  const onModelStateChange = vi.fn(
+    (callback: (state: ModelState) => void): (() => void) => {
+      modelStateListeners.add(callback)
+
+      return () => {
+        modelStateListeners.delete(callback)
+        modelStateUnsubscribe()
+      }
+    },
+  )
+
   const electronApi: ElectronApi = {
     isMac,
     getIsFullScreen,
@@ -164,6 +181,7 @@ export function installMockElectronApi(
     getLocale,
     setLocale,
     getModelState,
+    onModelStateChange,
     setSelectedModel,
     listChats,
     createChat,
@@ -205,8 +223,10 @@ export function installMockElectronApi(
     setShortcuts,
     openLogs,
     deleteLogs,
+    onModelStateChange,
     streamUnsubscribe,
     fullScreenUnsubscribe,
+    modelStateUnsubscribe,
     emitStream: (event) => {
       for (const listener of streamListeners) {
         listener(event)
@@ -215,6 +235,11 @@ export function installMockElectronApi(
     emitFullScreenChange: (value) => {
       for (const listener of fullScreenListeners) {
         listener(value)
+      }
+    },
+    emitModelStateChange: (state) => {
+      for (const listener of modelStateListeners) {
+        listener(state)
       }
     },
   }

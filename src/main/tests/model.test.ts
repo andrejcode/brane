@@ -13,7 +13,9 @@ import {
   getSelectedModel,
   getSelectedModelPath,
   listModels,
+  reconcileModelState,
   registerModelHandlers,
+  watchModels,
 } from '../model'
 
 vi.mock('electron', () => createElectronMock())
@@ -142,6 +144,90 @@ describe('getSelectedModelPath', () => {
     mockDir([])
 
     expect(getSelectedModelPath()).toBeNull()
+  })
+})
+
+describe('reconcileModelState', () => {
+  it('reports a selection dropped because its file disappeared', async () => {
+    storeValues.set('selectedModel', 'gone.gguf')
+    mockDirAsync(['a.gguf'])
+
+    await expect(reconcileModelState()).resolves.toEqual({
+      state: { models: ['a.gguf'], selectedModel: null },
+      selectionCleared: true,
+    })
+  })
+
+  it('leaves a selection alone when its file is still there', async () => {
+    storeValues.set('selectedModel', 'a.gguf')
+    mockDirAsync(['a.gguf'])
+
+    await expect(reconcileModelState()).resolves.toMatchObject({
+      selectionCleared: false,
+    })
+  })
+
+  it('does not report a clear when nothing was selected', async () => {
+    storeValues.set('selectedModel', null)
+    mockDirAsync([])
+
+    await expect(reconcileModelState()).resolves.toMatchObject({
+      selectionCleared: false,
+    })
+  })
+})
+
+describe('watchModels', () => {
+  function mockWatcher() {
+    const listeners = new Map<string, (payload?: unknown) => void>()
+    const close = vi.fn()
+
+    vi.spyOn(fs, 'mkdirSync').mockReturnValue(undefined)
+    vi.spyOn(fs, 'watch').mockReturnValue({
+      on: (event: string, listener: (payload?: unknown) => void) => {
+        listeners.set(event, listener)
+      },
+      close,
+    } as unknown as fs.FSWatcher)
+
+    return { listeners, close }
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('collapses a burst of directory events into one change', () => {
+    const { listeners } = mockWatcher()
+    const onChange = vi.fn()
+
+    watchModels(onChange)
+    listeners.get('change')?.()
+    listeners.get('change')?.()
+    listeners.get('change')?.()
+    vi.runAllTimers()
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops watching when disposed', () => {
+    const { close } = mockWatcher()
+
+    watchModels(vi.fn())()
+
+    expect(close).toHaveBeenCalledTimes(1)
+  })
+
+  it('degrades to not watching when the directory cannot be watched', () => {
+    vi.spyOn(fs, 'mkdirSync').mockImplementation(() => {
+      throw new Error('EACCES')
+    })
+
+    expect(() => watchModels(vi.fn())()).not.toThrow()
   })
 })
 

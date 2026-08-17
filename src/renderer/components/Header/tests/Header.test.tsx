@@ -198,6 +198,33 @@ describe('Header on non-mac', () => {
     expect(screen.queryByText('my-model')).not.toBeInTheDocument()
   })
 
+  it('falls back to "Select model" when the loaded model is deleted', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({
+      isMac: false,
+      models: ['my-model.gguf'],
+      selectedModel: 'my-model.gguf',
+    })
+    renderHeader()
+
+    expect(await screen.findByText('my-model')).toBeInTheDocument()
+
+    act(() => {
+      mock.emitModelStateChange({ models: [], selectedModel: null })
+    })
+
+    expect(screen.getByText('Select model')).toBeInTheDocument()
+    expect(screen.queryByText('my-model')).not.toBeInTheDocument()
+  })
+
+  it('unsubscribes from model changes on unmount', () => {
+    const { unmount } = renderHeader()
+
+    unmount()
+
+    expect(mock.modelStateUnsubscribe).toHaveBeenCalled()
+  })
+
   it('falls back to "Select model" when the selected model never finishes loading', async () => {
     clearMockElectronApi()
     mock = installMockElectronApi({

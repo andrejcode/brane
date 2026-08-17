@@ -8,7 +8,11 @@ import { registerLlamaHandlers, unloadLlamaModel } from './llama'
 import { initializeLocale, registerLocaleHandlers } from './locale'
 import { cleanupOldLogs, logger } from './logger'
 import { registerLogsHandlers } from './logs'
-import { registerModelHandlers } from './model'
+import {
+  reconcileModelState,
+  registerModelHandlers,
+  watchModels,
+} from './model'
 import { registerShortcutsHandlers } from './shortcuts'
 import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
@@ -25,6 +29,25 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled promise rejection in main process', reason)
 })
+
+let stopWatchingModels: (() => void) | undefined
+
+// A model can be deleted or renamed while the app is running, which leaves a
+// selection pointing at nothing and a stale model resident in memory.
+async function handleModelsChanged() {
+  const { state, selectionCleared } = await reconcileModelState()
+
+  if (selectionCleared) {
+    logger.info('Selected model is no longer on disk; unloading it')
+    await unloadLlamaModel()
+  }
+
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) {
+      window.webContents.send(IpcChannels.modelStateChanged, state)
+    }
+  }
+}
 
 void app.whenReady().then(() => {
   logger.info(`App ready (v${app.getVersion()}, ${process.platform})`)
@@ -63,6 +86,12 @@ void app.whenReady().then(() => {
     },
   })
 
+  stopWatchingModels = watchModels(() => {
+    void handleModelsChanged().catch((error: unknown) => {
+      logger.error('Failed to react to a models directory change', error)
+    })
+  })
+
   createWindow()
 
   app.on('activate', () => {
@@ -98,6 +127,7 @@ app.on('before-quit', (event) => {
 
   isQuitting = true
   event.preventDefault()
+  stopWatchingModels?.()
 
   void unloadLlamaModel()
     .catch((error: unknown) => {

@@ -31,8 +31,8 @@ export const de: Messages = {
     'Deine Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.',
   'chat.historyUnavailable':
     'Der Chatverlauf ist nicht verfügbar, dieses Gespräch wird nicht gespeichert.',
-  'chat.modelMissingAlert':
-    'Das Modell dieses Chats ist nicht mehr verfügbar. Wähle ein anderes Modell, um fortzufahren.',
+  'chat.readOnlyModelMissing':
+    'Dieser Chat kann nur gelesen werden, weil sein Modell nicht mehr verfügbar ist.',
   'chat.thinking': 'Denkt nach',
   'chat.copy': 'Kopieren',
   'chat.copied': 'Kopiert',
