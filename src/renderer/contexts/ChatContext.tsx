@@ -114,6 +114,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   // until a prompt is actually sent, so browsing chats costs nothing.
   const openChat = useCallback(
     async (chatId: string) => {
+      if (chatId === activeChatId) {
+        return
+      }
+
       const requestId = ++openRequestRef.current
       resetConversation()
       setActiveChatId(chatId)
@@ -135,7 +139,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [resetConversation, showAlert, t],
+    [activeChatId, resetConversation, showAlert, t],
   )
 
   const removeChat = useCallback(

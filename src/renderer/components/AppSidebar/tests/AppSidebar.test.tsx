@@ -151,6 +151,21 @@ describe('AppSidebar', () => {
     expect(mock.setSelectedModel).not.toHaveBeenCalled()
   })
 
+  // Reopening would clear the messages on screen and cancel a running answer.
+  it('ignores a click on the chat that is already open', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByText('Untitled chat'))
+    await waitFor(() => {
+      expect(mock.getChatMessages).toHaveBeenCalledTimes(1)
+    })
+    await user.click(screen.getByText('Untitled chat'))
+
+    expect(mock.getChatMessages).toHaveBeenCalledTimes(1)
+    expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+  })
+
   it('stops any generation still running when switching chats', async () => {
     renderSidebar({ chats: [chatSummary()] })
 
