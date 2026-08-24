@@ -78,7 +78,7 @@ export function SettingsSidebar({
         aria-orientation="vertical"
         aria-label={t('settings.sections')}
         onKeyDown={handleTabKeyDown}
-        className="flex flex-col gap-1 mt-2"
+        className="flex flex-col gap-1.5 mt-2"
       >
         {TABS.map((tab) => {
           const isActive = tab.id === activeTab
