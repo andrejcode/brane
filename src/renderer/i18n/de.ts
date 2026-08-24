@@ -79,21 +79,14 @@ export const de: Messages = {
   'appearance.light': 'Hell',
   'appearance.system': 'System',
 
-  'shortcuts.title': 'Tastenkürzel',
-  'shortcuts.reset': 'Auf Standard zurücksetzen',
+  'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
+  'shortcuts.reset': 'Zurücksetzen',
   'shortcuts.recording': 'Tasten drücken …',
   'shortcuts.conflict': 'Dieses Tastenkürzel wird bereits verwendet.',
-  'shortcuts.toggleSettings': 'Einstellungen umschalten',
-  'shortcuts.toggleSettingsDescription':
-    'Das Einstellungsfenster öffnen oder schließen.',
-  'shortcuts.toggleModels': 'Modelle umschalten',
-  'shortcuts.toggleModelsDescription':
-    'Das Modellfenster öffnen oder schließen.',
-  'shortcuts.toggleSidebar': 'Seitenleiste umschalten',
-  'shortcuts.toggleSidebarDescription':
-    'Die Seitenleiste ein- oder ausblenden.',
-  'shortcuts.newChat': 'Neuer Chat',
-  'shortcuts.newChatDescription': 'Einen neuen Chat starten.',
+  'shortcuts.toggleSettings': 'Einstellungen öffnen oder schließen',
+  'shortcuts.toggleModels': 'Modellliste öffnen oder schließen',
+  'shortcuts.toggleSidebar': 'Seitenleiste ein- oder ausblenden',
+  'shortcuts.newChat': 'Neuen Chat starten',
 
   'alert.error': 'Fehler',
   'alert.success': 'Erfolg',

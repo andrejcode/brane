@@ -11,26 +11,11 @@ import {
 } from '@shared/types'
 import { ShortcutRecorder } from './ShortcutRecorder'
 
-const ACTION_MESSAGES: Record<
-  ShortcutAction,
-  { labelKey: MessageKey; descriptionKey: MessageKey }
-> = {
-  toggleSettings: {
-    labelKey: 'shortcuts.toggleSettings',
-    descriptionKey: 'shortcuts.toggleSettingsDescription',
-  },
-  toggleModels: {
-    labelKey: 'shortcuts.toggleModels',
-    descriptionKey: 'shortcuts.toggleModelsDescription',
-  },
-  toggleSidebar: {
-    labelKey: 'shortcuts.toggleSidebar',
-    descriptionKey: 'shortcuts.toggleSidebarDescription',
-  },
-  newChat: {
-    labelKey: 'shortcuts.newChat',
-    descriptionKey: 'shortcuts.newChatDescription',
-  },
+const ACTION_LABEL_KEYS: Record<ShortcutAction, MessageKey> = {
+  toggleSettings: 'shortcuts.toggleSettings',
+  toggleModels: 'shortcuts.toggleModels',
+  toggleSidebar: 'shortcuts.toggleSidebar',
+  newChat: 'shortcuts.newChat',
 }
 
 export function ShortcutsSettings() {
@@ -56,24 +41,9 @@ export function ShortcutsSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <h4 className="text-lg font-medium">{t('shortcuts.title')}</h4>
-        <Button
-          variant="outline"
-          className="whitespace-nowrap"
-          onClick={() => {
-            setConflictAction(null)
-            void resetShortcuts()
-          }}
-        >
-          {t('shortcuts.reset')}
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {SHORTCUT_ACTIONS.map((action) => {
           const labelId = `shortcut-${action}-label`
-          const { labelKey, descriptionKey } = ACTION_MESSAGES[action]
 
           return (
             <div
@@ -81,9 +51,8 @@ export function ShortcutsSettings() {
               className="flex items-center justify-between gap-4"
             >
               <div className="flex flex-col">
-                <h5 id={labelId}>{t(labelKey)}</h5>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  {t(descriptionKey)}
+                <p id={labelId} className="text-sm">
+                  {t(ACTION_LABEL_KEYS[action])}
                 </p>
                 {conflictAction === action && (
                   <p className="text-sm text-red-600 dark:text-red-400">
@@ -100,6 +69,22 @@ export function ShortcutsSettings() {
             </div>
           )
         })}
+      </div>
+
+      <hr className="border-neutral-200 dark:border-neutral-600" />
+
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm">{t('shortcuts.resetLabel')}</p>
+        <Button
+          variant="outline"
+          className="min-w-28 whitespace-nowrap"
+          onClick={() => {
+            setConflictAction(null)
+            void resetShortcuts()
+          }}
+        >
+          {t('shortcuts.reset')}
+        </Button>
       </div>
     </div>
   )
