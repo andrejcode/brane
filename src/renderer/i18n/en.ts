@@ -62,11 +62,17 @@ export const en = {
   'general.logs': 'Logs',
   'general.openLogs': 'Open logs',
   'general.openLogsDescription': 'Open the logs folder in your file explorer.',
+  'general.openLogsFailed': 'Failed to open the logs folder. Please try again.',
   'general.open': 'Open',
   'general.deleteLogs': 'Delete logs',
   'general.deleteLogsDescription':
     'Permanently delete all log files from the logs folder.',
+  'general.deleteLogsConfirmTitle': 'Delete logs?',
+  'general.deleteLogsConfirmMessage':
+    'Every log file in the logs folder will be permanently deleted.',
+  'general.deleteLogsFailed': 'Failed to delete the logs. Please try again.',
   'general.delete': 'Delete',
+  'general.deleteLogsDone': 'Deleted',
 
   'appearance.theme': 'Theme',
   'appearance.dark': 'Dark',
@@ -75,6 +81,9 @@ export const en = {
 
   'shortcuts.resetLabel': 'Restore the default shortcuts',
   'shortcuts.reset': 'Reset',
+  'shortcuts.resetDone': 'Restored',
+  'shortcuts.resetFailed': 'Failed to reset the shortcuts. Please try again.',
+  'shortcuts.saveFailed': 'Failed to save that shortcut. Please try again.',
   'shortcuts.resetConfirmTitle': 'Reset shortcuts?',
   'shortcuts.resetConfirmMessage':
     'Every shortcut goes back to its default key combination.',

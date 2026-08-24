@@ -1,7 +1,11 @@
+import { useState } from 'react'
+import { useAlert } from '@/contexts/AlertContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale, useTranslation } from '@/contexts/LocaleContext'
+import { useJustCompleted } from '@/hooks/useJustCompleted'
 import { LOCALE_OPTIONS } from '@/i18n'
 import { Button } from '@/ui/buttons/Button'
+import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { Select } from '@/ui/Select'
 import { Switch } from '@/ui/Switch'
 import type { Locale } from '@shared/types'
@@ -15,8 +19,28 @@ export function GeneralSettings() {
   const { sendWithModifierEnter, setSendWithModifierEnter } = useChatSettings()
   const { locale, setLocale } = useLocale()
   const { t } = useTranslation()
+  const { showAlert } = useAlert()
+  const [isDeleteLogsConfirmOpen, setIsDeleteLogsConfirmOpen] = useState(false)
+  const [wereLogsDeleted, markLogsDeleted] = useJustCompleted()
 
   const sendShortcut = window.electronApi.isMac ? '⌘' : 'Ctrl'
+
+  const handleOpenLogs = async () => {
+    try {
+      await window.electronApi.openLogs()
+    } catch {
+      showAlert(t('general.openLogsFailed'), 'error')
+    }
+  }
+
+  const handleDeleteLogs = async () => {
+    try {
+      await window.electronApi.deleteLogs()
+      markLogsDeleted()
+    } catch {
+      showAlert(t('general.deleteLogsFailed'), 'error')
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,10 +86,7 @@ export function GeneralSettings() {
                 {t('general.openLogsDescription')}
               </p>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => void window.electronApi.openLogs()}
-            >
+            <Button variant="outline" onClick={() => void handleOpenLogs()}>
               {t('general.open')}
             </Button>
           </div>
@@ -79,13 +100,29 @@ export function GeneralSettings() {
             </div>
             <Button
               variant="outline"
-              onClick={() => void window.electronApi.deleteLogs()}
+              className="min-w-24"
+              onClick={() => setIsDeleteLogsConfirmOpen(true)}
             >
-              {t('general.delete')}
+              {wereLogsDeleted
+                ? t('general.deleteLogsDone')
+                : t('general.delete')}
             </Button>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isDeleteLogsConfirmOpen}
+        title={t('general.deleteLogsConfirmTitle')}
+        message={t('general.deleteLogsConfirmMessage')}
+        confirmLabel={t('general.delete')}
+        isDestructive
+        onCancel={() => setIsDeleteLogsConfirmOpen(false)}
+        onConfirm={() => {
+          setIsDeleteLogsConfirmOpen(false)
+          void handleDeleteLogs()
+        }}
+      />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
+import { useJustCompleted } from '@/hooks/useJustCompleted'
 import type { MessageKey } from '@/i18n'
 import { Button } from '@/ui/buttons/Button'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
@@ -26,6 +27,15 @@ export function ShortcutsSettings() {
     null,
   )
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
+  const [wasReset, markReset] = useJustCompleted()
+
+  const handleReset = async () => {
+    setConflictAction(null)
+
+    if (await resetShortcuts()) {
+      markReset()
+    }
+  }
 
   const handleChange = (action: ShortcutAction, binding: ShortcutBinding) => {
     const hasConflict = SHORTCUT_ACTIONS.some(
@@ -82,7 +92,7 @@ export function ShortcutsSettings() {
           className="min-w-28 whitespace-nowrap"
           onClick={() => setIsResetConfirmOpen(true)}
         >
-          {t('shortcuts.reset')}
+          {wasReset ? t('shortcuts.resetDone') : t('shortcuts.reset')}
         </Button>
       </div>
 
@@ -94,8 +104,7 @@ export function ShortcutsSettings() {
         onCancel={() => setIsResetConfirmOpen(false)}
         onConfirm={() => {
           setIsResetConfirmOpen(false)
-          setConflictAction(null)
-          void resetShortcuts()
+          void handleReset()
         }}
       />
     </div>

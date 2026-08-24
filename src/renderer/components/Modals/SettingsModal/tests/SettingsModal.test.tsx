@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
+import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   type ModalName,
@@ -34,16 +35,18 @@ function OpenOnMount({ modal }: { modal: ModalName }) {
 
 function renderSettings({ open = true } = {}) {
   return render(
-    <ModalProvider>
-      <ThemeProvider>
-        <ChatSettingsProvider>
-          <ShortcutsProvider>
-            {open && <OpenOnMount modal="settings" />}
-            <SettingsModal />
-          </ShortcutsProvider>
-        </ChatSettingsProvider>
-      </ThemeProvider>
-    </ModalProvider>,
+    <AlertProvider>
+      <ModalProvider>
+        <ThemeProvider>
+          <ChatSettingsProvider>
+            <ShortcutsProvider>
+              {open && <OpenOnMount modal="settings" />}
+              <SettingsModal />
+            </ShortcutsProvider>
+          </ChatSettingsProvider>
+        </ThemeProvider>
+      </ModalProvider>
+    </AlertProvider>,
   )
 }
 

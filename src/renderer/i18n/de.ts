@@ -72,11 +72,19 @@ export const de: Messages = {
   'general.logs': 'Protokolle',
   'general.openLogs': 'Protokolle öffnen',
   'general.openLogsDescription': 'Öffne den Protokollordner im Dateimanager.',
+  'general.openLogsFailed':
+    'Der Protokollordner konnte nicht geöffnet werden. Bitte versuche es erneut.',
   'general.open': 'Öffnen',
   'general.deleteLogs': 'Protokolle löschen',
   'general.deleteLogsDescription':
     'Alle Protokolldateien dauerhaft aus dem Protokollordner löschen.',
+  'general.deleteLogsConfirmTitle': 'Protokolle löschen?',
+  'general.deleteLogsConfirmMessage':
+    'Alle Protokolldateien im Protokollordner werden endgültig gelöscht.',
+  'general.deleteLogsFailed':
+    'Die Protokolle konnten nicht gelöscht werden. Bitte versuche es erneut.',
   'general.delete': 'Löschen',
+  'general.deleteLogsDone': 'Gelöscht',
 
   'appearance.theme': 'Design',
   'appearance.dark': 'Dunkel',
@@ -85,6 +93,11 @@ export const de: Messages = {
 
   'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
   'shortcuts.reset': 'Zurücksetzen',
+  'shortcuts.resetDone': 'Zurückgesetzt',
+  'shortcuts.resetFailed':
+    'Die Tastenkürzel konnten nicht zurückgesetzt werden. Bitte versuche es erneut.',
+  'shortcuts.saveFailed':
+    'Dieses Tastenkürzel konnte nicht gespeichert werden. Bitte versuche es erneut.',
   'shortcuts.resetConfirmTitle': 'Tastenkürzel zurücksetzen?',
   'shortcuts.resetConfirmMessage':
     'Alle Tastenkürzel erhalten wieder ihre Standardbelegung.',

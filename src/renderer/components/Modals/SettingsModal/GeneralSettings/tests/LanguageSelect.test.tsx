@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { LocaleProvider } from '@/contexts/LocaleContext'
 import {
@@ -13,9 +14,11 @@ function renderGeneralSettings(options: MockElectronApiOptions = {}) {
   const mock = installMockElectronApi(options)
   render(
     <LocaleProvider>
-      <ChatSettingsProvider>
-        <GeneralSettings />
-      </ChatSettingsProvider>
+      <AlertProvider>
+        <ChatSettingsProvider>
+          <GeneralSettings />
+        </ChatSettingsProvider>
+      </AlertProvider>
     </LocaleProvider>,
   )
   return mock

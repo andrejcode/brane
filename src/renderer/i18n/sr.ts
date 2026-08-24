@@ -65,11 +65,18 @@ export const sr: Messages = {
   'general.openLogs': 'Отвори записе',
   'general.openLogsDescription':
     'Отвори фасциклу са записима у прегледнику датотека.',
+  'general.openLogsFailed':
+    'Отварање фасцикле са записима није успело. Покушај поново.',
   'general.open': 'Отвори',
   'general.deleteLogs': 'Обриши записе',
   'general.deleteLogsDescription':
     'Трајно обриши све датотеке записа из фасцикле са записима.',
+  'general.deleteLogsConfirmTitle': 'Обрисати записе?',
+  'general.deleteLogsConfirmMessage':
+    'Све датотеке записа у фасцикли са записима биће трајно обрисане.',
+  'general.deleteLogsFailed': 'Брисање записа није успело. Покушај поново.',
   'general.delete': 'Обриши',
+  'general.deleteLogsDone': 'Обрисано',
 
   'appearance.theme': 'Тема',
   'appearance.dark': 'Тамна',
@@ -78,6 +85,10 @@ export const sr: Messages = {
 
   'shortcuts.resetLabel': 'Врати подразумеване пречице',
   'shortcuts.reset': 'Врати',
+  'shortcuts.resetDone': 'Враћено',
+  'shortcuts.resetFailed':
+    'Враћање подразумеваних пречица није успело. Покушај поново.',
+  'shortcuts.saveFailed': 'Чување пречице није успело. Покушај поново.',
   'shortcuts.resetConfirmTitle': 'Вратити подразумеване пречице?',
   'shortcuts.resetConfirmMessage':
     'Све пречице се враћају на подразумеване комбинације тастера.',

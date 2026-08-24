@@ -13,20 +13,26 @@ import {
   type ShortcutBinding,
   type ShortcutMap,
 } from '@shared/types'
+import { useAlert } from './AlertContext'
+import { useTranslation } from './LocaleContext'
 
 interface ShortcutsContextValue {
   shortcuts: ShortcutMap
   isReady: boolean
+  // Both mutators report a failed save themselves and resolve to whether the
+  // new bindings reached the store, so callers only have to react to the outcome.
   setShortcut: (
     action: ShortcutAction,
     binding: ShortcutBinding,
-  ) => Promise<void>
-  resetShortcuts: () => Promise<void>
+  ) => Promise<boolean>
+  resetShortcuts: () => Promise<boolean>
 }
 
 const ShortcutsContext = createContext<ShortcutsContextValue | null>(null)
 
 export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
+  const { showAlert } = useAlert()
+  const { t } = useTranslation()
   const [shortcuts, setShortcutsState] =
     useState<ShortcutMap>(DEFAULT_SHORTCUTS)
   const [isReady, setIsReady] = useState(false)
@@ -66,19 +72,34 @@ export function ShortcutsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // State follows the store rather than the request, so a rejected save leaves
+  // the bindings on screen matching what is actually persisted.
   const setShortcut = useCallback(
     async (action: ShortcutAction, binding: ShortcutBinding) => {
       const next = { ...shortcutsRef.current, [action]: binding }
-      const saved = await window.electronApi.setShortcuts(next)
-      setShortcutsState(saved)
+
+      try {
+        setShortcutsState(await window.electronApi.setShortcuts(next))
+        return true
+      } catch {
+        showAlert(t('shortcuts.saveFailed'), 'error')
+        return false
+      }
     },
-    [],
+    [showAlert, t],
   )
 
   const resetShortcuts = useCallback(async () => {
-    const saved = await window.electronApi.setShortcuts(DEFAULT_SHORTCUTS)
-    setShortcutsState(saved)
-  }, [])
+    try {
+      setShortcutsState(
+        await window.electronApi.setShortcuts(DEFAULT_SHORTCUTS),
+      )
+      return true
+    } catch {
+      showAlert(t('shortcuts.resetFailed'), 'error')
+      return false
+    }
+  }, [showAlert, t])
 
   const value = useMemo(
     () => ({ shortcuts, isReady, setShortcut, resetShortcuts }),

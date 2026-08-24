@@ -67,11 +67,18 @@ export const hr: Messages = {
   'general.openLogs': 'Otvori zapise',
   'general.openLogsDescription':
     'Otvori mapu sa zapisima u pregledniku datoteka.',
+  'general.openLogsFailed':
+    'Otvaranje mape sa zapisima nije uspjelo. Pokušaj ponovno.',
   'general.open': 'Otvori',
   'general.deleteLogs': 'Izbriši zapise',
   'general.deleteLogsDescription':
     'Trajno izbriši sve datoteke zapisa iz mape sa zapisima.',
+  'general.deleteLogsConfirmTitle': 'Izbrisati zapise?',
+  'general.deleteLogsConfirmMessage':
+    'Sve datoteke zapisa u mapi sa zapisima bit će trajno izbrisane.',
+  'general.deleteLogsFailed': 'Brisanje zapisa nije uspjelo. Pokušaj ponovno.',
   'general.delete': 'Izbriši',
+  'general.deleteLogsDone': 'Izbrisano',
 
   'appearance.theme': 'Tema',
   'appearance.dark': 'Tamna',
@@ -80,6 +87,10 @@ export const hr: Messages = {
 
   'shortcuts.resetLabel': 'Vrati zadane prečace',
   'shortcuts.reset': 'Vrati',
+  'shortcuts.resetDone': 'Vraćeno',
+  'shortcuts.resetFailed':
+    'Vraćanje zadanih prečaca nije uspjelo. Pokušaj ponovno.',
+  'shortcuts.saveFailed': 'Spremanje prečaca nije uspjelo. Pokušaj ponovno.',
   'shortcuts.resetConfirmTitle': 'Vratiti zadane prečace?',
   'shortcuts.resetConfirmMessage':
     'Svi se prečaci vraćaju na zadane kombinacije tipki.',
