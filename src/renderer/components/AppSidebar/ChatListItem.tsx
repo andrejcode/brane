@@ -10,14 +10,14 @@ interface ChatListItemProps {
   chat: ChatSummary
   isActive: boolean
   onOpen: (chatId: string) => Promise<void>
-  onDelete: (chatId: string) => Promise<void>
+  onRequestDelete: (chat: ChatSummary) => void
 }
 
 export function ChatListItem({
   chat,
   isActive,
   onOpen,
-  onDelete,
+  onRequestDelete,
 }: ChatListItemProps) {
   const { t } = useTranslation()
   const label = chat.title ?? t('sidebar.untitledChat')
@@ -72,9 +72,7 @@ export function ChatListItem({
         )}
         title={t('sidebar.deleteChat')}
         ariaLabel={t('sidebar.deleteChat')}
-        onClick={() => {
-          void onDelete(chat.id)
-        }}
+        onClick={() => onRequestDelete(chat)}
       >
         <Trash2 size={16} />
       </GhostButton>

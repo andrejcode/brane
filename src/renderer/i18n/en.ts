@@ -4,6 +4,10 @@ export const en = {
   'sidebar.historyUnavailable': 'Chat history is unavailable.',
   'sidebar.untitledChat': 'Untitled chat',
   'sidebar.deleteChat': 'Delete chat',
+  'sidebar.deleteChatConfirmTitle': 'Delete chat?',
+  'sidebar.deleteChatConfirmMessage':
+    '“{title}” and all of its messages will be permanently deleted.',
+  'sidebar.deleteChatConfirm': 'Delete',
   'sidebar.openChatFailed': 'Failed to open that chat. Please try again.',
   'sidebar.deleteChatFailed': 'Failed to delete that chat. Please try again.',
   'sidebar.modelMissing': 'This model is no longer in your models folder.',
@@ -71,12 +75,17 @@ export const en = {
 
   'shortcuts.resetLabel': 'Restore the default shortcuts',
   'shortcuts.reset': 'Reset',
+  'shortcuts.resetConfirmTitle': 'Reset shortcuts?',
+  'shortcuts.resetConfirmMessage':
+    'Every shortcut goes back to its default key combination.',
   'shortcuts.recording': 'Press keys…',
   'shortcuts.conflict': 'That shortcut is already in use.',
   'shortcuts.toggleSettings': 'Open or close settings',
   'shortcuts.toggleModels': 'Open or close the model list',
   'shortcuts.toggleSidebar': 'Show or hide the sidebar',
   'shortcuts.newChat': 'Start a new chat',
+
+  'confirm.cancel': 'Cancel',
 
   'alert.error': 'Error',
   'alert.success': 'Success',

@@ -4,6 +4,7 @@ import { FOCUS_RING } from '@/ui/styles/focusRing'
 interface BaseButtonProps {
   children: React.ReactNode
   className?: string | undefined
+  ref?: React.Ref<HTMLButtonElement> | undefined
   type: 'button' | 'submit' | 'reset'
   disabled?: boolean | undefined
   title?: string | undefined
@@ -22,6 +23,7 @@ interface BaseButtonProps {
 export function BaseButton({
   children,
   className,
+  ref,
   type,
   disabled,
   title,
@@ -42,6 +44,7 @@ export function BaseButton({
 
   return (
     <button
+      ref={ref}
       className={buttonClassName}
       type={type}
       disabled={disabled}

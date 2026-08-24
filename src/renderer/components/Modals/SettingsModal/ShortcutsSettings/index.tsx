@@ -3,6 +3,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import type { MessageKey } from '@/i18n'
 import { Button } from '@/ui/buttons/Button'
+import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { bindingsEqual } from '@/utils'
 import {
   SHORTCUT_ACTIONS,
@@ -24,6 +25,7 @@ export function ShortcutsSettings() {
   const [conflictAction, setConflictAction] = useState<ShortcutAction | null>(
     null,
   )
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
 
   const handleChange = (action: ShortcutAction, binding: ShortcutBinding) => {
     const hasConflict = SHORTCUT_ACTIONS.some(
@@ -78,14 +80,24 @@ export function ShortcutsSettings() {
         <Button
           variant="outline"
           className="min-w-28 whitespace-nowrap"
-          onClick={() => {
-            setConflictAction(null)
-            void resetShortcuts()
-          }}
+          onClick={() => setIsResetConfirmOpen(true)}
         >
           {t('shortcuts.reset')}
         </Button>
       </div>
+
+      <ConfirmDialog
+        isOpen={isResetConfirmOpen}
+        title={t('shortcuts.resetConfirmTitle')}
+        message={t('shortcuts.resetConfirmMessage')}
+        confirmLabel={t('shortcuts.reset')}
+        onCancel={() => setIsResetConfirmOpen(false)}
+        onConfirm={() => {
+          setIsResetConfirmOpen(false)
+          setConflictAction(null)
+          void resetShortcuts()
+        }}
+      />
     </div>
   )
 }

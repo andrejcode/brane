@@ -6,6 +6,10 @@ export const hr: Messages = {
   'sidebar.historyUnavailable': 'Povijest razgovora nije dostupna.',
   'sidebar.untitledChat': 'Razgovor bez naslova',
   'sidebar.deleteChat': 'Izbriši razgovor',
+  'sidebar.deleteChatConfirmTitle': 'Izbrisati razgovor?',
+  'sidebar.deleteChatConfirmMessage':
+    '„{title}“ i sve njegove poruke bit će trajno izbrisani.',
+  'sidebar.deleteChatConfirm': 'Izbriši',
   'sidebar.openChatFailed':
     'Otvaranje razgovora nije uspjelo. Pokušaj ponovno.',
   'sidebar.deleteChatFailed':
@@ -76,12 +80,17 @@ export const hr: Messages = {
 
   'shortcuts.resetLabel': 'Vrati zadane prečace',
   'shortcuts.reset': 'Vrati',
+  'shortcuts.resetConfirmTitle': 'Vratiti zadane prečace?',
+  'shortcuts.resetConfirmMessage':
+    'Svi se prečaci vraćaju na zadane kombinacije tipki.',
   'shortcuts.recording': 'Pritisni tipke…',
   'shortcuts.conflict': 'Taj se prečac već koristi.',
   'shortcuts.toggleSettings': 'Otvori ili zatvori postavke',
   'shortcuts.toggleModels': 'Otvori ili zatvori popis modela',
   'shortcuts.toggleSidebar': 'Prikaži ili sakrij bočnu traku',
   'shortcuts.newChat': 'Započni novi razgovor',
+
+  'confirm.cancel': 'Odustani',
 
   'alert.error': 'Pogreška',
   'alert.success': 'Uspjeh',

@@ -7,6 +7,7 @@ import {
   ModalProvider,
   useModals,
 } from '@/contexts/ModalContext'
+import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
 import { SettingsModal } from '..'
@@ -36,8 +37,10 @@ function renderSettings({ open = true } = {}) {
     <ModalProvider>
       <ThemeProvider>
         <ChatSettingsProvider>
-          {open && <OpenOnMount modal="settings" />}
-          <SettingsModal />
+          <ShortcutsProvider>
+            {open && <OpenOnMount modal="settings" />}
+            <SettingsModal />
+          </ShortcutsProvider>
         </ChatSettingsProvider>
       </ThemeProvider>
     </ModalProvider>,
@@ -112,6 +115,22 @@ describe('SettingsModal', () => {
     expect(
       screen.queryByRole('switch', { name: 'Send with Ctrl+Enter' }),
     ).not.toBeInTheDocument()
+  })
+
+  // A confirmation opens on top of the modal, so dismissing it must not take
+  // the modal underneath with it.
+  it('stays open when a confirmation inside it is dismissed', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Shortcuts' }))
+    await user.click(screen.getByRole('button', { name: 'Reset' }))
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Shortcuts' }),
+    ).toBeInTheDocument()
   })
 
   it('moves between tabs with the arrow keys', async () => {

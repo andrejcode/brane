@@ -41,9 +41,22 @@ function renderSidebar(options: MockElectronApiOptions = {}) {
   )
 }
 
+beforeEach(() => {
+  const modalRoot = document.createElement('div')
+  modalRoot.id = 'modal-root'
+  document.body.appendChild(modalRoot)
+})
+
 afterEach(() => {
   clearMockElectronApi()
+  document.getElementById('modal-root')?.remove()
 })
+
+// Deleting always goes through the confirmation dialog.
+async function deleteChat(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(await screen.findByRole('button', { name: 'Delete chat' }))
+  await user.click(screen.getByRole('button', { name: 'Delete' }))
+}
 
 describe('AppSidebar', () => {
   it('reopens at full width when the sidebar was left open', async () => {
@@ -174,12 +187,10 @@ describe('AppSidebar', () => {
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
   })
 
-  it('deletes a chat and refreshes the list', async () => {
+  it('deletes a chat and refreshes the list once the delete is confirmed', async () => {
     renderSidebar({ chats: [chatSummary()] })
 
-    await userEvent
-      .setup()
-      .click(await screen.findByRole('button', { name: 'Delete chat' }))
+    await deleteChat(userEvent.setup())
 
     expect(mock.deleteChat).toHaveBeenCalledWith('chat-1')
     await waitFor(() => {
@@ -187,13 +198,34 @@ describe('AppSidebar', () => {
     })
   })
 
-  it('surfaces a failed delete', async () => {
-    renderSidebar({ chats: [chatSummary()] })
-    mock.deleteChat.mockRejectedValueOnce(new Error('locked'))
+  it('names the chat it is about to delete', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
 
     await userEvent
       .setup()
       .click(await screen.findByRole('button', { name: 'Delete chat' }))
+
+    expect(screen.getByRole('alertdialog')).toHaveAccessibleDescription(
+      '“Sourdough tips” and all of its messages will be permanently deleted.',
+    )
+  })
+
+  it('keeps the chat when the delete is cancelled', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByRole('button', { name: 'Delete chat' }))
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(mock.deleteChat).not.toHaveBeenCalled()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('surfaces a failed delete', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+    mock.deleteChat.mockRejectedValueOnce(new Error('locked'))
+
+    await deleteChat(userEvent.setup())
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Failed to delete that chat. Please try again.',

@@ -1,11 +1,12 @@
 import { clsx } from 'clsx'
 import { BaseButton } from './BaseButton'
 
-type ButtonVariant = 'solid' | 'outline'
+type ButtonVariant = 'solid' | 'outline' | 'danger'
 
 interface ButtonProps {
   children: React.ReactNode
   onClick?: (() => void) | undefined
+  ref?: React.Ref<HTMLButtonElement> | undefined
   type?: 'button' | 'submit' | 'reset'
   variant?: ButtonVariant
   disabled?: boolean
@@ -25,11 +26,17 @@ const variantClasses: Record<ButtonVariant, string> = {
     'dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-600',
     'disabled:opacity-50',
   ),
+  danger: clsx(
+    'bg-red-600 text-neutral-50 hover:bg-red-700',
+    'dark:bg-red-500 dark:hover:bg-red-600',
+    'disabled:opacity-50',
+  ),
 }
 
 export function Button({
   children,
   onClick,
+  ref,
   type = 'button',
   variant = 'solid',
   disabled,
@@ -39,6 +46,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <BaseButton
+      ref={ref}
       type={type}
       onClick={onClick}
       disabled={disabled}

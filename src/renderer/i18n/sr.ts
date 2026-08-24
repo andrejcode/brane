@@ -6,6 +6,10 @@ export const sr: Messages = {
   'sidebar.historyUnavailable': 'Историја разговора није доступна.',
   'sidebar.untitledChat': 'Разговор без наслова',
   'sidebar.deleteChat': 'Избриши разговор',
+  'sidebar.deleteChatConfirmTitle': 'Избрисати разговор?',
+  'sidebar.deleteChatConfirmMessage':
+    '„{title}“ и све његове поруке биће трајно избрисани.',
+  'sidebar.deleteChatConfirm': 'Избриши',
   'sidebar.openChatFailed': 'Отварање разговора није успело. Покушај поново.',
   'sidebar.deleteChatFailed': 'Брисање разговора није успело. Покушај поново.',
   'sidebar.modelMissing': 'Овај модел више није у твојој фасцикли са моделима.',
@@ -74,12 +78,17 @@ export const sr: Messages = {
 
   'shortcuts.resetLabel': 'Врати подразумеване пречице',
   'shortcuts.reset': 'Врати',
+  'shortcuts.resetConfirmTitle': 'Вратити подразумеване пречице?',
+  'shortcuts.resetConfirmMessage':
+    'Све пречице се враћају на подразумеване комбинације тастера.',
   'shortcuts.recording': 'Притисни тастере…',
   'shortcuts.conflict': 'Та пречица се већ користи.',
   'shortcuts.toggleSettings': 'Отвори или затвори подешавања',
   'shortcuts.toggleModels': 'Отвори или затвори листу модела',
   'shortcuts.toggleSidebar': 'Прикажи или сакриј бочну траку',
   'shortcuts.newChat': 'Започни нови разговор',
+
+  'confirm.cancel': 'Одустани',
 
   'alert.error': 'Грешка',
   'alert.success': 'Успех',

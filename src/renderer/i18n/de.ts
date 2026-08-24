@@ -6,6 +6,10 @@ export const de: Messages = {
   'sidebar.historyUnavailable': 'Der Chatverlauf ist nicht verfügbar.',
   'sidebar.untitledChat': 'Chat ohne Titel',
   'sidebar.deleteChat': 'Chat löschen',
+  'sidebar.deleteChatConfirmTitle': 'Chat löschen?',
+  'sidebar.deleteChatConfirmMessage':
+    '„{title}“ und alle zugehörigen Nachrichten werden endgültig gelöscht.',
+  'sidebar.deleteChatConfirm': 'Löschen',
   'sidebar.openChatFailed':
     'Der Chat konnte nicht geöffnet werden. Bitte versuche es erneut.',
   'sidebar.deleteChatFailed':
@@ -81,12 +85,17 @@ export const de: Messages = {
 
   'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
   'shortcuts.reset': 'Zurücksetzen',
+  'shortcuts.resetConfirmTitle': 'Tastenkürzel zurücksetzen?',
+  'shortcuts.resetConfirmMessage':
+    'Alle Tastenkürzel erhalten wieder ihre Standardbelegung.',
   'shortcuts.recording': 'Tasten drücken …',
   'shortcuts.conflict': 'Dieses Tastenkürzel wird bereits verwendet.',
   'shortcuts.toggleSettings': 'Einstellungen öffnen oder schließen',
   'shortcuts.toggleModels': 'Modellliste öffnen oder schließen',
   'shortcuts.toggleSidebar': 'Seitenleiste ein- oder ausblenden',
   'shortcuts.newChat': 'Neuen Chat starten',
+
+  'confirm.cancel': 'Abbrechen',
 
   'alert.error': 'Fehler',
   'alert.success': 'Erfolg',
