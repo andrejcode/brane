@@ -92,6 +92,8 @@ export const de: Messages = {
   'shortcuts.toggleSidebar': 'Seitenleiste umschalten',
   'shortcuts.toggleSidebarDescription':
     'Die Seitenleiste ein- oder ausblenden.',
+  'shortcuts.newChat': 'Neuer Chat',
+  'shortcuts.newChatDescription': 'Einen neuen Chat starten.',
 
   'alert.error': 'Fehler',
   'alert.success': 'Erfolg',

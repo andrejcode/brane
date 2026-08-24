@@ -29,6 +29,7 @@ interface ChatContextValue {
   openChat: (chatId: string) => Promise<void>
   removeChat: (chatId: string) => Promise<void>
   ensureActiveChat: () => Promise<string>
+  canStartNewChat: boolean
   startNewChat: () => void
 }
 
@@ -104,11 +105,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages([])
   }, [])
 
+  // An unsaved conversation with nothing in it already is a new chat, so asking
+  // for another one has nothing to reset.
+  const canStartNewChat = activeChatId !== null || messages.length > 0
+
   const startNewChat = useCallback(() => {
+    if (!canStartNewChat) {
+      return
+    }
+
     openRequestRef.current++
     resetConversation()
     setActiveChatId(null)
-  }, [resetConversation])
+  }, [canStartNewChat, resetConversation])
 
   // Only the stored messages are loaded here. The chat's model stays untouched
   // until a prompt is actually sent, so browsing chats costs nothing.
@@ -200,6 +209,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       openChat,
       removeChat,
       ensureActiveChat,
+      canStartNewChat,
       startNewChat,
     }),
     [
@@ -214,6 +224,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       openChat,
       removeChat,
       ensureActiveChat,
+      canStartNewChat,
       startNewChat,
     ],
   )

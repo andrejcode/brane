@@ -84,6 +84,8 @@ export const hr: Messages = {
   'shortcuts.toggleModelsDescription': 'Otvori ili zatvori prozor modela.',
   'shortcuts.toggleSidebar': 'Prikaži/sakrij bočnu traku',
   'shortcuts.toggleSidebarDescription': 'Prikaži ili sakrij bočnu traku.',
+  'shortcuts.newChat': 'Novi razgovor',
+  'shortcuts.newChatDescription': 'Započni novi razgovor.',
 
   'alert.error': 'Pogreška',
   'alert.success': 'Uspjeh',

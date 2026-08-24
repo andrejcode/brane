@@ -50,6 +50,7 @@ export const SHORTCUT_ACTIONS = [
   'toggleSettings',
   'toggleModels',
   'toggleSidebar',
+  'newChat',
 ] as const
 
 export type ShortcutAction = (typeof SHORTCUT_ACTIONS)[number]
@@ -69,6 +70,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
   toggleSettings: { key: ',', mod: true, shift: false, alt: false },
   toggleModels: { key: 'm', mod: true, shift: true, alt: false },
   toggleSidebar: { key: 'b', mod: true, shift: false, alt: false },
+  newChat: { key: 'n', mod: true, shift: false, alt: false },
 }
 
 function isValidBinding(value: unknown): value is ShortcutBinding {

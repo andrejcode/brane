@@ -83,6 +83,8 @@ export const sr: Messages = {
   'shortcuts.toggleModelsDescription': 'Отвори или затвори прозор модела.',
   'shortcuts.toggleSidebar': 'Прикажи/сакриј бочну траку',
   'shortcuts.toggleSidebarDescription': 'Прикажи или сакриј бочну траку.',
+  'shortcuts.newChat': 'Нови разговор',
+  'shortcuts.newChatDescription': 'Започни нови разговор.',
 
   'alert.error': 'Грешка',
   'alert.success': 'Успех',

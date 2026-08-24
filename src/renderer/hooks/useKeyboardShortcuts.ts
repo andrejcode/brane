@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useChat } from '@/contexts/ChatContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
@@ -13,19 +14,22 @@ export function useKeyboardShortcuts() {
   const { shortcuts } = useShortcuts()
   const { toggleModal } = useModals()
   const { toggleSidebar } = useSidebar()
+  const { startNewChat } = useChat()
 
   const handlersRef = useRef<ShortcutHandlers>({
     toggleSettings: () => toggleModal('settings'),
     toggleModels: () => toggleModal('models'),
     toggleSidebar,
+    newChat: startNewChat,
   })
   useEffect(() => {
     handlersRef.current = {
       toggleSettings: () => toggleModal('settings'),
       toggleModels: () => toggleModal('models'),
       toggleSidebar,
+      newChat: startNewChat,
     }
-  }, [toggleModal, toggleSidebar])
+  }, [toggleModal, toggleSidebar, startNewChat])
 
   useEffect(() => {
     const isMac = window.electronApi.isMac

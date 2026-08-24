@@ -27,6 +27,10 @@ const ACTION_MESSAGES: Record<
     labelKey: 'shortcuts.toggleSidebar',
     descriptionKey: 'shortcuts.toggleSidebarDescription',
   },
+  newChat: {
+    labelKey: 'shortcuts.newChat',
+    descriptionKey: 'shortcuts.newChatDescription',
+  },
 }
 
 export function ShortcutsSettings() {

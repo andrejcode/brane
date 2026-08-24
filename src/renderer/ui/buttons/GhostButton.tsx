@@ -39,6 +39,7 @@ export function GhostButton({
         '[app-region:no-drag]',
         'rounded-lg p-1 transition-colors duration-200',
         'hover:bg-neutral-300 dark:hover:bg-neutral-600',
+        'disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent',
         isActive && 'bg-neutral-300 dark:bg-neutral-600',
         className,
       )}

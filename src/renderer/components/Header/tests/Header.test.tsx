@@ -177,6 +177,31 @@ describe('Header on non-mac', () => {
     expect(streamingId).toBeNull()
   })
 
+  it('disables New chat while the chat on screen is already new', () => {
+    renderHeader()
+
+    expect(screen.getByRole('button', { name: 'New chat' })).toBeDisabled()
+  })
+
+  it('does not start another new chat right after one was started', async () => {
+    const user = userEvent.setup()
+    renderHeader({ withChatState: true })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('chat-state')).toHaveAttribute(
+        'data-message-count',
+        '2',
+      )
+    })
+
+    const newChatButton = screen.getByRole('button', { name: 'New chat' })
+    await user.click(newChatButton)
+    await user.click(newChatButton)
+
+    expect(newChatButton).toBeDisabled()
+    expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+  })
+
   it('shows the selected model name on the button', async () => {
     clearMockElectronApi()
     mock = installMockElectronApi({

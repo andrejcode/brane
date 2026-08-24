@@ -79,6 +79,8 @@ export const en = {
   'shortcuts.toggleModelsDescription': 'Open or close the models window.',
   'shortcuts.toggleSidebar': 'Toggle sidebar',
   'shortcuts.toggleSidebarDescription': 'Show or hide the sidebar.',
+  'shortcuts.newChat': 'New chat',
+  'shortcuts.newChatDescription': 'Start a new chat.',
 
   'alert.error': 'Error',
   'alert.success': 'Success',
