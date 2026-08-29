@@ -1,5 +1,7 @@
 import { vi } from 'vitest'
 import {
+  type ApplicationMenuAction,
+  type ApplicationMenuState,
   type ChatSummary,
   DEFAULT_MESSAGE_FONT_SIZE,
   DEFAULT_SHORTCUTS,
@@ -26,6 +28,8 @@ export interface MockElectronApi {
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
   notifyAppReady: ReturnType<typeof vi.fn>
+  updateApplicationMenu: ReturnType<typeof vi.fn>
+  onApplicationMenuAction: ReturnType<typeof vi.fn>
   getTheme: ReturnType<typeof vi.fn>
   setTheme: ReturnType<typeof vi.fn>
   getMessageFontSize: ReturnType<typeof vi.fn>
@@ -46,9 +50,11 @@ export interface MockElectronApi {
   streamUnsubscribe: ReturnType<typeof vi.fn>
   fullScreenUnsubscribe: ReturnType<typeof vi.fn>
   modelStateUnsubscribe: ReturnType<typeof vi.fn>
+  applicationMenuUnsubscribe: ReturnType<typeof vi.fn>
   emitStream: (event: LlamaStreamEvent) => void
   emitFullScreenChange: (isFullScreen: boolean) => void
   emitModelStateChange: (state: ModelState) => void
+  emitApplicationMenuAction: (action: ApplicationMenuAction) => void
 }
 
 export interface MockElectronApiOptions {
@@ -91,10 +97,14 @@ export function installMockElectronApi(
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
   const fullScreenListeners = new Set<(isFullScreen: boolean) => void>()
   const modelStateListeners = new Set<(state: ModelState) => void>()
+  const applicationMenuListeners = new Set<
+    (action: ApplicationMenuAction) => void
+  >()
 
   const streamUnsubscribe = vi.fn()
   const fullScreenUnsubscribe = vi.fn()
   const modelStateUnsubscribe = vi.fn()
+  const applicationMenuUnsubscribe = vi.fn()
 
   const sendPrompt = vi.fn((): Promise<void> => Promise.resolve())
   const stopGeneration = vi.fn((): Promise<void> => Promise.resolve())
@@ -104,6 +114,10 @@ export function installMockElectronApi(
     (): Promise<boolean> => Promise.resolve(isFullScreen),
   )
   const notifyAppReady = vi.fn()
+  const updateApplicationMenu = vi.fn((state: ApplicationMenuState) => {
+    void state
+    return Promise.resolve()
+  })
   const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
   const getMessageFontSize = vi.fn(
@@ -213,6 +227,17 @@ export function installMockElectronApi(
     },
   )
 
+  const onApplicationMenuAction = vi.fn(
+    (callback: (action: ApplicationMenuAction) => void): (() => void) => {
+      applicationMenuListeners.add(callback)
+
+      return () => {
+        applicationMenuListeners.delete(callback)
+        applicationMenuUnsubscribe()
+      }
+    },
+  )
+
   const electronApi: ElectronApi = {
     isMac,
     getIsFullScreen,
@@ -223,6 +248,8 @@ export function installMockElectronApi(
     unloadModel,
     streamResponse,
     notifyAppReady,
+    updateApplicationMenu,
+    onApplicationMenuAction,
     getTheme,
     setTheme,
     getMessageFontSize,
@@ -259,6 +286,8 @@ export function installMockElectronApi(
     streamResponse,
     onFullScreenChange,
     notifyAppReady,
+    updateApplicationMenu,
+    onApplicationMenuAction,
     getTheme,
     setTheme,
     getMessageFontSize,
@@ -284,6 +313,7 @@ export function installMockElectronApi(
     streamUnsubscribe,
     fullScreenUnsubscribe,
     modelStateUnsubscribe,
+    applicationMenuUnsubscribe,
     emitStream: (event) => {
       for (const listener of streamListeners) {
         listener(event)
@@ -297,6 +327,11 @@ export function installMockElectronApi(
     emitModelStateChange: (state) => {
       for (const listener of modelStateListeners) {
         listener(state)
+      }
+    },
+    emitApplicationMenuAction: (action) => {
+      for (const listener of applicationMenuListeners) {
+        listener(action)
       }
     },
   }

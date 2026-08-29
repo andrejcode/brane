@@ -9,6 +9,8 @@ export const IpcChannels = {
   windowIsFullScreen: 'window:is-full-screen',
 
   appReady: 'app:ready',
+  applicationMenuUpdate: 'application-menu:update',
+  applicationMenuAction: 'application-menu:action',
 
   getTheme: 'theme:get',
   setTheme: 'theme:set',
@@ -42,6 +44,45 @@ export const IpcChannels = {
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'
+
+export const APPLICATION_MENU_ACTION_TYPES = [
+  'newChat',
+  'toggleSidebar',
+  'increaseMessageFontSize',
+  'decreaseMessageFontSize',
+  'resetMessageFontSize',
+] as const
+
+export type ApplicationMenuAction =
+  | { type: (typeof APPLICATION_MENU_ACTION_TYPES)[number] }
+  | { type: 'openChat'; chatId: string }
+
+export interface ApplicationMenuChat {
+  id: string
+  title: string
+}
+
+export interface ApplicationMenuState {
+  shortcuts: ShortcutMap
+  chats: ApplicationMenuChat[]
+}
+
+export function isApplicationMenuAction(
+  value: unknown,
+): value is ApplicationMenuAction {
+  if (!value || typeof value !== 'object' || !('type' in value)) {
+    return false
+  }
+
+  const action = value as Record<string, unknown>
+  if (action['type'] === 'openChat') {
+    return typeof action['chatId'] === 'string' && action['chatId'].length > 0
+  }
+
+  return APPLICATION_MENU_ACTION_TYPES.includes(
+    action['type'] as (typeof APPLICATION_MENU_ACTION_TYPES)[number],
+  )
+}
 
 export const DEFAULT_MESSAGE_FONT_SIZE = 16
 export const MIN_MESSAGE_FONT_SIZE = 12

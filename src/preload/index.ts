@@ -1,7 +1,10 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import {
+  type ApplicationMenuAction,
+  type ApplicationMenuState,
   type ChatSummary,
   IpcChannels,
+  isApplicationMenuAction,
   type LlamaStreamEvent,
   type Locale,
   type ModelState,
@@ -73,6 +76,24 @@ const electronApi: ElectronApi = {
   },
   notifyAppReady: () => {
     ipcRenderer.send(IpcChannels.appReady)
+  },
+  updateApplicationMenu: async (state: ApplicationMenuState) => {
+    await ipcRenderer.invoke(IpcChannels.applicationMenuUpdate, state)
+  },
+  onApplicationMenuAction: (
+    callback: (action: ApplicationMenuAction) => void,
+  ) => {
+    const listener = (_event: IpcRendererEvent, action: unknown) => {
+      if (isApplicationMenuAction(action)) {
+        callback(action)
+      }
+    }
+
+    ipcRenderer.on(IpcChannels.applicationMenuAction, listener)
+
+    return () => {
+      ipcRenderer.removeListener(IpcChannels.applicationMenuAction, listener)
+    }
   },
   getTheme: async () => {
     const theme: unknown = await ipcRenderer.invoke(IpcChannels.getTheme)

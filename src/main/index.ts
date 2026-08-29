@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
+import { registerApplicationMenu } from './applicationMenu'
 import { registerChatsHandlers } from './chats'
 import { registerChatSettingsHandlers } from './chatSettings'
 import { closeDatabase, initializeDatabase } from './db'
@@ -73,6 +74,7 @@ void app.whenReady().then(() => {
   })
 
   registerThemeHandlers()
+  registerApplicationMenu()
   registerLocaleHandlers()
   registerChatSettingsHandlers()
   registerChatsHandlers()

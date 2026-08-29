@@ -1,4 +1,6 @@
 import type {
+  ApplicationMenuAction,
+  ApplicationMenuState,
   ChatSummary,
   LlamaStreamEvent,
   Locale,
@@ -21,6 +23,10 @@ declare global {
     unloadModel: () => Promise<void>
     streamResponse: (callback: (event: LlamaStreamEvent) => void) => () => void
     notifyAppReady: () => void
+    updateApplicationMenu: (state: ApplicationMenuState) => Promise<void>
+    onApplicationMenuAction: (
+      callback: (action: ApplicationMenuAction) => void,
+    ) => () => void
     getTheme: () => Promise<Theme>
     setTheme: (theme: Theme) => Promise<void>
     getMessageFontSize: () => Promise<number>

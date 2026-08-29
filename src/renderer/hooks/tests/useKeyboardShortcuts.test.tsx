@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { AlertProvider } from '@/contexts/AlertContext'
@@ -8,6 +8,7 @@ import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { DEFAULT_SHORTCUTS, type ChatSummary } from '@shared/types'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -48,13 +49,15 @@ async function renderHarness({
   withMessages = false,
   isSending = false,
   messageFontSize = 16,
+  chats = [],
 }: {
   isMac?: boolean
   withMessages?: boolean
   isSending?: boolean
   messageFontSize?: number
+  chats?: ChatSummary[]
 } = {}) {
-  mock = installMockElectronApi({ isMac, messageFontSize })
+  mock = installMockElectronApi({ isMac, messageFontSize, chats })
 
   const result = render(
     <AlertProvider>
@@ -76,13 +79,19 @@ async function renderHarness({
   )
 
   await waitFor(() => {
-    expect(mock.getShortcuts).toHaveBeenCalled()
+    expect(mock.updateApplicationMenu).toHaveBeenCalled()
+    expect(mock.getTheme).toHaveBeenCalled()
+    expect(mock.listChats).toHaveBeenCalled()
+    expect(
+      document.documentElement.style.getPropertyValue('--message-font-size'),
+    ).toBe(`${messageFontSize}px`)
   })
 
   return result
 }
 
 afterEach(() => {
+  cleanup()
   clearMockElectronApi()
 })
 
@@ -200,5 +209,50 @@ describe('useKeyboardShortcuts', () => {
 
     expect(event.defaultPrevented).toBe(true)
     expect(mock.setMessageFontSize).toHaveBeenCalledWith(16)
+  })
+
+  it('syncs current shortcuts and recent chats to the native menu', async () => {
+    const chat: ChatSummary = {
+      id: 'chat-1',
+      title: 'First chat',
+      modelFile: 'model.gguf',
+      modelAvailability: 'available',
+      updatedAt: 1,
+    }
+
+    await renderHarness({ chats: [chat] })
+
+    await waitFor(() => {
+      expect(mock.updateApplicationMenu).toHaveBeenLastCalledWith({
+        shortcuts: DEFAULT_SHORTCUTS,
+        chats: [{ id: 'chat-1', title: 'First chat' }],
+      })
+    })
+  })
+
+  it('opens a recent chat selected from the native menu', async () => {
+    await renderHarness()
+
+    act(() => {
+      mock.emitApplicationMenuAction({ type: 'openChat', chatId: 'chat-2' })
+    })
+
+    await waitFor(() => {
+      expect(mock.getChatMessages).toHaveBeenCalledWith('chat-2')
+    })
+  })
+
+  it('handles sidebar and font commands from the native menu', async () => {
+    await renderHarness({ messageFontSize: 18 })
+
+    act(() => {
+      mock.emitApplicationMenuAction({ type: 'toggleSidebar' })
+      mock.emitApplicationMenuAction({ type: 'increaseMessageFontSize' })
+      mock.emitApplicationMenuAction({ type: 'resetMessageFontSize' })
+    })
+
+    expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
+    expect(mock.setMessageFontSize).toHaveBeenNthCalledWith(1, 19)
+    expect(mock.setMessageFontSize).toHaveBeenNthCalledWith(2, 16)
   })
 })

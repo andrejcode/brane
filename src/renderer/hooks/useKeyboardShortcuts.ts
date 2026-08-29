@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useChat } from '@/contexts/ChatContext'
+import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
@@ -20,13 +21,23 @@ export function useKeyboardShortcuts() {
   const { shortcuts } = useShortcuts()
   const { toggleModal } = useModals()
   const { toggleSidebar } = useSidebar()
-  const { isSending, startNewChat } = useChat()
+  const { chats, isSending, openChat, startNewChat } = useChat()
   const { messageFontSize, setMessageFontSize } = useTheme()
+  const { t } = useTranslation()
   const messageFontSizeRef = useRef(messageFontSize)
 
   useEffect(() => {
     messageFontSizeRef.current = messageFontSize
   }, [messageFontSize])
+
+  const setNextMessageFontSize = useCallback(
+    (fontSize: number) => {
+      const normalizedFontSize = normalizeMessageFontSize(fontSize)
+      messageFontSizeRef.current = normalizedFontSize
+      void setMessageFontSize(normalizedFontSize)
+    },
+    [setMessageFontSize],
+  )
 
   const stopGeneration = useCallback(() => {
     if (isSending) {
@@ -53,12 +64,6 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const isMac = window.electronApi.isMac
-
-    const setNextMessageFontSize = (fontSize: number) => {
-      const normalizedFontSize = normalizeMessageFontSize(fontSize)
-      messageFontSizeRef.current = normalizedFontSize
-      void setMessageFontSize(normalizedFontSize)
-    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const primaryModifier = isMac ? event.metaKey : event.ctrlKey
@@ -95,5 +100,42 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [shortcuts, setMessageFontSize])
+  }, [shortcuts, setNextMessageFontSize])
+
+  useEffect(() => {
+    void window.electronApi
+      .updateApplicationMenu({
+        shortcuts,
+        chats: chats.slice(0, 9).map((chat) => ({
+          id: chat.id,
+          title: chat.title ?? t('sidebar.untitledChat'),
+        })),
+      })
+      .catch(() => undefined)
+  }, [chats, shortcuts, t])
+
+  useEffect(() => {
+    return window.electronApi.onApplicationMenuAction((action) => {
+      switch (action.type) {
+        case 'newChat':
+          startNewChat()
+          break
+        case 'toggleSidebar':
+          toggleSidebar()
+          break
+        case 'increaseMessageFontSize':
+          setNextMessageFontSize(messageFontSizeRef.current + 1)
+          break
+        case 'decreaseMessageFontSize':
+          setNextMessageFontSize(messageFontSizeRef.current - 1)
+          break
+        case 'resetMessageFontSize':
+          setNextMessageFontSize(DEFAULT_MESSAGE_FONT_SIZE)
+          break
+        case 'openChat':
+          void openChat(action.chatId)
+          break
+      }
+    })
+  }, [openChat, setNextMessageFontSize, startNewChat, toggleSidebar])
 }
