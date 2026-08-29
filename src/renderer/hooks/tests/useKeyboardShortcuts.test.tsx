@@ -87,18 +87,18 @@ afterEach(() => {
 })
 
 describe('useKeyboardShortcuts', () => {
-  it('stops an active generation on Cmd+Escape on macOS', async () => {
+  it('stops an active generation on Cmd+Period on macOS', async () => {
     await renderHarness({ isMac: true, isSending: true })
 
-    await userEvent.setup().keyboard('{Meta>}{Escape}{/Meta}')
+    await userEvent.setup().keyboard('{Meta>}.{/Meta}')
 
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
   })
 
-  it('does not stop generation on Cmd+Escape while idle', async () => {
+  it('does not stop generation on Cmd+Period while idle', async () => {
     await renderHarness({ isMac: true })
 
-    await userEvent.setup().keyboard('{Meta>}{Escape}{/Meta}')
+    await userEvent.setup().keyboard('{Meta>}.{/Meta}')
 
     expect(mock.stopGeneration).not.toHaveBeenCalled()
   })

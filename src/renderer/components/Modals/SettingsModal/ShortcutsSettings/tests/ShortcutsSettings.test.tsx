@@ -46,7 +46,7 @@ describe('ShortcutsSettings', () => {
     expect(screen.getByText('Start a new chat')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Stop generating' }),
-    ).toHaveTextContent('Ctrl+Escape')
+    ).toHaveTextContent('Ctrl+.')
   })
 
   it('saves a newly recorded shortcut', async () => {

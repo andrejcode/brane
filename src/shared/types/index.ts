@@ -90,7 +90,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
   toggleModels: { key: 'm', mod: true, shift: true, alt: false },
   toggleSidebar: { key: 'b', mod: true, shift: false, alt: false },
   newChat: { key: 'n', mod: true, shift: false, alt: false },
-  stopGeneration: { key: 'Escape', mod: true, shift: false, alt: false },
+  stopGeneration: { key: '.', mod: true, shift: false, alt: false },
 }
 
 function isValidBinding(value: unknown): value is ShortcutBinding {
