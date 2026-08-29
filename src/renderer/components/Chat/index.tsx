@@ -27,6 +27,7 @@ export function Chat() {
     isSending,
     setIsSending,
     streamingAssistantMessageIdRef,
+    activeChatId,
     activeChat,
     isLoadingChat,
     ensureActiveChat,
@@ -316,7 +317,11 @@ export function Chat() {
 
   return (
     <main className="relative flex min-h-0 w-full flex-1">
-      <Messages messages={messages} bottomInset={bottomOverlayInset} />
+      <Messages
+        activeChatId={activeChatId}
+        messages={messages}
+        bottomInset={bottomOverlayInset}
+      />
 
       {/* This overlay is outside normal layout, so we measure it above */}
       <div

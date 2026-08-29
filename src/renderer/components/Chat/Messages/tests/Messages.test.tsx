@@ -13,7 +13,7 @@ const conversation: Message[] = [
 describe('Messages', () => {
   it('renders every message in order', () => {
     const { container } = render(
-      <Messages messages={conversation} bottomInset={0} />,
+      <Messages activeChatId={null} messages={conversation} bottomInset={0} />,
     )
 
     const rendered = [...container.querySelectorAll('article')].map(
@@ -30,7 +30,7 @@ describe('Messages', () => {
 
   it('keeps the last two turns in the tail container and the rest above it', () => {
     const { container } = render(
-      <Messages messages={conversation} bottomInset={0} />,
+      <Messages activeChatId={null} messages={conversation} bottomInset={0} />,
     )
 
     const earlier = [...container.querySelectorAll('.pt-14 > article')].map(
@@ -47,6 +47,7 @@ describe('Messages', () => {
   it('puts a lone message in the tail container', () => {
     const { container } = render(
       <Messages
+        activeChatId={null}
         messages={[{ id: '1', role: 'user', content: 'only' }]}
         bottomInset={0}
       />,
@@ -57,7 +58,9 @@ describe('Messages', () => {
   })
 
   it('renders nothing in the message list when empty', () => {
-    const { container } = render(<Messages messages={[]} bottomInset={0} />)
+    const { container } = render(
+      <Messages activeChatId={null} messages={[]} bottomInset={0} />,
+    )
 
     expect(container.querySelectorAll('article')).toHaveLength(0)
   })
@@ -65,6 +68,7 @@ describe('Messages', () => {
   it('shows a loading spinner for an assistant turn awaiting its first chunk', () => {
     render(
       <Messages
+        activeChatId={null}
         messages={[
           { id: '1', role: 'user', content: 'hello' },
           { id: '2', role: 'assistant', content: '' },
@@ -79,6 +83,7 @@ describe('Messages', () => {
   it('offers no copy control for an assistant turn without content', () => {
     render(
       <Messages
+        activeChatId={null}
         messages={[{ id: '1', role: 'assistant', content: '' }]}
         bottomInset={0}
       />,
@@ -98,6 +103,7 @@ describe('Messages', () => {
 
     render(
       <Messages
+        activeChatId={null}
         messages={[{ id: '1', role: 'assistant', content: 'copy me' }]}
         bottomInset={0}
       />,
@@ -109,5 +115,30 @@ describe('Messages', () => {
     expect(
       await screen.findByRole('button', { name: 'Copied' }),
     ).toBeInTheDocument()
+  })
+
+  it('opens a selected chat already scrolled to the bottom', () => {
+    const { container, rerender } = render(
+      <Messages activeChatId={null} messages={[]} bottomInset={0} />,
+    )
+    const scrollContainer = container.querySelector('.overflow-y-auto')
+
+    expect(scrollContainer).not.toBeNull()
+    Object.defineProperties(scrollContainer, {
+      clientHeight: { configurable: true, value: 600 },
+      scrollHeight: { configurable: true, value: 1200 },
+    })
+    const scrollTo = vi.spyOn(scrollContainer as HTMLElement, 'scrollTo')
+
+    rerender(
+      <Messages
+        activeChatId="chat-1"
+        messages={conversation}
+        bottomInset={0}
+      />,
+    )
+
+    expect(scrollContainer?.scrollTop).toBe(1200)
+    expect(scrollTo).not.toHaveBeenCalled()
   })
 })

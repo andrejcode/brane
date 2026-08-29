@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import type { Message } from '@/types'
 import { ChatMessage } from './ChatMessage'
 import { computeTailBottomInset } from './messagesLayout'
@@ -7,6 +14,7 @@ import { ScrollToBottomButton } from './ScrollToBottomButton'
 import { useScrollbar } from './useScrollbar'
 
 interface MessagesProps {
+  activeChatId: string | null
   bottomInset: number
   messages: Message[]
 }
@@ -20,12 +28,18 @@ const scrollToBottomThreshold = 24
 // reading to hold before flipping the button, absorbing that transient spike.
 const scrollToBottomStabilizeDelay = 160
 
-export function Messages({ bottomInset, messages }: MessagesProps) {
+export function Messages({
+  activeChatId,
+  bottomInset,
+  messages,
+}: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const tailMessagesRef = useRef<HTMLDivElement>(null)
   const tailSpacerUpdateAnimationFrameRef = useRef<number | null>(null)
   const lastUserMessageRef = useRef<HTMLElement | null>(null)
   const scrolledUserMessageIdRef = useRef<string | null>(null)
+  const previousActiveChatIdRef = useRef<string | null | undefined>(undefined)
+  const openingChatIdRef = useRef<string | null>(null)
   const awayFromBottomRef = useRef(false)
   const awayFromBottomStabilizeTimeoutRef = useRef<number | null>(null)
   // Pinning a sent message to the top is a programmatic jump, not the reader
@@ -60,6 +74,45 @@ export function Messages({ bottomInset, messages }: MessagesProps) {
 
     return null
   }, [messages])
+
+  useLayoutEffect(() => {
+    if (activeChatId === previousActiveChatIdRef.current) {
+      return
+    }
+
+    previousActiveChatIdRef.current = activeChatId
+    openingChatIdRef.current = activeChatId
+  }, [activeChatId])
+
+  useLayoutEffect(() => {
+    const scrollContainer = scrollContainerRef.current
+    const tailMessagesElement = tailMessagesRef.current
+
+    if (
+      activeChatId === null ||
+      openingChatIdRef.current !== activeChatId ||
+      messages.length === 0 ||
+      !scrollContainer ||
+      !tailMessagesElement
+    ) {
+      return
+    }
+
+    const settledTailBottomInset = computeTailBottomInset({
+      clientHeight: scrollContainer.clientHeight,
+      headerHeight,
+      tailHeight: tailMessagesElement.getBoundingClientRect().height,
+    })
+
+    if (settledTailBottomInset !== tailBottomInset) {
+      setTailBottomInset(settledTailBottomInset)
+      return
+    }
+
+    scrollContainer.scrollTop = scrollContainer.scrollHeight
+    scrolledUserMessageIdRef.current = lastUserMessageId
+    openingChatIdRef.current = null
+  }, [activeChatId, lastUserMessageId, messages.length, tailBottomInset])
 
   const stabilizeAwayFromBottom = useCallback((nextAway: boolean) => {
     const targetAway = suppressAwayUntilUserScrollRef.current ? false : nextAway
