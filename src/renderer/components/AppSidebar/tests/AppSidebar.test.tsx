@@ -172,6 +172,19 @@ describe('AppSidebar', () => {
     expect(mock.setSelectedModel).not.toHaveBeenCalled()
   })
 
+  it('opens chat actions on right-click without opening the chat', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+    const user = userEvent.setup()
+
+    await user.pointer({
+      target: await screen.findByText('Untitled chat'),
+      keys: '[MouseRight]',
+    })
+
+    expect(screen.getByRole('menu', { name: 'Chat actions' })).toBeVisible()
+    expect(mock.getChatMessages).not.toHaveBeenCalled()
+  })
+
   // Reopening would clear the messages on screen and cancel a running answer.
   it('ignores a click on the chat that is already open', async () => {
     renderSidebar({ chats: [chatSummary()] })

@@ -6,10 +6,12 @@ import {
   useCallback,
   useEffect,
   useId,
+  useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react'
+import type { Ref } from 'react'
 import { createPortal } from 'react-dom'
 import { GhostButton } from './buttons/GhostButton'
 
@@ -20,10 +22,15 @@ interface MenuContextValue {
 const MenuContext = createContext<MenuContextValue | null>(null)
 
 interface MenuProps {
+  ref?: Ref<MenuHandle>
   label: string
   children: React.ReactNode
   align?: 'start' | 'end'
   triggerClassName?: string
+}
+
+export interface MenuHandle {
+  open: () => void
 }
 
 interface MenuItemProps {
@@ -52,6 +59,7 @@ function menuPosition(trigger: DOMRect, menu: DOMRect, align: 'start' | 'end') {
 }
 
 export function Menu({
+  ref,
   label,
   children,
   align = 'end',
@@ -65,6 +73,12 @@ export function Menu({
   const close = useCallback(() => {
     setIsOpen(false)
   }, [])
+
+  const open = useCallback(() => {
+    setIsOpen(true)
+  }, [])
+
+  useImperativeHandle(ref, () => ({ open }), [open])
 
   useLayoutEffect(() => {
     if (!isOpen) {

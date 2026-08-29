@@ -1,8 +1,10 @@
 import { clsx } from 'clsx'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useRef } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { BaseButton } from '@/ui/buttons/BaseButton'
 import { Menu, MenuItem } from '@/ui/Menu'
+import type { MenuHandle } from '@/ui/Menu'
 import type { ChatSummary } from '@shared/types'
 import { ChatModelLine } from './ChatModelLine'
 import { ChatTitleEditor } from './ChatTitleEditor'
@@ -29,6 +31,7 @@ export function ChatListItem({
   onRequestDelete,
 }: ChatListItemProps) {
   const { t } = useTranslation()
+  const actionsMenuRef = useRef<MenuHandle>(null)
   const label = chat.title ?? t('sidebar.untitledChat')
   const modelWarning =
     chat.modelAvailability === 'missing'
@@ -39,6 +42,14 @@ export function ChatListItem({
 
   return (
     <li
+      onContextMenu={(event) => {
+        if (isRenaming) {
+          return
+        }
+
+        event.preventDefault()
+        actionsMenuRef.current?.open()
+      }}
       className={clsx(
         'group flex h-14 items-center justify-between gap-1 rounded-lg pr-1',
         'transition-colors duration-200',
@@ -91,6 +102,7 @@ export function ChatListItem({
             )}
           >
             <Menu
+              ref={actionsMenuRef}
               label={t('sidebar.chatActions')}
               triggerClassName="flex size-8 items-center justify-center"
             >
