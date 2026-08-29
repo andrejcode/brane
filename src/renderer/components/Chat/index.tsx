@@ -12,6 +12,7 @@ import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
 import { createId } from '@/utils'
+import { deriveChatTitle } from '@shared/chatTitle'
 import { ChatInput } from './ChatInput'
 import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
@@ -264,7 +265,9 @@ export function Chat() {
     // A stored chat carries its own model, so it can be continued even with no
     // model selected — which is the state a deleted model leaves behind. Only a
     // new chat has nothing to fall back on.
-    if (!selectedModel && !activeChat) {
+    const modelFile = activeChat?.modelFile ?? selectedModel
+
+    if (!modelFile) {
       showAlert(t('chat.selectModelAlert'), 'info')
       return
     }
@@ -291,7 +294,13 @@ export function Chat() {
     void (async () => {
       try {
         await loadChatModel()
-        await window.electronApi.sendPrompt(prompt, await ensureActiveChat())
+        await window.electronApi.sendPrompt(
+          prompt,
+          await ensureActiveChat({
+            title: deriveChatTitle(prompt),
+            modelFile,
+          }),
+        )
       } catch {
         showAlert(t('chat.sendFailed'), 'error')
         setMessages((currentMessages) =>

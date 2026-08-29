@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import { deriveChatTitle } from '@shared/chatTitle'
 import {
   IpcChannels,
   type ChatSummary,
@@ -19,6 +20,22 @@ function requireChatId(value: unknown): string {
   }
 
   return value
+}
+
+function requireChatTitle(value: unknown): string {
+  if (typeof value !== 'string') {
+    logger.warn('Rejected chat request: missing title')
+    throw new Error('Chat could not be created.')
+  }
+
+  const title = deriveChatTitle(value)
+
+  if (title.length === 0) {
+    logger.warn('Rejected chat request: empty title')
+    throw new Error('Chat could not be created.')
+  }
+
+  return title
 }
 
 function toChatSummaries(): ChatSummary[] {
@@ -54,28 +71,37 @@ export function registerChatsHandlers() {
   // The renderer supplies the id so it can keep addressing the conversation even
   // if persistence is unavailable. The chat records the model that is about to
   // answer it, so reopening it later can tell whether that file is still on disk.
-  ipcMain.handle(IpcChannels.createChat, (_event, chatId: unknown) => {
-    const id = requireChatId(chatId)
-    const modelFile = getSelectedModel()
-    const modelSizeBytes =
-      modelFile === null ? null : getModelFileSize(modelFile)
+  ipcMain.handle(
+    IpcChannels.createChat,
+    (_event, chatId: unknown, title: unknown) => {
+      const id = requireChatId(chatId)
+      const chatTitle = requireChatTitle(title)
+      const modelFile = getSelectedModel()
+      const modelSizeBytes =
+        modelFile === null ? null : getModelFileSize(modelFile)
 
-    if (modelFile === null || modelSizeBytes === null) {
-      logger.warn('Rejected chat creation: no model selected')
-      throw new Error('Select a model before starting a chat.')
-    }
+      if (modelFile === null || modelSizeBytes === null) {
+        logger.warn('Rejected chat creation: no model selected')
+        throw new Error('Select a model before starting a chat.')
+      }
 
-    const chat = createChat({ id, modelFile, modelSizeBytes })
-    logger.info(`Chat created: ${chat.id} (${modelFile})`)
+      const chat = createChat({
+        id,
+        modelFile,
+        modelSizeBytes,
+        title: chatTitle,
+      })
+      logger.info(`Chat created: ${chat.id} (${modelFile})`)
 
-    return {
-      id: chat.id,
-      title: chat.title,
-      modelFile: chat.modelFile,
-      modelAvailability: 'available',
-      updatedAt: chat.updatedAt.getTime(),
-    } satisfies ChatSummary
-  })
+      return {
+        id: chat.id,
+        title: chat.title,
+        modelFile: chat.modelFile,
+        modelAvailability: 'available',
+        updatedAt: chat.updatedAt.getTime(),
+      } satisfies ChatSummary
+    },
+  )
 
   ipcMain.handle(IpcChannels.deleteChat, (_event, chatId: unknown) => {
     const id = requireChatId(chatId)

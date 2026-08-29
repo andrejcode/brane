@@ -13,6 +13,11 @@ import type { ChatSummary, StoredMessage } from '@shared/types'
 import { useAlert } from './AlertContext'
 import { useTranslation } from './LocaleContext'
 
+interface EnsureActiveChatOptions {
+  title: string
+  modelFile: string
+}
+
 interface ChatContextValue {
   messages: Message[]
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
@@ -28,7 +33,7 @@ interface ChatContextValue {
   refreshChats: () => Promise<void>
   openChat: (chatId: string) => Promise<void>
   removeChat: (chatId: string) => Promise<void>
-  ensureActiveChat: () => Promise<string>
+  ensureActiveChat: (options: EnsureActiveChatOptions) => Promise<string>
   canStartNewChat: boolean
   startNewChat: () => void
 }
@@ -169,24 +174,41 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   )
 
   // The id is generated here so the conversation stays addressable even when it
-  // can't be stored; the main process then persists turns under that same id.
-  const ensureActiveChat = useCallback(async () => {
-    if (activeChatId !== null) {
-      return activeChatId
-    }
+  // can't be stored. The title is painted into the list first, then persisted
+  // with the chat row; a failed write drops the list item but keeps the id.
+  const ensureActiveChat = useCallback(
+    async ({ title, modelFile }: EnsureActiveChatOptions) => {
+      if (activeChatId !== null) {
+        return activeChatId
+      }
 
-    const chatId = createId()
-    setActiveChatId(chatId)
+      const chatId = createId()
+      setActiveChatId(chatId)
+      setChats((currentChats) => [
+        {
+          id: chatId,
+          title,
+          modelFile,
+          modelAvailability: 'available',
+          updatedAt: Date.now(),
+        },
+        ...currentChats,
+      ])
 
-    try {
-      await window.electronApi.createChat(chatId)
-      await refreshChats()
-    } catch {
-      showAlert(t('chat.historyUnavailable'), 'error')
-    }
+      try {
+        await window.electronApi.createChat(chatId, title)
+        await refreshChats()
+      } catch {
+        setChats((currentChats) =>
+          currentChats.filter((chat) => chat.id !== chatId),
+        )
+        showAlert(t('chat.historyUnavailable'), 'error')
+      }
 
-    return chatId
-  }, [activeChatId, refreshChats, showAlert, t])
+      return chatId
+    },
+    [activeChatId, refreshChats, showAlert, t],
+  )
 
   const activeChat = useMemo(
     () => chats.find((chat) => chat.id === activeChatId) ?? null,

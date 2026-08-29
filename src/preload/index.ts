@@ -118,10 +118,11 @@ const electronApi: ElectronApi = {
     const chats: unknown = await ipcRenderer.invoke(IpcChannels.listChats)
     return Array.isArray(chats) ? (chats as ChatSummary[]) : []
   },
-  createChat: async (chatId: string) => {
+  createChat: async (chatId: string, title: string) => {
     const chat: unknown = await ipcRenderer.invoke(
       IpcChannels.createChat,
       chatId,
+      title,
     )
     return chat as ChatSummary
   },

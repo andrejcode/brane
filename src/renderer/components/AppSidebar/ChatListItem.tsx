@@ -46,7 +46,10 @@ export function ChatListItem({
           void onOpen(chat.id)
         }}
       >
-        <span className="block truncate text-sm text-neutral-800 dark:text-neutral-100">
+        <span
+          className="block truncate text-sm text-neutral-800 dark:text-neutral-100"
+          title={label}
+        >
           {label}
         </span>
         <span

@@ -96,8 +96,7 @@ describe('AppSidebar', () => {
     ).toBeInTheDocument()
   })
 
-  // Chats stay "Untitled chat" until something names them, rather than borrowing
-  // the first message and changing label once the turn finishes.
+  // Chats without a stored title still fall back to "Untitled chat".
   it('labels a chat with no title as untitled, next to its model', async () => {
     renderSidebar({ chats: [chatSummary()] })
 
@@ -109,6 +108,10 @@ describe('AppSidebar', () => {
     renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
 
     expect(await screen.findByText('Sourdough tips')).toBeInTheDocument()
+    expect(screen.getByText('Sourdough tips')).toHaveAttribute(
+      'title',
+      'Sourdough tips',
+    )
     expect(screen.queryByText('Untitled chat')).not.toBeInTheDocument()
   })
 

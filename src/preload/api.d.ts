@@ -29,7 +29,7 @@ declare global {
     onModelStateChange: (callback: (state: ModelState) => void) => () => void
     setSelectedModel: (model: string | null) => Promise<string | null>
     listChats: () => Promise<ChatSummary[]>
-    createChat: (chatId: string) => Promise<ChatSummary>
+    createChat: (chatId: string, title: string) => Promise<ChatSummary>
     getChatMessages: (chatId: string) => Promise<StoredMessage[]>
     deleteChat: (chatId: string) => Promise<void>
     getSendWithModifierEnter: () => Promise<boolean>

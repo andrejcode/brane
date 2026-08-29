@@ -1,10 +1,13 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
+import { AppSidebar } from '@/components/AppSidebar'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider, useModel } from '@/contexts/ModelContext'
+import { SidebarProvider } from '@/contexts/SidebarContext'
+import { deriveChatTitle, MAX_CHAT_TITLE_LENGTH } from '@shared/chatTitle'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -126,6 +129,31 @@ async function submitPrompt(text: string) {
   await user.click(screen.getByRole('button', { name: 'Send message' }))
 }
 
+function renderChatWithSidebar() {
+  clearMockElectronApi()
+  mock = installMockElectronApi({
+    models: ['test-model.gguf'],
+    selectedModel: 'test-model.gguf',
+    isSidebarOpen: true,
+  })
+
+  return render(
+    <AlertProvider>
+      <ModelProvider>
+        <ChatSettingsProvider>
+          <SidebarProvider>
+            <ChatProvider>
+              <AppSidebar />
+              <Chat />
+              <AppAlert />
+            </ChatProvider>
+          </SidebarProvider>
+        </ChatSettingsProvider>
+      </ModelProvider>
+    </AlertProvider>,
+  )
+}
+
 describe('Chat intro greeting', () => {
   it('shows a random intro greeting centered when there are no messages', () => {
     renderChat()
@@ -177,7 +205,8 @@ describe('Chat submit', () => {
       expect(mock.createChat).toHaveBeenCalledTimes(1)
     })
 
-    const [chatId] = mock.createChat.mock.calls[0] as [string]
+    const [chatId] = mock.createChat.mock.calls[0] as [string, string]
+    expect(mock.createChat).toHaveBeenCalledWith(chatId, 'hello')
     expect(mock.sendPrompt).toHaveBeenCalledWith('hello', chatId)
   })
 
@@ -206,6 +235,80 @@ describe('Chat submit', () => {
       "Chat history is unavailable, so this conversation won't be saved.",
     )
     // The turn still goes through; only its persistence is lost.
+    await waitFor(() => {
+      expect(mock.sendPrompt).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('creates the chat with a title taken from the first line of the prompt', async () => {
+    renderChat()
+    const user = userEvent.setup()
+
+    await waitFor(() => {
+      expect(mock.getModelState).toHaveBeenCalled()
+    })
+
+    await user.click(screen.getByPlaceholderText('Ask anything'))
+    await user.paste('How do I bake sourdough?\nPlease be brief.')
+    await user.click(screen.getByRole('button', { name: 'Send message' }))
+
+    await waitFor(() => {
+      expect(mock.createChat).toHaveBeenCalledWith(
+        expect.any(String),
+        'How do I bake sourdough?',
+      )
+    })
+  })
+
+  it('caps a long first prompt before persisting the title', async () => {
+    renderChat()
+    const prompt = 'a'.repeat(MAX_CHAT_TITLE_LENGTH + 20)
+    const user = userEvent.setup()
+
+    await waitFor(() => {
+      expect(mock.getModelState).toHaveBeenCalled()
+    })
+
+    await user.click(screen.getByPlaceholderText('Ask anything'))
+    await user.paste(prompt)
+    await user.click(screen.getByRole('button', { name: 'Send message' }))
+
+    await waitFor(() => {
+      expect(mock.createChat).toHaveBeenCalledWith(
+        expect.any(String),
+        deriveChatTitle(prompt),
+      )
+    })
+  })
+})
+
+describe('Chat title in the sidebar', () => {
+  it('labels a new chat from the first prompt as soon as it is sent', async () => {
+    renderChatWithSidebar()
+
+    await submitPrompt('How do I bake sourdough')
+
+    const sidebar = await screen.findByRole('complementary')
+    expect(
+      await within(sidebar).findByText('How do I bake sourdough'),
+    ).toBeInTheDocument()
+  })
+
+  it('drops the list item when the chat cannot be stored', async () => {
+    renderChatWithSidebar()
+    mock.createChat.mockRejectedValueOnce(new Error('database is gone'))
+
+    await submitPrompt('How do I bake sourdough')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Chat history is unavailable, so this conversation won't be saved.",
+    )
+
+    expect(
+      within(screen.getByRole('complementary')).queryByText(
+        'How do I bake sourdough',
+      ),
+    ).not.toBeInTheDocument()
     await waitFor(() => {
       expect(mock.sendPrompt).toHaveBeenCalledTimes(1)
     })
@@ -348,8 +451,9 @@ describe('Chat when another model is selected', () => {
     await waitFor(() => {
       expect(mock.createChat).toHaveBeenCalledTimes(1)
     })
-    const [chatId] = mock.createChat.mock.calls[0] as [string]
+    const [chatId] = mock.createChat.mock.calls[0] as [string, string]
     expect(chatId).not.toBe('chat-1')
+    expect(mock.createChat).toHaveBeenCalledWith(chatId, 'fresh start')
     expect(mock.sendPrompt).toHaveBeenCalledWith('fresh start', chatId)
   })
 

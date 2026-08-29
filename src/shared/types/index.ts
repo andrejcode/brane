@@ -128,8 +128,9 @@ export const FINISH_REASONS = ['done', 'stopped', 'error'] as const
 
 export type FinishReason = (typeof FINISH_REASONS)[number]
 
-// A row for the chat list. `title` stays null until a chat is named. Timestamps
-// cross as epoch milliseconds rather than `Date`.
+// A row for the chat list. `title` is taken from the first prompt; null means
+// the chat was never named. Timestamps cross as epoch milliseconds rather than
+// `Date`.
 export interface ChatSummary {
   id: string
   title: string | null

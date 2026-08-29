@@ -126,32 +126,61 @@ describe('get chat messages', () => {
 })
 
 describe('create chat', () => {
-  it('records the selected model and its size', () => {
-    createChat.mockReturnValue(chatRow() as unknown as undefined)
+  it('records the selected model, its size, and the given title', () => {
+    createChat.mockReturnValue(
+      chatRow({ title: 'Sourdough tips' }) as unknown as undefined,
+    )
 
-    getIpcHandler(IpcChannels.createChat)({}, 'chat-1')
+    getIpcHandler(IpcChannels.createChat)({}, 'chat-1', 'Sourdough tips')
 
     expect(createChat).toHaveBeenCalledWith({
       id: 'chat-1',
       modelFile: 'test-model.gguf',
       modelSizeBytes: 4096,
+      title: 'Sourdough tips',
     })
+  })
+
+  it('derives the stored title from the first line of the prompt', () => {
+    createChat.mockReturnValue(
+      chatRow({ title: 'How do I bake sourdough?' }) as unknown as undefined,
+    )
+
+    getIpcHandler(IpcChannels.createChat)(
+      {},
+      'chat-1',
+      'How do I bake sourdough?\nPlease be brief.',
+    )
+
+    expect(createChat).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'How do I bake sourdough?' }),
+    )
+  })
+
+  it('rejects a missing or empty title', () => {
+    expect(() => getIpcHandler(IpcChannels.createChat)({}, 'chat-1')).toThrow(
+      'Chat could not be created.',
+    )
+    expect(() =>
+      getIpcHandler(IpcChannels.createChat)({}, 'chat-1', ''),
+    ).toThrow('Chat could not be created.')
+    expect(createChat).not.toHaveBeenCalled()
   })
 
   it('rejects creation when no model is selected', () => {
     getSelectedModel.mockReturnValue(null as unknown as string)
 
-    expect(() => getIpcHandler(IpcChannels.createChat)({}, 'chat-1')).toThrow(
-      'Select a model before starting a chat.',
-    )
+    expect(() =>
+      getIpcHandler(IpcChannels.createChat)({}, 'chat-1', 'Hi'),
+    ).toThrow('Select a model before starting a chat.')
   })
 
   it('rejects creation when the model file cannot be measured', () => {
     getModelFileSize.mockReturnValue(null as unknown as number)
 
-    expect(() => getIpcHandler(IpcChannels.createChat)({}, 'chat-1')).toThrow(
-      'Select a model before starting a chat.',
-    )
+    expect(() =>
+      getIpcHandler(IpcChannels.createChat)({}, 'chat-1', 'Hi'),
+    ).toThrow('Select a model before starting a chat.')
   })
 })
 

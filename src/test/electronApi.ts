@@ -80,6 +80,7 @@ export function installMockElectronApi(
     chats = [],
     chatMessages = [],
   } = options
+  let storedChats = [...chats]
 
   const streamListeners = new Set<(event: LlamaStreamEvent) => void>()
   const fullScreenListeners = new Set<(isFullScreen: boolean) => void>()
@@ -127,16 +128,24 @@ export function installMockElectronApi(
   )
   const openLogs = vi.fn((): Promise<void> => Promise.resolve())
   const deleteLogs = vi.fn((): Promise<void> => Promise.resolve())
-  const listChats = vi.fn((): Promise<ChatSummary[]> => Promise.resolve(chats))
+  const listChats = vi.fn(
+    (): Promise<ChatSummary[]> => Promise.resolve([...storedChats]),
+  )
   const createChat = vi.fn(
-    (chatId: string): Promise<ChatSummary> =>
-      Promise.resolve({
+    (chatId: string, title: string): Promise<ChatSummary> => {
+      const summary: ChatSummary = {
         id: chatId,
-        title: null,
+        title,
         modelFile: selectedModel ?? 'test-model.gguf',
         modelAvailability: 'available',
-        updatedAt: 0,
-      }),
+        updatedAt: Date.now(),
+      }
+      storedChats = [
+        summary,
+        ...storedChats.filter((chat) => chat.id !== chatId),
+      ]
+      return Promise.resolve(summary)
+    },
   )
   const getChatMessages = vi.fn(
     (): Promise<StoredMessage[]> => Promise.resolve(chatMessages),

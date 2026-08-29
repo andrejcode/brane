@@ -57,6 +57,17 @@ describe('createChat', () => {
 
     expect(getChat('chat-1')).toMatchObject({ id: chat.id })
   })
+
+  it('stores a caller-provided title', () => {
+    const chat = createChat({
+      id: 'chat-1',
+      modelFile: 'test-model.gguf',
+      modelSizeBytes: 1,
+      title: 'Sourdough tips',
+    })
+
+    expect(chat.title).toBe('Sourdough tips')
+  })
 })
 
 describe('getChat', () => {
