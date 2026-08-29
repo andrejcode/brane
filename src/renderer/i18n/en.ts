@@ -1,5 +1,5 @@
 export const en = {
-  'sidebar.chats': 'Chats',
+  'sidebar.recentChats': 'Recent chats',
   'sidebar.noChats': 'No chats yet',
   'sidebar.historyUnavailable': 'Chat history is unavailable.',
   'sidebar.untitledChat': 'Untitled chat',

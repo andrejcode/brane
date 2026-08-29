@@ -33,8 +33,8 @@ export function AppSidebar() {
     <>
       <Sidebar isSidebarOpen={isSidebarOpen}>
         <div className="flex h-full flex-col pt-12">
-          <div className="px-4 py-3 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-            {t('sidebar.chats')}
+          <div className="px-4 py-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {t('sidebar.recentChats')}
           </div>
 
           {chats.length === 0 ? (
@@ -43,7 +43,7 @@ export function AppSidebar() {
             </p>
           ) : (
             <ul
-              aria-label={t('sidebar.chats')}
+              aria-label={t('sidebar.recentChats')}
               className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 pb-4"
             >
               {chats.map((chat) => (

@@ -1,7 +1,7 @@
 import type { Messages } from './types'
 
 export const de: Messages = {
-  'sidebar.chats': 'Chats',
+  'sidebar.recentChats': 'Letzte Chats',
   'sidebar.noChats': 'Noch keine Chats',
   'sidebar.historyUnavailable': 'Der Chatverlauf ist nicht verfügbar.',
   'sidebar.untitledChat': 'Chat ohne Titel',

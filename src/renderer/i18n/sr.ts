@@ -1,7 +1,7 @@
 import type { Messages } from './types'
 
 export const sr: Messages = {
-  'sidebar.chats': 'Разговори',
+  'sidebar.recentChats': 'Недавни разговори',
   'sidebar.noChats': 'Још нема разговора',
   'sidebar.historyUnavailable': 'Историја разговора није доступна.',
   'sidebar.untitledChat': 'Разговор без наслова',
