@@ -1,5 +1,9 @@
 import { ipcMain, nativeTheme } from 'electron'
-import { IpcChannels, type Theme } from '@shared/types'
+import {
+  IpcChannels,
+  normalizeMessageFontSize,
+  type Theme,
+} from '@shared/types'
 import { logger } from './logger'
 import { getStoreValue, setStoreValue } from './store'
 
@@ -36,5 +40,23 @@ export function registerThemeHandlers() {
       nativeTheme.themeSource = 'system'
       setStoreValue('theme', 'system')
     }
+  })
+
+  ipcMain.handle(IpcChannels.getMessageFontSize, () => {
+    const fontSize = normalizeMessageFontSize(getStoreValue('messageFontSize'))
+    setStoreValue('messageFontSize', fontSize)
+    return fontSize
+  })
+
+  ipcMain.handle(IpcChannels.setMessageFontSize, (_event, value: unknown) => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      logger.warn(`Invalid message font size received: ${String(value)}`)
+      throw new Error('Unable to save the message font size.')
+    }
+
+    const fontSize = normalizeMessageFontSize(value)
+    logger.info(`Message font size changed to ${fontSize}px`)
+    setStoreValue('messageFontSize', fontSize)
+    return fontSize
   })
 }

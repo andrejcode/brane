@@ -12,6 +12,8 @@ export const IpcChannels = {
 
   getTheme: 'theme:get',
   setTheme: 'theme:set',
+  getMessageFontSize: 'appearance:get-message-font-size',
+  setMessageFontSize: 'appearance:set-message-font-size',
 
   getLocale: 'locale:get',
   setLocale: 'locale:set',
@@ -40,6 +42,21 @@ export const IpcChannels = {
 } as const
 
 export type Theme = 'light' | 'dark' | 'system'
+
+export const DEFAULT_MESSAGE_FONT_SIZE = 16
+export const MIN_MESSAGE_FONT_SIZE = 12
+export const MAX_MESSAGE_FONT_SIZE = 24
+
+export function normalizeMessageFontSize(value: unknown) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return DEFAULT_MESSAGE_FONT_SIZE
+  }
+
+  return Math.min(
+    MAX_MESSAGE_FONT_SIZE,
+    Math.max(MIN_MESSAGE_FONT_SIZE, Math.round(value)),
+  )
+}
 
 export const LOCALES = ['en', 'de', 'hr', 'sr'] as const
 

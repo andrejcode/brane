@@ -89,6 +89,10 @@ export const hr: Messages = {
   'appearance.dark': 'Tamna',
   'appearance.light': 'Svijetla',
   'appearance.system': 'Sustav',
+  'appearance.fontSize': 'Veličina teksta poruka',
+  'appearance.increaseFontSize': 'Povećaj veličinu teksta poruka',
+  'appearance.decreaseFontSize': 'Smanji veličinu teksta poruka',
+  'appearance.fontSizeDescription': 'Mijenja veličinu teksta poruka.',
 
   'shortcuts.resetLabel': 'Vrati zadane prečace',
   'shortcuts.resetFailed':

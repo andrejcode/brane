@@ -20,6 +20,7 @@ export function ChatMessage({ message, ref }: ChatMessageProps) {
   return (
     <article
       ref={ref}
+      style={{ fontSize: 'var(--message-font-size, 16px)' }}
       className={clsx(
         'group flex flex-col gap-1',
         isUser ? 'items-end self-end' : 'items-start self-start',

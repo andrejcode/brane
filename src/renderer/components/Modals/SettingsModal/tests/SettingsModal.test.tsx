@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { AlertProvider } from '@/contexts/AlertContext'
@@ -118,6 +118,29 @@ describe('SettingsModal', () => {
     expect(
       screen.queryByRole('switch', { name: 'Send with Ctrl+Enter' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('changes the message font size from the appearance panel', async () => {
+    const user = userEvent.setup()
+    const mock = installMockElectronApi({ messageFontSize: 16 })
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    const input = await screen.findByRole('spinbutton', {
+      name: 'Message font size',
+    })
+    await user.clear(input)
+    await user.type(input, '20')
+    await user.tab()
+
+    expect(mock.setMessageFontSize).toHaveBeenCalledWith(20)
+    await waitFor(() => expect(input).toHaveValue(20))
+
+    await user.click(
+      screen.getByRole('button', { name: 'Decrease message font size' }),
+    )
+
+    expect(mock.setMessageFontSize).toHaveBeenLastCalledWith(19)
   })
 
   // A confirmation opens on top of the modal, so dismissing it must not take

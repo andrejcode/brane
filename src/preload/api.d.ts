@@ -23,6 +23,8 @@ declare global {
     notifyAppReady: () => void
     getTheme: () => Promise<Theme>
     setTheme: (theme: Theme) => Promise<void>
+    getMessageFontSize: () => Promise<number>
+    setMessageFontSize: (fontSize: number) => Promise<number>
     getLocale: () => Promise<Locale>
     setLocale: (locale: Locale) => Promise<Locale>
     getModelState: () => Promise<ModelState>

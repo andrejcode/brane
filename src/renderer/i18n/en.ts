@@ -82,6 +82,10 @@ export const en = {
   'appearance.dark': 'Dark',
   'appearance.light': 'Light',
   'appearance.system': 'System',
+  'appearance.fontSize': 'Message font size',
+  'appearance.increaseFontSize': 'Increase message font size',
+  'appearance.decreaseFontSize': 'Decrease message font size',
+  'appearance.fontSizeDescription': 'Changes the font size of messages.',
 
   'shortcuts.resetLabel': 'Restore the default shortcuts',
   'shortcuts.resetFailed': 'Failed to reset the shortcuts. Please try again.',

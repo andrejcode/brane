@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import {
   type ChatSummary,
+  DEFAULT_MESSAGE_FONT_SIZE,
   DEFAULT_SHORTCUTS,
   type Locale,
   type LlamaStreamEvent,
@@ -27,6 +28,8 @@ export interface MockElectronApi {
   notifyAppReady: ReturnType<typeof vi.fn>
   getTheme: ReturnType<typeof vi.fn>
   setTheme: ReturnType<typeof vi.fn>
+  getMessageFontSize: ReturnType<typeof vi.fn>
+  setMessageFontSize: ReturnType<typeof vi.fn>
   getLocale: ReturnType<typeof vi.fn>
   setLocale: ReturnType<typeof vi.fn>
   getModelState: ReturnType<typeof vi.fn>
@@ -52,6 +55,7 @@ export interface MockElectronApiOptions {
   isMac?: boolean
   isFullScreen?: boolean
   theme?: Theme
+  messageFontSize?: number
   locale?: Locale
   models?: string[]
   selectedModel?: string | null
@@ -72,6 +76,7 @@ export function installMockElectronApi(
     isMac = false,
     isFullScreen = false,
     theme = 'system',
+    messageFontSize = DEFAULT_MESSAGE_FONT_SIZE,
     locale = 'en',
     models = [],
     selectedModel = null,
@@ -101,6 +106,12 @@ export function installMockElectronApi(
   const notifyAppReady = vi.fn()
   const getTheme = vi.fn((): Promise<Theme> => Promise.resolve(theme))
   const setTheme = vi.fn((): Promise<void> => Promise.resolve())
+  const getMessageFontSize = vi.fn(
+    (): Promise<number> => Promise.resolve(messageFontSize),
+  )
+  const setMessageFontSize = vi.fn(
+    (next: number): Promise<number> => Promise.resolve(next),
+  )
   const getLocale = vi.fn((): Promise<Locale> => Promise.resolve(locale))
   const setLocale = vi.fn(
     (next: Locale): Promise<Locale> => Promise.resolve(next),
@@ -214,6 +225,8 @@ export function installMockElectronApi(
     notifyAppReady,
     getTheme,
     setTheme,
+    getMessageFontSize,
+    setMessageFontSize,
     getLocale,
     setLocale,
     getModelState,
@@ -248,6 +261,8 @@ export function installMockElectronApi(
     notifyAppReady,
     getTheme,
     setTheme,
+    getMessageFontSize,
+    setMessageFontSize,
     getLocale,
     setLocale,
     getModelState,

@@ -95,6 +95,10 @@ export const de: Messages = {
   'appearance.dark': 'Dunkel',
   'appearance.light': 'Hell',
   'appearance.system': 'System',
+  'appearance.fontSize': 'Nachrichtenschriftgröße',
+  'appearance.increaseFontSize': 'Nachrichtenschrift vergrößern',
+  'appearance.decreaseFontSize': 'Nachrichtenschrift verkleinern',
+  'appearance.fontSizeDescription': 'Ändert die Schriftgröße der Nachrichten.',
 
   'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
   'shortcuts.resetFailed':

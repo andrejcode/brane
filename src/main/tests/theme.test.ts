@@ -75,4 +75,14 @@ describe('registerThemeHandlers', () => {
     expect(storeValues.get('theme')).toBe('system')
     expect(nativeThemeState.themeSource).toBe('system')
   })
+
+  it('clamps the message font size to the supported range', () => {
+    const handler = getHandler(IpcChannels.setMessageFontSize)
+
+    expect(handler({}, 8)).toBe(12)
+    expect(storeValues.get('messageFontSize')).toBe(12)
+
+    expect(handler({}, 32)).toBe(24)
+    expect(storeValues.get('messageFontSize')).toBe(24)
+  })
 })

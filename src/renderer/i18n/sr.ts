@@ -87,6 +87,10 @@ export const sr: Messages = {
   'appearance.dark': 'Тамна',
   'appearance.light': 'Светла',
   'appearance.system': 'Систем',
+  'appearance.fontSize': 'Величина текста порука',
+  'appearance.increaseFontSize': 'Повећај величину текста порука',
+  'appearance.decreaseFontSize': 'Смањи величину текста порука',
+  'appearance.fontSizeDescription': 'Мења величину текста порука.',
 
   'shortcuts.resetLabel': 'Врати подразумеване пречице',
   'shortcuts.resetFailed':

@@ -5,6 +5,7 @@ import {
   type LlamaStreamEvent,
   type Locale,
   type ModelState,
+  normalizeMessageFontSize,
   normalizeShortcuts,
   type ShortcutMap,
   type StoredMessage,
@@ -79,6 +80,19 @@ const electronApi: ElectronApi = {
   },
   setTheme: async (theme: Theme) => {
     await ipcRenderer.invoke(IpcChannels.setTheme, theme)
+  },
+  getMessageFontSize: async () => {
+    const fontSize: unknown = await ipcRenderer.invoke(
+      IpcChannels.getMessageFontSize,
+    )
+    return normalizeMessageFontSize(fontSize)
+  },
+  setMessageFontSize: async (fontSize: number) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setMessageFontSize,
+      fontSize,
+    )
+    return normalizeMessageFontSize(saved)
   },
   getLocale: async () => {
     const locale: unknown = await ipcRenderer.invoke(IpcChannels.getLocale)

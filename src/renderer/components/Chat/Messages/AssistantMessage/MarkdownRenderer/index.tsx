@@ -35,7 +35,7 @@ export function MarkdownRenderer({
   return (
     <div
       className={clsx(
-        'prose dark:prose-invert w-full max-w-full select-text',
+        'prose dark:prose-invert w-full max-w-full [font-size:inherit] select-text',
         // Tailwind Typography wraps inline code in decorative backticks; drop them.
         "prose-code:before:content-[''] prose-code:after:content-['']",
         'prose-pre:w-full prose-pre:bg-transparent prose-pre:p-0',
