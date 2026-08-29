@@ -23,6 +23,7 @@ export const IpcChannels = {
   listChats: 'chats:list',
   createChat: 'chats:create',
   getChatMessages: 'chats:get-messages',
+  renameChat: 'chats:rename',
   deleteChat: 'chats:delete',
 
   getSendWithModifierEnter: 'chat-settings:get-send-with-modifier-enter',

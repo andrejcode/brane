@@ -133,6 +133,14 @@ const electronApi: ElectronApi = {
     )
     return Array.isArray(messages) ? (messages as StoredMessage[]) : []
   },
+  renameChat: async (chatId: string, title: string) => {
+    const chat: unknown = await ipcRenderer.invoke(
+      IpcChannels.renameChat,
+      chatId,
+      title,
+    )
+    return chat as ChatSummary
+  },
   deleteChat: async (chatId: string) => {
     await ipcRenderer.invoke(IpcChannels.deleteChat, chatId)
   },

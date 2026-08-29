@@ -53,8 +53,13 @@ afterEach(() => {
 })
 
 // Deleting always goes through the confirmation dialog.
+async function openChatActions(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(await screen.findByRole('button', { name: 'Chat actions' }))
+}
+
 async function deleteChat(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(await screen.findByRole('button', { name: 'Delete chat' }))
+  await openChatActions(user)
+  await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
   await user.click(screen.getByRole('button', { name: 'Delete' }))
 }
 
@@ -203,10 +208,10 @@ describe('AppSidebar', () => {
 
   it('names the chat it is about to delete', async () => {
     renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
 
-    await userEvent
-      .setup()
-      .click(await screen.findByRole('button', { name: 'Delete chat' }))
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
 
     expect(screen.getByRole('alertdialog')).toHaveAccessibleDescription(
       '“Sourdough tips” and all of its messages will be permanently deleted.',
@@ -217,7 +222,8 @@ describe('AppSidebar', () => {
     renderSidebar({ chats: [chatSummary()] })
     const user = userEvent.setup()
 
-    await user.click(await screen.findByRole('button', { name: 'Delete chat' }))
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
     expect(mock.deleteChat).not.toHaveBeenCalled()
@@ -244,5 +250,84 @@ describe('AppSidebar', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Failed to open that chat. Please try again.',
     )
+  })
+
+  it('turns the title into an input when rename is chosen', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
+
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
+
+    const input = screen.getByRole('textbox', { name: 'Rename' })
+
+    expect(input).toHaveValue('Sourdough tips')
+    expect(input).toHaveClass('h-5', 'border-0', 'bg-transparent', 'p-0')
+    expect(input.closest('li')).toHaveClass('h-14')
+  })
+
+  it('starts a rename of an untitled chat with an empty field', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+    const user = userEvent.setup()
+
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
+
+    const input = screen.getByRole('textbox', { name: 'Rename' })
+    expect(input).toHaveValue('')
+    expect(input).toHaveAttribute('placeholder', 'Untitled chat')
+  })
+
+  it('saves the new title when the rename is submitted', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
+
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
+    await user.clear(screen.getByRole('textbox', { name: 'Rename' }))
+    await user.type(
+      screen.getByRole('textbox', { name: 'Rename' }),
+      'Starter notes{Enter}',
+    )
+
+    expect(mock.renameChat).toHaveBeenCalledWith('chat-1', 'Starter notes')
+    expect(await screen.findByText('Starter notes')).toBeInTheDocument()
+  })
+
+  it('cancels the rename on Escape', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
+
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
+    await user.type(
+      screen.getByRole('textbox', { name: 'Rename' }),
+      'Nope{Escape}',
+    )
+
+    expect(mock.renameChat).not.toHaveBeenCalled()
+    expect(screen.getByText('Sourdough tips')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('textbox', { name: 'Rename' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('surfaces a failed rename and restores the previous title', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    mock.renameChat.mockRejectedValueOnce(new Error('locked'))
+    const user = userEvent.setup()
+
+    await openChatActions(user)
+    await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
+    await user.clear(screen.getByRole('textbox', { name: 'Rename' }))
+    await user.type(
+      screen.getByRole('textbox', { name: 'Rename' }),
+      'Starter notes{Enter}',
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to rename that chat. Please try again.',
+    )
+    expect(await screen.findByText('Sourdough tips')).toBeInTheDocument()
   })
 })

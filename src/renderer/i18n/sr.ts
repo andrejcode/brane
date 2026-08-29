@@ -5,13 +5,15 @@ export const sr: Messages = {
   'sidebar.noChats': 'Још нема разговора',
   'sidebar.historyUnavailable': 'Историја разговора није доступна.',
   'sidebar.untitledChat': 'Разговор без наслова',
-  'sidebar.deleteChat': 'Избриши разговор',
+  'sidebar.chatActions': 'Радње разговора',
   'sidebar.deleteChatConfirmTitle': 'Избрисати разговор?',
   'sidebar.deleteChatConfirmMessage':
     '„{title}“ и све његове поруке биће трајно избрисани.',
   'sidebar.deleteChatConfirm': 'Избриши',
   'sidebar.openChatFailed': 'Отварање разговора није успело. Покушај поново.',
   'sidebar.deleteChatFailed': 'Брисање разговора није успело. Покушај поново.',
+  'sidebar.renameChatFailed':
+    'Преименовање разговора није успело. Покушај поново.',
   'sidebar.modelMissing': 'Овај модел више није у твојој фасцикли са моделима.',
   'sidebar.modelReplaced':
     'Датотека овог модела променила се након стварања разговора.',
@@ -75,6 +77,7 @@ export const sr: Messages = {
   'general.deleteLogsConfirmMessage':
     'Све датотеке записа у фасцикли са записима биће трајно обрисане.',
   'general.deleteLogsFailed': 'Брисање записа није успело. Покушај поново.',
+  'general.rename': 'Преименуј',
   'general.delete': 'Обриши',
   'general.deleteLogsDone': 'Обрисано',
 

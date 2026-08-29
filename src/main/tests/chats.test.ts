@@ -11,6 +11,7 @@ const {
   deleteChat,
   listChats,
   listMessages,
+  renameChat,
   getModelAvailability,
   getModelFileSize,
   getSelectedModel,
@@ -19,6 +20,7 @@ const {
   deleteChat: vi.fn(),
   listChats: vi.fn(() => []),
   listMessages: vi.fn(() => []),
+  renameChat: vi.fn(),
   getModelAvailability: vi.fn(() => 'available'),
   getModelFileSize: vi.fn(() => 4096),
   getSelectedModel: vi.fn(() => 'test-model.gguf'),
@@ -31,6 +33,7 @@ vi.mock('../db/chats', () => ({
   deleteChat,
   listChats,
   listMessages,
+  renameChat,
 }))
 
 vi.mock('../model', () => ({
@@ -195,5 +198,38 @@ describe('delete chat', () => {
     expect(() => getIpcHandler(IpcChannels.deleteChat)({}, null)).toThrow(
       'Chat not found.',
     )
+  })
+})
+
+describe('rename chat', () => {
+  it('stores the derived title', () => {
+    renameChat.mockReturnValue(
+      chatRow({ title: 'Starter notes' }) as unknown as undefined,
+    )
+
+    expect(
+      getIpcHandler(IpcChannels.renameChat)({}, 'chat-1', 'Starter notes'),
+    ).toEqual(
+      expect.objectContaining({
+        id: 'chat-1',
+        title: 'Starter notes',
+      }),
+    )
+    expect(renameChat).toHaveBeenCalledWith('chat-1', 'Starter notes')
+  })
+
+  it('rejects an empty title', () => {
+    expect(() =>
+      getIpcHandler(IpcChannels.renameChat)({}, 'chat-1', '   '),
+    ).toThrow('Chat could not be renamed.')
+    expect(renameChat).not.toHaveBeenCalled()
+  })
+
+  it('rejects a missing chat', () => {
+    renameChat.mockReturnValue(null as unknown as undefined)
+
+    expect(() =>
+      getIpcHandler(IpcChannels.renameChat)({}, 'chat-1', 'Starter notes'),
+    ).toThrow('Chat not found.')
   })
 })

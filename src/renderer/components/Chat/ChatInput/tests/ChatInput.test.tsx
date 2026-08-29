@@ -206,4 +206,29 @@ describe('ChatInput global focus stealing', () => {
     expect(other).toHaveFocus()
     expect(screen.getByPlaceholderText('Ask anything')).not.toHaveFocus()
   })
+
+  it('does not steal focus while a menu is open', () => {
+    render(
+      <div>
+        <div role="menu" aria-label="Chat actions">
+          <button type="button" role="menuitem">
+            Rename
+          </button>
+        </div>
+        <ChatInput
+          input=""
+          isSending={false}
+          onStop={vi.fn()}
+          onSubmit={vi.fn()}
+          setInput={vi.fn()}
+          sendWithModifierEnter={false}
+        />
+      </div>,
+    )
+    screen.getByRole('menuitem', { name: 'Rename' }).focus()
+
+    fireEvent.keyDown(document, { key: 'a' })
+
+    expect(screen.getByPlaceholderText('Ask anything')).not.toHaveFocus()
+  })
 })

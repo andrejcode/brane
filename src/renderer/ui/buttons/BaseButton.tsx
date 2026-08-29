@@ -15,6 +15,7 @@ interface BaseButtonProps {
   role?: string | undefined
   ariaSelected?: boolean | undefined
   ariaExpanded?: boolean | undefined
+  ariaHasPopup?: 'menu' | undefined
   ariaControls?: string | undefined
   tabIndex?: number | undefined
 }
@@ -33,6 +34,7 @@ export function BaseButton({
   role,
   ariaSelected,
   ariaExpanded,
+  ariaHasPopup,
   ariaControls,
   tabIndex,
 }: BaseButtonProps) {
@@ -55,6 +57,7 @@ export function BaseButton({
       role={role}
       aria-selected={ariaSelected}
       aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHasPopup}
       aria-controls={ariaControls}
       tabIndex={tabIndex}
     >

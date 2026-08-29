@@ -5,7 +5,13 @@ import {
   type ChatSummary,
   type StoredMessage,
 } from '@shared/types'
-import { createChat, deleteChat, listChats, listMessages } from './db/chats'
+import {
+  createChat,
+  deleteChat,
+  listChats,
+  listMessages,
+  renameChat,
+} from './db/chats'
 import { logger } from './logger'
 import {
   getModelAvailability,
@@ -22,24 +28,26 @@ function requireChatId(value: unknown): string {
   return value
 }
 
-function requireChatTitle(value: unknown): string {
+function requireChatTitle(value: unknown, failedMessage: string): string {
   if (typeof value !== 'string') {
     logger.warn('Rejected chat request: missing title')
-    throw new Error('Chat could not be created.')
+    throw new Error(failedMessage)
   }
 
   const title = deriveChatTitle(value)
 
   if (title.length === 0) {
     logger.warn('Rejected chat request: empty title')
-    throw new Error('Chat could not be created.')
+    throw new Error(failedMessage)
   }
 
   return title
 }
 
-function toChatSummaries(): ChatSummary[] {
-  return listChats().map((chat) => ({
+function toChatSummary(
+  chat: ReturnType<typeof listChats>[number],
+): ChatSummary {
+  return {
     id: chat.id,
     title: chat.title,
     modelFile: chat.modelFile,
@@ -48,7 +56,11 @@ function toChatSummaries(): ChatSummary[] {
       chat.modelSizeBytes,
     ),
     updatedAt: chat.updatedAt.getTime(),
-  }))
+  }
+}
+
+function toChatSummaries(): ChatSummary[] {
+  return listChats().map(toChatSummary)
 }
 
 function toStoredMessages(chatId: string): StoredMessage[] {
@@ -75,7 +87,7 @@ export function registerChatsHandlers() {
     IpcChannels.createChat,
     (_event, chatId: unknown, title: unknown) => {
       const id = requireChatId(chatId)
-      const chatTitle = requireChatTitle(title)
+      const chatTitle = requireChatTitle(title, 'Chat could not be created.')
       const modelFile = getSelectedModel()
       const modelSizeBytes =
         modelFile === null ? null : getModelFileSize(modelFile)
@@ -93,13 +105,25 @@ export function registerChatsHandlers() {
       })
       logger.info(`Chat created: ${chat.id} (${modelFile})`)
 
-      return {
-        id: chat.id,
-        title: chat.title,
-        modelFile: chat.modelFile,
-        modelAvailability: 'available',
-        updatedAt: chat.updatedAt.getTime(),
-      } satisfies ChatSummary
+      return toChatSummary(chat)
+    },
+  )
+
+  ipcMain.handle(
+    IpcChannels.renameChat,
+    (_event, chatId: unknown, title: unknown) => {
+      const id = requireChatId(chatId)
+      const chatTitle = requireChatTitle(title, 'Chat could not be renamed.')
+      const chat = renameChat(id, chatTitle)
+
+      if (chat === null) {
+        logger.warn('Rejected chat rename: chat not found')
+        throw new Error('Chat not found.')
+      }
+
+      logger.info(`Chat renamed: ${chat.id}`)
+
+      return toChatSummary(chat)
     },
   )
 

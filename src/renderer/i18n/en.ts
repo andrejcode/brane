@@ -3,13 +3,14 @@ export const en = {
   'sidebar.noChats': 'No chats yet',
   'sidebar.historyUnavailable': 'Chat history is unavailable.',
   'sidebar.untitledChat': 'Untitled chat',
-  'sidebar.deleteChat': 'Delete chat',
+  'sidebar.chatActions': 'Chat actions',
   'sidebar.deleteChatConfirmTitle': 'Delete chat?',
   'sidebar.deleteChatConfirmMessage':
     '“{title}” and all of its messages will be permanently deleted.',
   'sidebar.deleteChatConfirm': 'Delete',
   'sidebar.openChatFailed': 'Failed to open that chat. Please try again.',
   'sidebar.deleteChatFailed': 'Failed to delete that chat. Please try again.',
+  'sidebar.renameChatFailed': 'Failed to rename that chat. Please try again.',
   'sidebar.modelMissing': 'This model is no longer in your models folder.',
   'sidebar.modelReplaced':
     'This model file has changed since the chat was created.',
@@ -71,6 +72,7 @@ export const en = {
   'general.deleteLogsConfirmMessage':
     'Every log file in the logs folder will be permanently deleted.',
   'general.deleteLogsFailed': 'Failed to delete the logs. Please try again.',
+  'general.rename': 'Rename',
   'general.delete': 'Delete',
   'general.deleteLogsDone': 'Deleted',
 

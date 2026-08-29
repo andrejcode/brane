@@ -35,10 +35,16 @@ export function getChat(id: string): ChatRow | null {
 }
 
 export function renameChat(id: string, title: string): ChatRow | null {
+  const existing = getChat(id)
+
+  if (existing === null) {
+    return null
+  }
+
   return (
     getDatabase()
       .update(chats)
-      .set({ title })
+      .set({ title, updatedAt: existing.updatedAt })
       .where(eq(chats.id, id))
       .returning()
       .get() ?? null

@@ -19,6 +19,7 @@ export interface MockElectronApi {
   listChats: ReturnType<typeof vi.fn>
   createChat: ReturnType<typeof vi.fn>
   getChatMessages: ReturnType<typeof vi.fn>
+  renameChat: ReturnType<typeof vi.fn>
   deleteChat: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
@@ -150,6 +151,22 @@ export function installMockElectronApi(
   const getChatMessages = vi.fn(
     (): Promise<StoredMessage[]> => Promise.resolve(chatMessages),
   )
+  const renameChat = vi.fn(
+    (chatId: string, title: string): Promise<ChatSummary> => {
+      const existing = storedChats.find((chat) => chat.id === chatId)
+      const summary: ChatSummary = {
+        id: chatId,
+        title,
+        modelFile: existing?.modelFile ?? selectedModel ?? 'test-model.gguf',
+        modelAvailability: existing?.modelAvailability ?? 'available',
+        updatedAt: existing?.updatedAt ?? Date.now(),
+      }
+      storedChats = storedChats.map((chat) =>
+        chat.id === chatId ? summary : chat,
+      )
+      return Promise.resolve(summary)
+    },
+  )
   const deleteChat = vi.fn((): Promise<void> => Promise.resolve())
 
   const streamResponse = vi.fn(
@@ -205,6 +222,7 @@ export function installMockElectronApi(
     listChats,
     createChat,
     getChatMessages,
+    renameChat,
     deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
@@ -237,6 +255,7 @@ export function installMockElectronApi(
     listChats,
     createChat,
     getChatMessages,
+    renameChat,
     deleteChat,
     getSendWithModifierEnter,
     setSendWithModifierEnter,

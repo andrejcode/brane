@@ -3,7 +3,7 @@ import { BaseButton } from './BaseButton'
 
 interface GhostButtonProps {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
   title?: string
   ariaLabel?: string
   // Renders the button with its hover background applied permanently.
@@ -11,8 +11,11 @@ interface GhostButtonProps {
   disabled?: boolean
   onClick?: (() => void) | undefined
   id?: string | undefined
+  ref?: React.Ref<HTMLButtonElement> | undefined
   role?: string | undefined
   ariaSelected?: boolean | undefined
+  ariaExpanded?: boolean | undefined
+  ariaHasPopup?: 'menu' | undefined
   ariaControls?: string | undefined
   tabIndex?: number | undefined
 }
@@ -27,8 +30,11 @@ export function GhostButton({
   disabled,
   onClick,
   id,
+  ref,
   role,
   ariaSelected,
+  ariaExpanded,
+  ariaHasPopup,
   ariaControls,
   tabIndex,
 }: GhostButtonProps) {
@@ -48,8 +54,11 @@ export function GhostButton({
       disabled={disabled}
       onClick={onClick}
       id={id}
+      ref={ref}
       role={role}
       ariaSelected={ariaSelected}
+      ariaExpanded={ariaExpanded}
+      ariaHasPopup={ariaHasPopup}
       ariaControls={ariaControls}
       tabIndex={tabIndex}
     >

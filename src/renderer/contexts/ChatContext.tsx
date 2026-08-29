@@ -33,6 +33,7 @@ interface ChatContextValue {
   refreshChats: () => Promise<void>
   openChat: (chatId: string) => Promise<void>
   removeChat: (chatId: string) => Promise<void>
+  renameChat: (chatId: string, title: string) => Promise<void>
   ensureActiveChat: (options: EnsureActiveChatOptions) => Promise<string>
   canStartNewChat: boolean
   startNewChat: () => void
@@ -173,6 +174,37 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     [activeChatId, refreshChats, showAlert, startNewChat, t],
   )
 
+  const renameChat = useCallback(
+    async (chatId: string, title: string) => {
+      let previousTitle: string | null | undefined
+
+      setChats((currentChats) =>
+        currentChats.map((chat) => {
+          if (chat.id !== chatId) {
+            return chat
+          }
+
+          previousTitle = chat.title
+          return { ...chat, title }
+        }),
+      )
+
+      try {
+        await window.electronApi.renameChat(chatId, title)
+      } catch {
+        setChats((currentChats) =>
+          currentChats.map((chat) =>
+            chat.id === chatId && previousTitle !== undefined
+              ? { ...chat, title: previousTitle }
+              : chat,
+          ),
+        )
+        showAlert(t('sidebar.renameChatFailed'), 'error')
+      }
+    },
+    [showAlert, t],
+  )
+
   // The id is generated here so the conversation stays addressable even when it
   // can't be stored. The title is painted into the list first, then persisted
   // with the chat row; a failed write drops the list item but keeps the id.
@@ -230,6 +262,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       refreshChats,
       openChat,
       removeChat,
+      renameChat,
       ensureActiveChat,
       canStartNewChat,
       startNewChat,
@@ -245,6 +278,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       refreshChats,
       openChat,
       removeChat,
+      renameChat,
       ensureActiveChat,
       canStartNewChat,
       startNewChat,

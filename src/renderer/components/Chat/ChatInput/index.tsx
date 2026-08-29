@@ -111,12 +111,13 @@ export function ChatInput({
         return
       }
 
-      // Don't steal focus from another editable element.
+      // Don't steal focus from another editable element, or from an open menu.
       const active = document.activeElement
       if (
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.isContentEditable)
+        (active instanceof HTMLElement && active.isContentEditable) ||
+        document.querySelector('[role="menu"]')
       ) {
         return
       }

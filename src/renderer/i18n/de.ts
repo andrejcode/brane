@@ -5,7 +5,7 @@ export const de: Messages = {
   'sidebar.noChats': 'Noch keine Chats',
   'sidebar.historyUnavailable': 'Der Chatverlauf ist nicht verfügbar.',
   'sidebar.untitledChat': 'Chat ohne Titel',
-  'sidebar.deleteChat': 'Chat löschen',
+  'sidebar.chatActions': 'Chat-Aktionen',
   'sidebar.deleteChatConfirmTitle': 'Chat löschen?',
   'sidebar.deleteChatConfirmMessage':
     '„{title}“ und alle zugehörigen Nachrichten werden endgültig gelöscht.',
@@ -14,6 +14,8 @@ export const de: Messages = {
     'Der Chat konnte nicht geöffnet werden. Bitte versuche es erneut.',
   'sidebar.deleteChatFailed':
     'Der Chat konnte nicht gelöscht werden. Bitte versuche es erneut.',
+  'sidebar.renameChatFailed':
+    'Der Chat konnte nicht umbenannt werden. Bitte versuche es erneut.',
   'sidebar.modelMissing':
     'Dieses Modell liegt nicht mehr in deinem Modellordner.',
   'sidebar.modelReplaced':
@@ -83,6 +85,7 @@ export const de: Messages = {
     'Alle Protokolldateien im Protokollordner werden endgültig gelöscht.',
   'general.deleteLogsFailed':
     'Die Protokolle konnten nicht gelöscht werden. Bitte versuche es erneut.',
+  'general.rename': 'Umbenennen',
   'general.delete': 'Löschen',
   'general.deleteLogsDone': 'Gelöscht',
 

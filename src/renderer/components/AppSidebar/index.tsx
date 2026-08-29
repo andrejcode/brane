@@ -10,10 +10,17 @@ import { ChatListItem } from './ChatListItem'
 export function AppSidebar() {
   const { t } = useTranslation()
   const { isSidebarOpen, isReady } = useSidebar()
-  const { chats, activeChatId, isHistoryUnavailable, openChat, removeChat } =
-    useChat()
+  const {
+    chats,
+    activeChatId,
+    isHistoryUnavailable,
+    openChat,
+    removeChat,
+    renameChat,
+  } = useChat()
   const [chatPendingDeletion, setChatPendingDeletion] =
     useState<ChatSummary | null>(null)
+  const [renamingChatId, setRenamingChatId] = useState<string | null>(null)
   const emptyMessage = isHistoryUnavailable
     ? t('sidebar.historyUnavailable')
     : t('sidebar.noChats')
@@ -44,7 +51,15 @@ export function AppSidebar() {
                   key={chat.id}
                   chat={chat}
                   isActive={chat.id === activeChatId}
+                  isRenaming={chat.id === renamingChatId}
                   onOpen={openChat}
+                  onStartRename={() => {
+                    setRenamingChatId(chat.id)
+                  }}
+                  onStopRename={() => {
+                    setRenamingChatId(null)
+                  }}
+                  onRename={renameChat}
                   onRequestDelete={setChatPendingDeletion}
                 />
               ))}
