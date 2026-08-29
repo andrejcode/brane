@@ -75,6 +75,9 @@ export function createWindow() {
     },
   })
 
+  void mainWindow.webContents.setVisualZoomLevelLimits(0, 0)
+  mainWindow.webContents.setZoomFactor(1)
+
   // Apply the saved maximized state while the window is still hidden. maximize()
   // implicitly shows the window, so we immediately hide it again in the same
   // tick: the window never paints, so there's no empty-window flash and no

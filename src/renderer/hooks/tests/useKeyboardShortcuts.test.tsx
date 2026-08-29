@@ -6,6 +6,7 @@ import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import {
   clearMockElectronApi,
@@ -46,26 +47,30 @@ async function renderHarness({
   isMac = false,
   withMessages = false,
   isSending = false,
+  messageFontSize = 16,
 }: {
   isMac?: boolean
   withMessages?: boolean
   isSending?: boolean
+  messageFontSize?: number
 } = {}) {
-  mock = installMockElectronApi({ isMac })
+  mock = installMockElectronApi({ isMac, messageFontSize })
 
   const result = render(
     <AlertProvider>
       <ModalProvider>
-        <ShortcutsProvider>
-          <SidebarProvider>
-            <ChatProvider>
-              <ShortcutsHarness
-                withMessages={withMessages}
-                isSending={isSending}
-              />
-            </ChatProvider>
-          </SidebarProvider>
-        </ShortcutsProvider>
+        <ThemeProvider>
+          <ShortcutsProvider>
+            <SidebarProvider>
+              <ChatProvider>
+                <ShortcutsHarness
+                  withMessages={withMessages}
+                  isSending={isSending}
+                />
+              </ChatProvider>
+            </SidebarProvider>
+          </ShortcutsProvider>
+        </ThemeProvider>
       </ModalProvider>
     </AlertProvider>,
   )
@@ -152,5 +157,48 @@ describe('useKeyboardShortcuts', () => {
       'data-active-modal',
       'settings',
     )
+  })
+
+  it('uses Cmd++ to increase message font size instead of page zoom', async () => {
+    await renderHarness({ isMac: true })
+    const event = new KeyboardEvent('keydown', {
+      key: '+',
+      metaKey: true,
+      shiftKey: true,
+      cancelable: true,
+    })
+
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(mock.setMessageFontSize).toHaveBeenCalledWith(17)
+  })
+
+  it('uses Cmd+- to decrease message font size instead of page zoom', async () => {
+    await renderHarness({ isMac: true })
+    const event = new KeyboardEvent('keydown', {
+      key: '-',
+      metaKey: true,
+      cancelable: true,
+    })
+
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(mock.setMessageFontSize).toHaveBeenCalledWith(15)
+  })
+
+  it('uses Cmd+0 to reset message font size to 16px', async () => {
+    await renderHarness({ isMac: true, messageFontSize: 20 })
+    const event = new KeyboardEvent('keydown', {
+      key: '0',
+      metaKey: true,
+      cancelable: true,
+    })
+
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(mock.setMessageFontSize).toHaveBeenCalledWith(16)
   })
 })
