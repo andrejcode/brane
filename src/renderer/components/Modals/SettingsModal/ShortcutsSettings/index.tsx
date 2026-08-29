@@ -92,7 +92,7 @@ export function ShortcutsSettings() {
           className="min-w-28 whitespace-nowrap"
           onClick={() => setIsResetConfirmOpen(true)}
         >
-          {wasReset ? t('shortcuts.resetDone') : t('shortcuts.reset')}
+          {wasReset ? t('general.restored') : t('general.reset')}
         </Button>
       </div>
 
@@ -100,7 +100,7 @@ export function ShortcutsSettings() {
         isOpen={isResetConfirmOpen}
         title={t('shortcuts.resetConfirmTitle')}
         message={t('shortcuts.resetConfirmMessage')}
-        confirmLabel={t('shortcuts.reset')}
+        confirmLabel={t('general.reset')}
         onCancel={() => setIsResetConfirmOpen(false)}
         onConfirm={() => {
           setIsResetConfirmOpen(false)

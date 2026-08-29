@@ -72,9 +72,11 @@ export const en = {
   'general.deleteLogsConfirmMessage':
     'Every log file in the logs folder will be permanently deleted.',
   'general.deleteLogsFailed': 'Failed to delete the logs. Please try again.',
+  'general.deleted': 'Deleted',
   'general.rename': 'Rename',
   'general.delete': 'Delete',
-  'general.deleteLogsDone': 'Deleted',
+  'general.reset': 'Reset',
+  'general.restored': 'Restored',
 
   'appearance.theme': 'Theme',
   'appearance.dark': 'Dark',
@@ -82,8 +84,6 @@ export const en = {
   'appearance.system': 'System',
 
   'shortcuts.resetLabel': 'Restore the default shortcuts',
-  'shortcuts.reset': 'Reset',
-  'shortcuts.resetDone': 'Restored',
   'shortcuts.resetFailed': 'Failed to reset the shortcuts. Please try again.',
   'shortcuts.saveFailed': 'Failed to save that shortcut. Please try again.',
   'shortcuts.resetConfirmTitle': 'Reset shortcuts?',

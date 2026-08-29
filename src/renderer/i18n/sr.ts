@@ -77,9 +77,11 @@ export const sr: Messages = {
   'general.deleteLogsConfirmMessage':
     'Све датотеке записа у фасцикли са записима биће трајно обрисане.',
   'general.deleteLogsFailed': 'Брисање записа није успело. Покушај поново.',
+  'general.deleted': 'Обрисано',
   'general.rename': 'Преименуј',
   'general.delete': 'Обриши',
-  'general.deleteLogsDone': 'Обрисано',
+  'general.reset': 'Врати',
+  'general.restored': 'Враћено',
 
   'appearance.theme': 'Тема',
   'appearance.dark': 'Тамна',
@@ -87,8 +89,6 @@ export const sr: Messages = {
   'appearance.system': 'Систем',
 
   'shortcuts.resetLabel': 'Врати подразумеване пречице',
-  'shortcuts.reset': 'Врати',
-  'shortcuts.resetDone': 'Враћено',
   'shortcuts.resetFailed':
     'Враћање подразумеваних пречица није успело. Покушај поново.',
   'shortcuts.saveFailed': 'Чување пречице није успело. Покушај поново.',

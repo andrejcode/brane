@@ -103,9 +103,7 @@ export function GeneralSettings() {
               className="min-w-24"
               onClick={() => setIsDeleteLogsConfirmOpen(true)}
             >
-              {wereLogsDeleted
-                ? t('general.deleteLogsDone')
-                : t('general.delete')}
+              {wereLogsDeleted ? t('general.deleted') : t('general.delete')}
             </Button>
           </div>
         </div>

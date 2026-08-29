@@ -79,9 +79,11 @@ export const hr: Messages = {
   'general.deleteLogsConfirmMessage':
     'Sve datoteke zapisa u mapi sa zapisima bit će trajno izbrisane.',
   'general.deleteLogsFailed': 'Brisanje zapisa nije uspjelo. Pokušaj ponovno.',
+  'general.deleted': 'Izbrisano',
   'general.rename': 'Preimenuj',
   'general.delete': 'Izbriši',
-  'general.deleteLogsDone': 'Izbrisano',
+  'general.reset': 'Vrati',
+  'general.restored': 'Vraćeno',
 
   'appearance.theme': 'Tema',
   'appearance.dark': 'Tamna',
@@ -89,8 +91,6 @@ export const hr: Messages = {
   'appearance.system': 'Sustav',
 
   'shortcuts.resetLabel': 'Vrati zadane prečace',
-  'shortcuts.reset': 'Vrati',
-  'shortcuts.resetDone': 'Vraćeno',
   'shortcuts.resetFailed':
     'Vraćanje zadanih prečaca nije uspjelo. Pokušaj ponovno.',
   'shortcuts.saveFailed': 'Spremanje prečaca nije uspjelo. Pokušaj ponovno.',

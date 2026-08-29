@@ -85,9 +85,11 @@ export const de: Messages = {
     'Alle Protokolldateien im Protokollordner werden endgültig gelöscht.',
   'general.deleteLogsFailed':
     'Die Protokolle konnten nicht gelöscht werden. Bitte versuche es erneut.',
+  'general.deleted': 'Gelöscht',
   'general.rename': 'Umbenennen',
   'general.delete': 'Löschen',
-  'general.deleteLogsDone': 'Gelöscht',
+  'general.reset': 'Zurücksetzen',
+  'general.restored': 'Zurückgesetzt',
 
   'appearance.theme': 'Design',
   'appearance.dark': 'Dunkel',
@@ -95,8 +97,6 @@ export const de: Messages = {
   'appearance.system': 'System',
 
   'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
-  'shortcuts.reset': 'Zurücksetzen',
-  'shortcuts.resetDone': 'Zurückgesetzt',
   'shortcuts.resetFailed':
     'Die Tastenkürzel konnten nicht zurückgesetzt werden. Bitte versuche es erneut.',
   'shortcuts.saveFailed':
