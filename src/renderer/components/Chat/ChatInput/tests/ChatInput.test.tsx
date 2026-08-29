@@ -5,6 +5,7 @@ function renderChatInput(
   overrides: Partial<Parameters<typeof ChatInput>[0]> = {},
 ) {
   const props = {
+    activeChatId: null,
     input: '',
     isSending: false,
     onStop: vi.fn(),
@@ -189,6 +190,7 @@ describe('ChatInput global focus stealing', () => {
       <div>
         <input aria-label="other" />
         <ChatInput
+          activeChatId={null}
           input=""
           isSending={false}
           onStop={vi.fn()}
@@ -216,6 +218,7 @@ describe('ChatInput global focus stealing', () => {
           </button>
         </div>
         <ChatInput
+          activeChatId={null}
           input=""
           isSending={false}
           onStop={vi.fn()}

@@ -24,6 +24,7 @@ const SINGLE_ROW_PADDING_RIGHT = 48
 const MULTI_ROW_PADDING_RIGHT = 16
 
 interface ChatInputProps {
+  activeChatId: string | null
   input: string
   isSending: boolean
   onStop: () => void
@@ -34,6 +35,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({
+  activeChatId,
   input,
   isSending,
   onStop,
@@ -42,9 +44,22 @@ export function ChatInput({
   sendWithModifierEnter,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const previousActiveChatIdRef = useRef(activeChatId)
   const [isMultiline, setIsMultiline] = useState(false)
   const isModalOpen = useIsAnyModalOpen()
   const { t } = useTranslation()
+
+  useEffect(() => {
+    if (activeChatId === previousActiveChatIdRef.current) {
+      return
+    }
+
+    previousActiveChatIdRef.current = activeChatId
+
+    if (activeChatId !== null && !isModalOpen) {
+      textareaRef.current?.focus()
+    }
+  }, [activeChatId, isModalOpen])
 
   const resize = useCallback(() => {
     const textarea = textareaRef.current

@@ -365,6 +365,7 @@ export function Chat() {
                 </p>
               ) : (
                 <ChatInput
+                  activeChatId={activeChatId}
                   input={input}
                   isSending={isSending}
                   onStop={handleStop}

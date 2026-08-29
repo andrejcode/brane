@@ -129,12 +129,13 @@ async function submitPrompt(text: string) {
   await user.click(screen.getByRole('button', { name: 'Send message' }))
 }
 
-function renderChatWithSidebar() {
+function renderChatWithSidebar(options: MockElectronApiOptions = {}) {
   clearMockElectronApi()
   mock = installMockElectronApi({
     models: ['test-model.gguf'],
     selectedModel: 'test-model.gguf',
     isSidebarOpen: true,
+    ...options,
   })
 
   return render(
@@ -283,6 +284,31 @@ describe('Chat submit', () => {
 })
 
 describe('Chat title in the sidebar', () => {
+  it('focuses the composer after opening a chat so Enter sends', async () => {
+    renderChatWithSidebar({
+      chats: [
+        {
+          id: 'chat-1',
+          title: 'Sourdough tips',
+          modelFile: 'test-model.gguf',
+          modelAvailability: 'available',
+          updatedAt: 0,
+        },
+      ],
+    })
+    const user = userEvent.setup()
+
+    await user.click(await screen.findByText('Sourdough tips'))
+
+    const composer = screen.getByPlaceholderText('Ask anything')
+    await waitFor(() => expect(composer).toHaveFocus())
+    await user.keyboard('follow up{Enter}')
+
+    await waitFor(() => {
+      expect(mock.sendPrompt).toHaveBeenCalledWith('follow up', 'chat-1')
+    })
+  })
+
   it('labels a new chat from the first prompt as soon as it is sent', async () => {
     renderChatWithSidebar()
 
