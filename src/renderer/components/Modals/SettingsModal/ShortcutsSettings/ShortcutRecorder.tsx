@@ -32,7 +32,13 @@ export function ShortcutRecorder({
       event.preventDefault()
       event.stopPropagation()
 
-      if (event.key === 'Escape') {
+      if (
+        event.key === 'Escape' &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      ) {
         setIsRecording(false)
         return
       }

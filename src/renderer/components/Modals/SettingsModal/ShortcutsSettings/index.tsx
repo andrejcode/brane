@@ -18,6 +18,7 @@ const ACTION_LABEL_KEYS: Record<ShortcutAction, MessageKey> = {
   toggleModels: 'shortcuts.toggleModels',
   toggleSidebar: 'shortcuts.toggleSidebar',
   newChat: 'shortcuts.newChat',
+  stopGeneration: 'shortcuts.stopGeneration',
 }
 
 export function ShortcutsSettings() {

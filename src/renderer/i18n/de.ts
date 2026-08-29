@@ -110,6 +110,7 @@ export const de: Messages = {
   'shortcuts.toggleModels': 'Modellliste öffnen oder schließen',
   'shortcuts.toggleSidebar': 'Seitenleiste ein- oder ausblenden',
   'shortcuts.newChat': 'Neuen Chat starten',
+  'shortcuts.stopGeneration': 'Generierung stoppen',
 
   'confirm.cancel': 'Abbrechen',
 

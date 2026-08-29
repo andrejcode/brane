@@ -15,17 +15,23 @@ import {
 
 let mock: MockElectronApi
 
-// Seeds a conversation so the new-chat shortcut has something to reset.
-function ShortcutsHarness({ withMessages }: { withMessages: boolean }) {
+interface ShortcutsHarnessProps {
+  withMessages: boolean
+  isSending: boolean
+}
+
+// Seeds chat state so shortcuts can exercise generation and conversation actions.
+function ShortcutsHarness({ withMessages, isSending }: ShortcutsHarnessProps) {
   useKeyboardShortcuts()
-  const { messages, setMessages } = useChat()
+  const { messages, setMessages, setIsSending } = useChat()
   const { activeModal } = useModals()
 
   useEffect(() => {
     if (withMessages) {
       setMessages([{ id: 'user-1', role: 'user', content: 'hi' }])
     }
-  }, [withMessages, setMessages])
+    setIsSending(isSending)
+  }, [isSending, withMessages, setIsSending, setMessages])
 
   return (
     <div
@@ -39,7 +45,12 @@ function ShortcutsHarness({ withMessages }: { withMessages: boolean }) {
 async function renderHarness({
   isMac = false,
   withMessages = false,
-}: { isMac?: boolean; withMessages?: boolean } = {}) {
+  isSending = false,
+}: {
+  isMac?: boolean
+  withMessages?: boolean
+  isSending?: boolean
+} = {}) {
   mock = installMockElectronApi({ isMac })
 
   const result = render(
@@ -48,7 +59,10 @@ async function renderHarness({
         <ShortcutsProvider>
           <SidebarProvider>
             <ChatProvider>
-              <ShortcutsHarness withMessages={withMessages} />
+              <ShortcutsHarness
+                withMessages={withMessages}
+                isSending={isSending}
+              />
             </ChatProvider>
           </SidebarProvider>
         </ShortcutsProvider>
@@ -68,6 +82,22 @@ afterEach(() => {
 })
 
 describe('useKeyboardShortcuts', () => {
+  it('stops an active generation on Cmd+Escape on macOS', async () => {
+    await renderHarness({ isMac: true, isSending: true })
+
+    await userEvent.setup().keyboard('{Meta>}{Escape}{/Meta}')
+
+    expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not stop generation on Cmd+Escape while idle', async () => {
+    await renderHarness({ isMac: true })
+
+    await userEvent.setup().keyboard('{Meta>}{Escape}{/Meta}')
+
+    expect(mock.stopGeneration).not.toHaveBeenCalled()
+  })
+
   it('starts a new chat on Ctrl+N', async () => {
     await renderHarness({ withMessages: true })
 

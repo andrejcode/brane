@@ -103,6 +103,7 @@ export const hr: Messages = {
   'shortcuts.toggleModels': 'Otvori ili zatvori popis modela',
   'shortcuts.toggleSidebar': 'Prikaži ili sakrij bočnu traku',
   'shortcuts.newChat': 'Započni novi razgovor',
+  'shortcuts.stopGeneration': 'Zaustavi generiranje',
 
   'confirm.cancel': 'Odustani',
 

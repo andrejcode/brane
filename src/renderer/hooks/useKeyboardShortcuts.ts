@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useChat } from '@/contexts/ChatContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
@@ -14,13 +14,20 @@ export function useKeyboardShortcuts() {
   const { shortcuts } = useShortcuts()
   const { toggleModal } = useModals()
   const { toggleSidebar } = useSidebar()
-  const { startNewChat } = useChat()
+  const { isSending, startNewChat } = useChat()
+
+  const stopGeneration = useCallback(() => {
+    if (isSending) {
+      void window.electronApi.stopGeneration()
+    }
+  }, [isSending])
 
   const handlersRef = useRef<ShortcutHandlers>({
     toggleSettings: () => toggleModal('settings'),
     toggleModels: () => toggleModal('models'),
     toggleSidebar,
     newChat: startNewChat,
+    stopGeneration,
   })
   useEffect(() => {
     handlersRef.current = {
@@ -28,8 +35,9 @@ export function useKeyboardShortcuts() {
       toggleModels: () => toggleModal('models'),
       toggleSidebar,
       newChat: startNewChat,
+      stopGeneration,
     }
-  }, [toggleModal, toggleSidebar, startNewChat])
+  }, [toggleModal, toggleSidebar, startNewChat, stopGeneration])
 
   useEffect(() => {
     const isMac = window.electronApi.isMac

@@ -95,6 +95,7 @@ export const en = {
   'shortcuts.toggleModels': 'Open or close the model list',
   'shortcuts.toggleSidebar': 'Show or hide the sidebar',
   'shortcuts.newChat': 'Start a new chat',
+  'shortcuts.stopGeneration': 'Stop generating',
 
   'confirm.cancel': 'Cancel',
 
