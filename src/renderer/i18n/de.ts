@@ -2,6 +2,8 @@ import type { Messages } from './types'
 
 export const de: Messages = {
   'sidebar.recentChats': 'Letzte Chats',
+  'sidebar.search': 'Chats durchsuchen',
+  'sidebar.noMatch': 'Keine Chats stimmen mit „{query}“ überein.',
   'sidebar.noChats': 'Noch keine Chats',
   'sidebar.historyUnavailable': 'Der Chatverlauf ist nicht verfügbar.',
   'sidebar.untitledChat': 'Chat ohne Titel',

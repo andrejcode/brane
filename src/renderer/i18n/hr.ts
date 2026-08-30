@@ -2,6 +2,8 @@ import type { Messages } from './types'
 
 export const hr: Messages = {
   'sidebar.recentChats': 'Nedavni razgovori',
+  'sidebar.search': 'Pretraži razgovore',
+  'sidebar.noMatch': 'Nijedan razgovor ne odgovara upitu „{query}“.',
   'sidebar.noChats': 'Još nema razgovora',
   'sidebar.historyUnavailable': 'Povijest razgovora nije dostupna.',
   'sidebar.untitledChat': 'Razgovor bez naslova',

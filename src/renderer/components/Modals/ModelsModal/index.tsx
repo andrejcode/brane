@@ -3,13 +3,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
+import { useDebouncedQuery } from '@/hooks/useDebouncedQuery'
 import { CloseButton } from '@/ui/buttons/CloseButton'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { Modal } from '@/ui/Modal'
 import { formatModelName } from '@/utils'
 
-export const SEARCH_DEBOUNCE_MS = 200
+export { SEARCH_DEBOUNCE_MS } from '@/hooks/useDebouncedQuery'
 
 export function ModelsModal() {
   const { activeModal, closeModal } = useModals()
@@ -24,8 +25,7 @@ export function ModelsModal() {
     unloadModel,
   } = useModel()
   const isOpen = activeModal === 'models'
-  const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const { query, debouncedQuery, setQuery, resetQuery } = useDebouncedQuery()
   const [wasOpen, setWasOpen] = useState(isOpen)
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -34,8 +34,7 @@ export function ModelsModal() {
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen)
     if (isOpen) {
-      setQuery('')
-      setDebouncedQuery('')
+      resetQuery()
     }
   }
 
@@ -44,14 +43,6 @@ export function ModelsModal() {
       void refreshModels()
     }
   }, [isOpen, refreshModels])
-
-  useEffect(() => {
-    const timeout = setTimeout(
-      () => setDebouncedQuery(query),
-      SEARCH_DEBOUNCE_MS,
-    )
-    return () => clearTimeout(timeout)
-  }, [query])
 
   useEffect(() => {
     if (!isOpen || !hasModels) return

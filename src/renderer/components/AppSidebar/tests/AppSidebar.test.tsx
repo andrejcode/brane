@@ -120,6 +120,49 @@ describe('AppSidebar', () => {
     expect(screen.queryByText('Untitled chat')).not.toBeInTheDocument()
   })
 
+  it('filters chats by title', async () => {
+    renderSidebar({
+      chats: [
+        chatSummary({ id: 'chat-1', title: 'Sourdough tips' }),
+        chatSummary({ id: 'chat-2', title: 'TypeScript notes' }),
+      ],
+    })
+    const user = userEvent.setup()
+
+    await user.type(
+      await screen.findByRole('textbox', { name: 'Search chats' }),
+      'DOUGH',
+    )
+
+    await waitFor(() => {
+      expect(screen.queryByText('TypeScript notes')).not.toBeInTheDocument()
+    })
+    expect(screen.getByText('Sourdough tips')).toBeInTheDocument()
+  })
+
+  it('shows a no-match message for a search with no results', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+
+    await userEvent
+      .setup()
+      .type(
+        await screen.findByRole('textbox', { name: 'Search chats' }),
+        'typescript',
+      )
+
+    expect(
+      await screen.findByText('No chats match “typescript”.'),
+    ).toBeInTheDocument()
+  })
+
+  it('disables search when there are no chats', async () => {
+    renderSidebar()
+
+    expect(
+      await screen.findByRole('textbox', { name: 'Search chats' }),
+    ).toBeDisabled()
+  })
+
   it('flags a chat whose model is gone, explaining it on hover', async () => {
     renderSidebar({ chats: [chatSummary({ modelAvailability: 'missing' })] })
 
