@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerRpm } from '@electron-forge/maker-rpm'
@@ -8,18 +9,27 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 
+const ICON_PATH = path.resolve('assets/icon')
+const LINUX_ICON_PATH = `${ICON_PATH}.png`
+
+const packagerIcon =
+  process.platform === 'darwin'
+    ? [`${ICON_PATH}.icns`, `${ICON_PATH}.icon`]
+    : ICON_PATH
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: packagerIcon,
     // Migrations are read from disk at startup, so they can't live inside the asar.
-    extraResource: ['drizzle'],
+    extraResource: ['drizzle', LINUX_ICON_PATH],
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({ setupIcon: `${ICON_PATH}.ico` }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({ options: { icon: LINUX_ICON_PATH } }),
+    new MakerDeb({ options: { icon: LINUX_ICON_PATH } }),
   ],
   plugins: [
     // better-sqlite3 ships .node binaries, which can't be loaded from inside the asar.

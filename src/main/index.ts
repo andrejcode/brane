@@ -33,6 +33,15 @@ process.on('unhandledRejection', (reason) => {
 })
 
 let stopWatchingModels: (() => void) | undefined
+let isQuitting = false
+
+function initializeDatabaseSafely() {
+  try {
+    initializeDatabase()
+  } catch {
+    logger.warn('Starting without chat history')
+  }
+}
 
 // A model can be deleted or renamed while the app is running, which leaves a
 // selection pointing at nothing and a stale model resident in memory.
@@ -60,11 +69,7 @@ void app.whenReady().then(() => {
 
   // A failed database leaves the app usable for chatting, just without history,
   // so it must not keep the window from opening.
-  try {
-    initializeDatabase()
-  } catch {
-    logger.warn('Starting without chat history')
-  }
+  initializeDatabaseSafely()
 
   initializeTheme()
   initializeLocale()
@@ -99,8 +104,13 @@ void app.whenReady().then(() => {
   createWindow()
 
   app.on('activate', () => {
+    if (isQuitting) {
+      return
+    }
+
     // Open a window if none are open (macOS)
     if (BrowserWindow.getAllWindows().length === 0) {
+      initializeDatabaseSafely()
       createWindow()
     }
   })
@@ -123,7 +133,6 @@ app.on('window-all-closed', () => {
 
 // Dispose the model gracefully before exiting. Defer the quit until teardown
 // finishes so native resources are released cleanly rather than on hard exit.
-let isQuitting = false
 app.on('before-quit', (event) => {
   if (isQuitting) {
     return
@@ -139,6 +148,6 @@ app.on('before-quit', (event) => {
     })
     .finally(() => {
       closeDatabase()
-      app.quit()
+      app.exit(0)
     })
 })

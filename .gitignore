@@ -14,6 +14,8 @@ npm-debug.log*
 
 coverage/
 *.lcov
+test-results/
+playwright-report/
 
 .eslintcache
 .npm/

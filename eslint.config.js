@@ -12,6 +12,7 @@ const tsProjects = [
   './tsconfig.main.json',
   './tsconfig.preload.json',
   './tsconfig.renderer.json',
+  './tsconfig.playwright.json',
 ]
 
 function createImportResolver(projects = tsProjects) {
@@ -133,5 +134,8 @@ export default defineConfig(
       ...globals.browser,
     },
   ),
+  createProjectConfig(['e2e/**/*.ts'], './tsconfig.playwright.json', {
+    ...globals.node,
+  }),
   prettierConfig,
 )

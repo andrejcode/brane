@@ -18,10 +18,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // window surface never flashes a mismatched color before the UI paints.
 const DARK_BACKGROUND = '#262626'
 const LIGHT_BACKGROUND = '#fafafa'
-
-// If the renderer never signals readiness (e.g. it crashes during startup),
-// show the window anyway so we can't get stuck with a permanently hidden window.
 const READY_FALLBACK_MS = 3000
+
+function getLinuxWindowIconPath() {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'icon.png')
+    : path.join(app.getAppPath(), 'assets/icon.png')
+}
 
 function saveWindowState(window: BrowserWindow) {
   // getNormalBounds() returns the restorable (un-maximized) bounds, so we keep
@@ -40,6 +43,7 @@ function saveWindowState(window: BrowserWindow) {
 export function createWindow() {
   logger.info('Creating main window')
   const isDev = !app.isPackaged
+  const shouldOpenDevTools = isDev && process.env['BRANE_E2E'] !== '1'
   const windowState = getStoreValue('window')
 
   const windowOptions: BrowserWindowConstructorOptions = {
@@ -57,11 +61,10 @@ export function createWindow() {
     ...(process.platform === 'darwin'
       ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 16, y: 16 } }
       : {}),
+    ...(process.platform === 'linux' ? { icon: getLinuxWindowIconPath() } : {}),
     ...windowOptions,
     minWidth: 800,
     minHeight: 600,
-    // Start hidden and render offscreen so the first frame the user sees is the
-    // fully loaded, correctly-themed UI rather than an empty/white window.
     show: false,
     backgroundColor: nativeTheme.shouldUseDarkColors
       ? DARK_BACKGROUND
@@ -71,38 +74,38 @@ export function createWindow() {
       backgroundThrottling: false,
       contextIsolation: true,
       nodeIntegration: false,
-      devTools: isDev,
+      devTools: shouldOpenDevTools,
     },
   })
 
-  void mainWindow.webContents.setVisualZoomLevelLimits(0, 0)
-  mainWindow.webContents.setZoomFactor(1)
-
-  // Apply the saved maximized state while the window is still hidden. maximize()
-  // implicitly shows the window, so we immediately hide it again in the same
-  // tick: the window never paints, so there's no empty-window flash and no
-  // visible resize from the restored size to maximized when we later reveal it.
   if (windowState.isMaximized) {
     mainWindow.maximize()
     mainWindow.hide()
   }
 
-  // Reveal the window only once the renderer reports it has finished loading its
-  // initial state (selected model, theme, etc.), so no placeholder frame shows.
   const showMainWindow = () => {
     if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      clearTimeout(fallbackTimer)
       mainWindow.show()
     }
   }
 
   const handleAppReady = (event: IpcMainEvent) => {
     if (event.sender === mainWindow.webContents) {
+      logger.info('Renderer reported ready')
       showMainWindow()
     }
   }
   ipcMain.on(IpcChannels.appReady, handleAppReady)
 
-  const fallbackTimer = setTimeout(showMainWindow, READY_FALLBACK_MS)
+  const fallbackTimer = setTimeout(() => {
+    if (mainWindow.isDestroyed() || mainWindow.isVisible()) {
+      return
+    }
+
+    logger.warn('Window readiness timed out; showing it anyway')
+    showMainWindow()
+  }, READY_FALLBACK_MS)
 
   mainWindow.on('closed', () => {
     clearTimeout(fallbackTimer)
@@ -123,6 +126,22 @@ export function createWindow() {
       )
     },
   )
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    logger.info(`Renderer finished loading ${mainWindow.webContents.getURL()}`)
+  })
+
+  mainWindow.webContents.on('preload-error', (_event, preloadPath, error) => {
+    logger.error(`Preload failed at ${preloadPath}`, error)
+  })
+
+  mainWindow.webContents.on('console-message', (event) => {
+    if (event.level === 'warning' || event.level === 'error') {
+      logger[event.level === 'error' ? 'error' : 'warn'](
+        `Renderer console: ${event.message} (${event.sourceId}:${event.lineNumber})`,
+      )
+    }
+  })
 
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, true)
@@ -160,7 +179,7 @@ export function createWindow() {
     )
   }
 
-  if (isDev) {
+  if (shouldOpenDevTools) {
     mainWindow.webContents.openDevTools()
   }
 

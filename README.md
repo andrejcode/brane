@@ -4,6 +4,16 @@ Brane is a desktop app for chatting with large language models locally on your
 computer. Your prompts, responses, chat history, and model files stay on your
 device. Brane does not require a backend service to run your chats.
 
+## Table of contents
+
+- [Early development](#early-development)
+- [What you need](#what-you-need)
+- [Add a model](#add-a-model)
+- [Features](#features)
+- [Privacy and model responsibility](#privacy-and-model-responsibility)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
+
 ## Early development
 
 Brane is still early in development. Many features are not available yet, and
@@ -75,6 +85,10 @@ distribute language models. Review the source, license, usage restrictions, and
 privacy implications of every model you obtain.
 
 By using Brane, you agree to the [Terms of Use](TERMS_OF_USE.md).
+
+## Acknowledgments
+
+Special thanks to my sister Ines Milanović for creating the Brane app icon.
 
 ## License
 
