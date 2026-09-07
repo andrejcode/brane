@@ -20,6 +20,10 @@ Brane is still early in development. Many features are not available yet, and
 there is more work to do on performance, resource use, and general polish. The
 app can be used as it is today, but bugs and unexpected behavior can occur.
 
+Because of this early development stage, Brane is not currently planned for a
+public release. You can still build and run the app from source by following
+the [development setup instructions](CONTRIBUTING.md#development-setup).
+
 Please report problems to the developer. Include what you were doing, what you
 expected to happen, what happened instead, and your operating system. Brane keeps
 local diagnostic logs to help investigate errors. You can open the logs folder

@@ -3,18 +3,31 @@
 Thank you for helping improve Brane. Contributions can include bug fixes,
 features, tests, documentation, accessibility improvements, and translations.
 
+## Table of contents
+
+- [Development setup](#development-setup)
+- [Architecture](#architecture)
+- [How core features work](#how-core-features-work)
+- [Code guidelines](#code-guidelines)
+- [Translating Brane](#translating-brane)
+- [Submitting a change](#submitting-a-change)
+
 ## Development setup
 
-You need Node.js 22 and npm.
+You need Node.js 22, npm, and Git.
 
 ```sh
 npm install
 npm start
 ```
 
+`npm start` launches Brane in development mode.
+
 Useful commands:
 
 ```sh
+npm run package          # Build a platform-specific copy of Brane without creating an installer
+npm run make             # Create distributable packages or installers for your current platform
 npm test                 # Run the Vitest suite
 npm run test:watch       # Run tests while developing
 npm run lint             # Check ESLint rules
@@ -22,10 +35,11 @@ npm run lint:fix         # Apply available ESLint fixes
 npm run typecheck        # Type-check every process
 npm run format:check     # Check Prettier formatting
 npm run trinity          # Run lint, type-checking, and tests
-npm run make             # Build platform installers/packages
 ```
 
 Run `npm run trinity` before submitting a contribution.
+
+Build output is written to the `out` directory.
 
 ## Architecture
 
