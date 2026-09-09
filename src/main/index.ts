@@ -49,7 +49,7 @@ async function handleModelsChanged() {
   const { state, selectionCleared } = await reconcileModelState()
 
   if (selectionCleared) {
-    logger.info('Selected model is no longer on disk; unloading it')
+    logger.info('Selected model is no longer on disk. Unloading it')
     await unloadLlamaModel()
   }
 

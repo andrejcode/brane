@@ -103,7 +103,7 @@ export function createWindow() {
       return
     }
 
-    logger.warn('Window readiness timed out; showing it anyway')
+    logger.warn('Window readiness timed out. Showing it anyway')
     showMainWindow()
   }, READY_FALLBACK_MS)
 
