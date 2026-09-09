@@ -9,7 +9,6 @@ export const en = {
   'sidebar.deleteChatConfirmTitle': 'Delete chat?',
   'sidebar.deleteChatConfirmMessage':
     '“{title}” and all of its messages will be permanently deleted.',
-  'sidebar.deleteChatConfirm': 'Delete',
   'sidebar.openChatFailed': 'Failed to open that chat. Please try again.',
   'sidebar.deleteChatFailed': 'Failed to delete that chat. Please try again.',
   'sidebar.renameChatFailed': 'Failed to rename that chat. Please try again.',
@@ -77,6 +76,7 @@ export const en = {
   'general.deleted': 'Deleted',
   'general.rename': 'Rename',
   'general.delete': 'Delete',
+  'general.cancel': 'Cancel',
   'general.reset': 'Reset',
   'general.restored': 'Restored',
 
@@ -102,8 +102,6 @@ export const en = {
   'shortcuts.toggleSidebar': 'Show or hide the sidebar',
   'shortcuts.newChat': 'Start a new chat',
   'shortcuts.stopGeneration': 'Stop generating',
-
-  'confirm.cancel': 'Cancel',
 
   'alert.error': 'Error',
   'alert.success': 'Success',

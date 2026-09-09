@@ -120,7 +120,7 @@ export function AppSidebar() {
         message={t('sidebar.deleteChatConfirmMessage', {
           title: chatPendingDeletion?.title ?? t('sidebar.untitledChat'),
         })}
-        confirmLabel={t('sidebar.deleteChatConfirm')}
+        confirmLabel={t('general.delete')}
         isDestructive
         onCancel={() => setChatPendingDeletion(null)}
         onConfirm={() => {

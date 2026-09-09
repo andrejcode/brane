@@ -11,7 +11,6 @@ export const sr: Messages = {
   'sidebar.deleteChatConfirmTitle': 'Избрисати разговор?',
   'sidebar.deleteChatConfirmMessage':
     '„{title}“ и све његове поруке биће трајно избрисани.',
-  'sidebar.deleteChatConfirm': 'Избриши',
   'sidebar.openChatFailed': 'Отварање разговора није успело. Покушај поново.',
   'sidebar.deleteChatFailed': 'Брисање разговора није успело. Покушај поново.',
   'sidebar.renameChatFailed':
@@ -82,6 +81,7 @@ export const sr: Messages = {
   'general.deleted': 'Обрисано',
   'general.rename': 'Преименуј',
   'general.delete': 'Обриши',
+  'general.cancel': 'Одустани',
   'general.reset': 'Врати',
   'general.restored': 'Враћено',
 
@@ -108,8 +108,6 @@ export const sr: Messages = {
   'shortcuts.toggleSidebar': 'Прикажи или сакриј бочну траку',
   'shortcuts.newChat': 'Започни нови разговор',
   'shortcuts.stopGeneration': 'Заустави генерисање',
-
-  'confirm.cancel': 'Одустани',
 
   'alert.error': 'Грешка',
   'alert.success': 'Успех',

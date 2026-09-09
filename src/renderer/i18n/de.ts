@@ -11,7 +11,6 @@ export const de: Messages = {
   'sidebar.deleteChatConfirmTitle': 'Chat löschen?',
   'sidebar.deleteChatConfirmMessage':
     '„{title}“ und alle zugehörigen Nachrichten werden endgültig gelöscht.',
-  'sidebar.deleteChatConfirm': 'Löschen',
   'sidebar.openChatFailed':
     'Der Chat konnte nicht geöffnet werden. Bitte versuche es erneut.',
   'sidebar.deleteChatFailed':
@@ -90,6 +89,7 @@ export const de: Messages = {
   'general.deleted': 'Gelöscht',
   'general.rename': 'Umbenennen',
   'general.delete': 'Löschen',
+  'general.cancel': 'Abbrechen',
   'general.reset': 'Zurücksetzen',
   'general.restored': 'Zurückgesetzt',
 
@@ -117,8 +117,6 @@ export const de: Messages = {
   'shortcuts.toggleSidebar': 'Seitenleiste ein- oder ausblenden',
   'shortcuts.newChat': 'Neuen Chat starten',
   'shortcuts.stopGeneration': 'Generierung stoppen',
-
-  'confirm.cancel': 'Abbrechen',
 
   'alert.error': 'Fehler',
   'alert.success': 'Erfolg',
