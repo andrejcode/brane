@@ -4,6 +4,7 @@ import path from 'node:path'
 import BetterSqlite3 from 'better-sqlite3'
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import { getErrorMessage } from '@shared/error'
 import { logger } from '../logger'
 import { baseDir, databasePath } from '../paths'
 import * as schema from './schema'
@@ -44,7 +45,7 @@ export function initializeDatabase() {
     return instance
   } catch (error) {
     logger.error('Failed to open the database', error)
-    throw new Error('Brane could not open its local database.')
+    throw new Error(`Failed to open database: ${getErrorMessage(error)}`)
   }
 }
 

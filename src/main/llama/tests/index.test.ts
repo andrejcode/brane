@@ -445,6 +445,14 @@ describe('llama load/unload handlers', () => {
     ).rejects.toThrow('No model selected. Please select a model in settings.')
   })
 
+  it('includes the underlying error when a model fails to load', async () => {
+    loadModelMock.mockRejectedValueOnce(new Error('invalid model header'))
+
+    await expect(
+      getIpcHandler(IpcChannels.llamaLoadModel)({}, 'model.gguf'),
+    ).rejects.toThrow('Failed to load model: invalid model header')
+  })
+
   it('reuses the loaded session for a subsequent prompt', async () => {
     promptWithMeta.mockResolvedValueOnce({
       responseText: 'hi',

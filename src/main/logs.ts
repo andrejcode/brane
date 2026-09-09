@@ -1,6 +1,7 @@
 import { ipcMain, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
+import { getErrorMessage } from '@shared/error'
 import { IpcChannels } from '@shared/types'
 import { logger } from './logger'
 import { logsDir } from './paths'
@@ -36,7 +37,7 @@ export function registerLogsHandlers() {
     const error = await shell.openPath(logsDir)
     if (error) {
       logger.error('Failed to open logs directory', error)
-      throw new Error(error)
+      throw new Error(`Failed to open logs directory: ${error}`)
     }
   })
 
@@ -45,7 +46,7 @@ export function registerLogsHandlers() {
       await deleteLogFiles()
     } catch (error) {
       logger.error('Failed to delete logs', error)
-      throw new Error('Failed to delete logs. Please try again.')
+      throw new Error(`Failed to delete logs: ${getErrorMessage(error)}`)
     }
   })
 }

@@ -7,6 +7,7 @@ import {
   type LlamaChatResponseChunk,
   type LlamaModel,
 } from 'node-llama-cpp'
+import { getErrorMessage } from '@shared/error'
 import {
   IpcChannels,
   type FinishReason,
@@ -99,7 +100,9 @@ async function initLlama() {
     return await getLlama()
   } catch (error) {
     logger.error('Failed to initialize the llama runtime', error)
-    throw new Error('Failed to initialize the llama runtime. Please try again.')
+    throw new Error(
+      `Failed to initialize llama runtime: ${getErrorMessage(error)}`,
+    )
   }
 }
 
@@ -138,9 +141,7 @@ async function loadModel(
     }
 
     logger.error(`Failed to load model: ${modelPath}`, error)
-    throw new Error(
-      'Failed to load the selected model. Make sure the model file exists and is a valid model.',
-    )
+    throw new Error(`Failed to load model: ${getErrorMessage(error)}`)
   }
 }
 
@@ -154,9 +155,7 @@ async function createContext(model: LlamaModel, signal: AbortSignal) {
     }
 
     logger.error('Failed to create model context', error)
-    throw new Error(
-      'Failed to create a model context. The model may require more memory than is available.',
-    )
+    throw new Error(`Failed to create model context: ${getErrorMessage(error)}`)
   }
 }
 
@@ -179,7 +178,7 @@ async function createSession(modelPath: string | null, signal: AbortSignal) {
       return session
     } catch (error) {
       logger.error('Failed to start a chat session', error)
-      throw new Error('Failed to start a chat session. Please try again.')
+      throw new Error(`Failed to start chat session: ${getErrorMessage(error)}`)
     }
   } catch (error) {
     // If the model loaded before we failed or were canceled, dispose it here so
