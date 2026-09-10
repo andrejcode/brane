@@ -165,6 +165,23 @@ export function registerModelHandlers({
 }: RegisterModelHandlersOptions) {
   ipcMain.handle(IpcChannels.getModelState, () => getModelState())
 
+  ipcMain.handle(IpcChannels.getLoadModelOnStartup, () =>
+    getStoreValue('loadModelOnStartup'),
+  )
+
+  ipcMain.handle(
+    IpcChannels.setLoadModelOnStartup,
+    (_event, enabled: unknown) => {
+      if (typeof enabled !== 'boolean') {
+        logger.warn('Rejected load model on startup setting', enabled)
+        throw new Error('Invalid load model on startup setting')
+      }
+
+      setStoreValue('loadModelOnStartup', enabled)
+      return enabled
+    },
+  )
+
   ipcMain.handle(IpcChannels.setSelectedModel, (_event, model: unknown) => {
     // null clears the selection (e.g. when the model is unloaded).
     if (model !== null && (typeof model !== 'string' || !modelExists(model))) {

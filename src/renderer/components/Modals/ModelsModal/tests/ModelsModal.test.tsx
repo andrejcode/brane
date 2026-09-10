@@ -199,6 +199,7 @@ describe('ModelsModal', () => {
     mock = installMockElectronApi({
       models: ['alpha.gguf', 'beta.gguf'],
       selectedModel: 'alpha.gguf',
+      loadModelOnStartup: true,
     })
     let resolveSwitchLoad: () => void = () => {}
     mock.loadModel.mockResolvedValueOnce(undefined).mockReturnValueOnce(
@@ -249,6 +250,7 @@ describe('ModelsModal', () => {
     mock = installMockElectronApi({
       models: ['alpha.gguf'],
       selectedModel: 'alpha.gguf',
+      loadModelOnStartup: true,
     })
     const user = userEvent.setup()
 

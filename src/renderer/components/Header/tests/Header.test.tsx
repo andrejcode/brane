@@ -220,6 +220,7 @@ describe('Header on non-mac', () => {
       isMac: false,
       models: ['my-model.gguf'],
       selectedModel: 'my-model.gguf',
+      loadModelOnStartup: true,
     })
     // Keep the load in flight so the spinner stays on screen.
     mock.loadModel.mockReturnValue(new Promise<void>(() => {}))
@@ -259,7 +260,7 @@ describe('Header on non-mac', () => {
     expect(mock.modelStateUnsubscribe).toHaveBeenCalled()
   })
 
-  it('falls back to "Select model" when the selected model never finishes loading', async () => {
+  it('keeps showing the selected model when loading fails', async () => {
     clearMockElectronApi()
     mock = installMockElectronApi({
       isMac: false,
@@ -273,9 +274,9 @@ describe('Header on non-mac', () => {
     renderHeader()
 
     await waitFor(() => {
-      expect(screen.getByText('Select model')).toBeInTheDocument()
+      expect(screen.getByText('my-model')).toBeInTheDocument()
     })
-    expect(screen.queryByText('my-model')).not.toBeInTheDocument()
+    expect(screen.queryByText('Select model')).not.toBeInTheDocument()
   })
 })
 

@@ -63,6 +63,10 @@ Brane watches the models folder while it is running, so newly added files should
 appear automatically. If the folder does not exist yet, create it or launch
 Brane once and let the app create it.
 
+Brane remembers the selected model between launches but, by default, waits to
+load it until you send a message. To keep the selected model ready immediately,
+enable **Load selected model on startup** under **Settings > General**.
+
 Each chat is associated with the model used to create it. If that model is
 removed, the chat remains readable, but you cannot continue it until the same
 model is available again. Replacing a model file with a different file under
@@ -79,6 +83,7 @@ the same name is also detected.
 - Light, dark, and system themes
 - Adjustable message font size
 - Customizable keyboard shortcuts and send behavior
+- Optional loading of the selected model on startup
 - English, German, Croatian, and Serbian interfaces
 - Local diagnostic logs that you can open or delete from settings
 

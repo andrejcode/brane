@@ -8,6 +8,7 @@ import {
   ModalProvider,
   useModals,
 } from '@/contexts/ModalContext'
+import { ModelProvider } from '@/contexts/ModelContext'
 import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
@@ -37,14 +38,16 @@ function renderSettings({ open = true } = {}) {
   return render(
     <AlertProvider>
       <ModalProvider>
-        <ThemeProvider>
-          <ChatSettingsProvider>
-            <ShortcutsProvider>
-              {open && <OpenOnMount modal="settings" />}
-              <SettingsModal />
-            </ShortcutsProvider>
-          </ChatSettingsProvider>
-        </ThemeProvider>
+        <ModelProvider>
+          <ThemeProvider>
+            <ChatSettingsProvider>
+              <ShortcutsProvider>
+                {open && <OpenOnMount modal="settings" />}
+                <SettingsModal />
+              </ShortcutsProvider>
+            </ChatSettingsProvider>
+          </ThemeProvider>
+        </ModelProvider>
       </ModalProvider>
     </AlertProvider>,
   )

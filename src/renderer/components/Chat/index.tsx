@@ -240,15 +240,18 @@ export function Chat() {
     }
   }, [activeChat, selectedModel, startNewChat])
 
-  // A chat answers with the model it was created with, so the model is loaded on
-  // send rather than on open, and every later turn uses that same one.
-  const loadChatModel = useCallback(async () => {
-    if (!activeChat || activeChat.modelFile === loadedModel) {
-      return
-    }
+  // Load on send rather than on open so restoring a selection or opening a chat
+  // does not consume model resources until the user needs them.
+  const loadChatModel = useCallback(
+    async (modelFile: string) => {
+      if (modelFile === loadedModel) {
+        return
+      }
 
-    await selectModel(activeChat.modelFile)
-  }, [activeChat, loadedModel, selectModel])
+      await selectModel(modelFile)
+    },
+    [loadedModel, selectModel],
+  )
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
@@ -294,7 +297,7 @@ export function Chat() {
 
     void (async () => {
       try {
-        await loadChatModel()
+        await loadChatModel(modelFile)
         await window.electronApi.sendPrompt(
           prompt,
           await ensureActiveChat({

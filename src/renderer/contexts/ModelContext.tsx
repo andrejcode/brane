@@ -16,8 +16,10 @@ interface ModelContextValue {
   isReady: boolean
   loadingModel: string | null
   loadedModel: string | null
+  loadModelOnStartup: boolean
   refreshModels: () => Promise<void>
   selectModel: (model: string) => Promise<void>
+  setLoadModelOnStartup: (enabled: boolean) => Promise<void>
   unloadModel: () => Promise<void>
 }
 
@@ -31,6 +33,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false)
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [loadedModel, setLoadedModel] = useState<string | null>(null)
+  const [loadModelOnStartup, setLoadModelOnStartupState] = useState(false)
 
   // Bumped whenever a load is cancelled or superseded, so a stale in-flight load
   // can't clobber newer UI state when it finally settles.
@@ -70,19 +73,20 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true
 
-    void window.electronApi
-      .getModelState()
-      .then((state) => {
+    void Promise.all([
+      window.electronApi.getModelState(),
+      window.electronApi.getLoadModelOnStartup().catch(() => false),
+    ])
+      .then(([state, shouldLoadModelOnStartup]) => {
         if (!isMounted) {
           return
         }
 
         setModels(state.models)
         setSelectedModel(state.selectedModel)
+        setLoadModelOnStartupState(shouldLoadModelOnStartup)
 
-        // Load the persisted selection up front so the model is ready before
-        // the first prompt instead of paying the cost on send.
-        if (state.selectedModel !== null) {
+        if (shouldLoadModelOnStartup && state.selectedModel !== null) {
           const requestId = ++loadRequestRef.current
           setLoadingModel(state.selectedModel)
           void loadIntoMemory(state.selectedModel, requestId)
@@ -112,6 +116,11 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         setLoadedModel(null)
       }
     })
+  }, [])
+
+  const setLoadModelOnStartup = useCallback(async (enabled: boolean) => {
+    const saved = await window.electronApi.setLoadModelOnStartup(enabled)
+    setLoadModelOnStartupState(saved)
   }, [])
 
   const selectModel = useCallback(
@@ -176,8 +185,10 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       isReady,
       loadingModel,
       loadedModel,
+      loadModelOnStartup,
       refreshModels,
       selectModel,
+      setLoadModelOnStartup,
       unloadModel,
     }),
     [
@@ -186,8 +197,10 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       isReady,
       loadingModel,
       loadedModel,
+      loadModelOnStartup,
       refreshModels,
       selectModel,
+      setLoadModelOnStartup,
       unloadModel,
     ],
   )

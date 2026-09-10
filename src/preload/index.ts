@@ -149,6 +149,19 @@ const electronApi: ElectronApi = {
     )
     return typeof saved === 'string' ? saved : null
   },
+  getLoadModelOnStartup: async () => {
+    const enabled: unknown = await ipcRenderer.invoke(
+      IpcChannels.getLoadModelOnStartup,
+    )
+    return enabled === true
+  },
+  setLoadModelOnStartup: async (enabled: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setLoadModelOnStartup,
+      enabled,
+    )
+    return saved === true
+  },
   listChats: async () => {
     const chats: unknown = await ipcRenderer.invoke(IpcChannels.listChats)
     return Array.isArray(chats) ? (chats as ChatSummary[]) : []

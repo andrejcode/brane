@@ -38,6 +38,8 @@ export interface MockElectronApi {
   setLocale: ReturnType<typeof vi.fn>
   getModelState: ReturnType<typeof vi.fn>
   setSelectedModel: ReturnType<typeof vi.fn>
+  getLoadModelOnStartup: ReturnType<typeof vi.fn>
+  setLoadModelOnStartup: ReturnType<typeof vi.fn>
   getSendWithModifierEnter: ReturnType<typeof vi.fn>
   setSendWithModifierEnter: ReturnType<typeof vi.fn>
   getSidebarOpen: ReturnType<typeof vi.fn>
@@ -65,6 +67,7 @@ export interface MockElectronApiOptions {
   locale?: Locale
   models?: string[]
   selectedModel?: string | null
+  loadModelOnStartup?: boolean
   sendWithModifierEnter?: boolean
   isSidebarOpen?: boolean
   shortcuts?: ShortcutMap
@@ -86,6 +89,7 @@ export function installMockElectronApi(
     locale = 'en',
     models = [],
     selectedModel = null,
+    loadModelOnStartup = false,
     sendWithModifierEnter = false,
     isSidebarOpen = false,
     shortcuts = DEFAULT_SHORTCUTS,
@@ -133,6 +137,12 @@ export function installMockElectronApi(
   const getModelState = vi.fn(() => Promise.resolve({ models, selectedModel }))
   const setSelectedModel = vi.fn(
     (model: string | null): Promise<string | null> => Promise.resolve(model),
+  )
+  const getLoadModelOnStartup = vi.fn(
+    (): Promise<boolean> => Promise.resolve(loadModelOnStartup),
+  )
+  const setLoadModelOnStartup = vi.fn(
+    (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
   const getSendWithModifierEnter = vi.fn(
     (): Promise<boolean> => Promise.resolve(sendWithModifierEnter),
@@ -259,6 +269,8 @@ export function installMockElectronApi(
     getModelState,
     onModelStateChange,
     setSelectedModel,
+    getLoadModelOnStartup,
+    setLoadModelOnStartup,
     listChats,
     createChat,
     getChatMessages,
@@ -296,6 +308,8 @@ export function installMockElectronApi(
     setLocale,
     getModelState,
     setSelectedModel,
+    getLoadModelOnStartup,
+    setLoadModelOnStartup,
     listChats,
     createChat,
     getChatMessages,

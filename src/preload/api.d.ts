@@ -36,6 +36,8 @@ declare global {
     getModelState: () => Promise<ModelState>
     onModelStateChange: (callback: (state: ModelState) => void) => () => void
     setSelectedModel: (model: string | null) => Promise<string | null>
+    getLoadModelOnStartup: () => Promise<boolean>
+    setLoadModelOnStartup: (enabled: boolean) => Promise<boolean>
     listChats: () => Promise<ChatSummary[]>
     createChat: (chatId: string, title: string) => Promise<ChatSummary>
     getChatMessages: (chatId: string) => Promise<StoredMessage[]>

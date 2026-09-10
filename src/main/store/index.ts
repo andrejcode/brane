@@ -22,6 +22,7 @@ interface StoreSchema {
   // Filename (e.g. "Qwen3-4B-Q5_K_M.gguf") of the last selected model, or null
   // when no model has been chosen yet.
   selectedModel: string | null
+  loadModelOnStartup: boolean
   // When true, Cmd/Ctrl+Enter sends a message and plain Enter inserts a newline.
   // When false (default), plain Enter sends.
   sendWithModifierEnter: boolean
@@ -44,6 +45,7 @@ const defaults: StoreSchema = {
   theme: 'system',
   messageFontSize: DEFAULT_MESSAGE_FONT_SIZE,
   selectedModel: null,
+  loadModelOnStartup: false,
   sendWithModifierEnter: false,
   isSidebarOpen: false,
   locale: null,

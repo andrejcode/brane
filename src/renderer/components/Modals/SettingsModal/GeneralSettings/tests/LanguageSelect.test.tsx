@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { LocaleProvider } from '@/contexts/LocaleContext'
+import { ModelProvider } from '@/contexts/ModelContext'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -15,9 +16,11 @@ function renderGeneralSettings(options: MockElectronApiOptions = {}) {
   render(
     <LocaleProvider>
       <AlertProvider>
-        <ChatSettingsProvider>
-          <GeneralSettings />
-        </ChatSettingsProvider>
+        <ModelProvider>
+          <ChatSettingsProvider>
+            <GeneralSettings />
+          </ChatSettingsProvider>
+        </ModelProvider>
       </AlertProvider>
     </LocaleProvider>,
   )
@@ -56,5 +59,30 @@ describe('GeneralSettings language selector', () => {
     await waitFor(() =>
       expect(screen.getByLabelText('Jezik')).toBeInTheDocument(),
     )
+  })
+})
+
+describe('GeneralSettings startup model preference', () => {
+  it('reflects the persisted preference', async () => {
+    renderGeneralSettings({ loadModelOnStartup: true })
+
+    expect(
+      await screen.findByRole('switch', {
+        name: 'Load selected model on startup',
+      }),
+    ).toBeChecked()
+  })
+
+  it('persists preference changes', async () => {
+    const user = userEvent.setup()
+    const mock = renderGeneralSettings()
+    const toggle = await screen.findByRole('switch', {
+      name: 'Load selected model on startup',
+    })
+
+    await user.click(toggle)
+
+    expect(mock.setLoadModelOnStartup).toHaveBeenCalledWith(true)
+    await waitFor(() => expect(toggle).toBeChecked())
   })
 })

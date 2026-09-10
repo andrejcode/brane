@@ -56,6 +56,9 @@ export const en = {
   'settings.tabAppearance': 'Appearance',
   'settings.tabShortcuts': 'Shortcuts',
 
+  'general.loadModelOnStartup': 'Load selected model on startup',
+  'general.loadModelOnStartupDescription':
+    'Automatically load the selected model when Brane starts.',
   'general.sendWith': 'Send with {shortcut}+Enter',
   'general.sendWithDescription':
     'Use {shortcut}+Enter to send a message. Enter adds a new line.',

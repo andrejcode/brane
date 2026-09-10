@@ -185,6 +185,27 @@ describe('Chat intro greeting', () => {
 })
 
 describe('Chat submit', () => {
+  it('loads the selected model before sending the first prompt', async () => {
+    let resolveLoad: () => void = () => {}
+    mock.loadModel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveLoad = resolve
+      }),
+    )
+    renderChat()
+
+    await submitPrompt('hello')
+
+    expect(mock.loadModel).toHaveBeenCalledWith('test-model.gguf')
+    expect(mock.sendPrompt).not.toHaveBeenCalled()
+
+    act(() => resolveLoad())
+
+    await waitFor(() => {
+      expect(mock.sendPrompt).toHaveBeenCalledWith('hello', expect.any(String))
+    })
+  })
+
   it('sends the trimmed prompt, shows it, and clears the input', async () => {
     renderChat()
 

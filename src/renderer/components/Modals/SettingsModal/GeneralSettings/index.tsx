@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAlert } from '@/contexts/AlertContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale, useTranslation } from '@/contexts/LocaleContext'
+import { useModel } from '@/contexts/ModelContext'
 import { useJustCompleted } from '@/hooks/useJustCompleted'
 import { LOCALE_OPTIONS } from '@/i18n'
 import { Button } from '@/ui/buttons/Button'
@@ -17,6 +18,7 @@ const LANGUAGE_OPTIONS = LOCALE_OPTIONS.map((option) => ({
 
 export function GeneralSettings() {
   const { sendWithModifierEnter, setSendWithModifierEnter } = useChatSettings()
+  const { loadModelOnStartup, setLoadModelOnStartup } = useModel()
   const { locale, setLocale } = useLocale()
   const { t } = useTranslation()
   const { showAlert } = useAlert()
@@ -44,6 +46,22 @@ export function GeneralSettings() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col">
+          <h4 id="load-model-on-startup-label">
+            {t('general.loadModelOnStartup')}
+          </h4>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            {t('general.loadModelOnStartupDescription')}
+          </p>
+        </div>
+        <Switch
+          checked={loadModelOnStartup}
+          onChange={(checked) => void setLoadModelOnStartup(checked)}
+          ariaLabelledBy="load-model-on-startup-label"
+        />
+      </div>
+
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col">
           <h4 id="send-with-modifier-enter-label">

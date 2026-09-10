@@ -66,6 +66,9 @@ export const de: Messages = {
   'settings.tabAppearance': 'Darstellung',
   'settings.tabShortcuts': 'Tastenkürzel',
 
+  'general.loadModelOnStartup': 'Ausgewähltes Modell beim Start laden',
+  'general.loadModelOnStartupDescription':
+    'Lädt das ausgewählte Modell automatisch, wenn Brane startet.',
   'general.sendWith': 'Mit {shortcut}+Enter senden',
   'general.sendWithDescription':
     'Verwende {shortcut}+Enter, um eine Nachricht zu senden. Enter fügt eine neue Zeile ein.',

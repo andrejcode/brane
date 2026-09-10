@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
+import { ModelProvider } from '@/contexts/ModelContext'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -14,10 +15,12 @@ function renderGeneralSettings(options: MockElectronApiOptions = {}) {
   const mock = installMockElectronApi(options)
   render(
     <AlertProvider>
-      <ChatSettingsProvider>
-        <GeneralSettings />
-        <AppAlert />
-      </ChatSettingsProvider>
+      <ModelProvider>
+        <ChatSettingsProvider>
+          <GeneralSettings />
+          <AppAlert />
+        </ChatSettingsProvider>
+      </ModelProvider>
     </AlertProvider>,
   )
   return mock

@@ -22,6 +22,8 @@ export const IpcChannels = {
 
   getModelState: 'model:get-state',
   setSelectedModel: 'model:set-selected',
+  getLoadModelOnStartup: 'model:get-load-on-startup',
+  setLoadModelOnStartup: 'model:set-load-on-startup',
   modelStateChanged: 'model:state-changed',
 
   listChats: 'chats:list',

@@ -309,3 +309,30 @@ describe('registerModelHandlers setSelectedModel', () => {
     expect(() => handler({}, 'missing.gguf')).toThrow('Model not found')
   })
 })
+
+describe('registerModelHandlers loadModelOnStartup', () => {
+  beforeEach(() => {
+    registerModelHandlers({ onSelectedModelChange: vi.fn() })
+  })
+
+  it('reads the persisted preference', () => {
+    storeValues.set('loadModelOnStartup', true)
+
+    expect(getIpcHandler(IpcChannels.getLoadModelOnStartup)()).toBe(true)
+  })
+
+  it('persists a valid preference', () => {
+    const handler = getIpcHandler(IpcChannels.setLoadModelOnStartup)
+
+    expect(handler({}, true)).toBe(true)
+    expect(storeValues.get('loadModelOnStartup')).toBe(true)
+  })
+
+  it('rejects an invalid preference', () => {
+    const handler = getIpcHandler(IpcChannels.setLoadModelOnStartup)
+
+    expect(() => handler({}, 'yes')).toThrow(
+      'Invalid load model on startup setting',
+    )
+  })
+})

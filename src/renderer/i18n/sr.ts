@@ -59,6 +59,9 @@ export const sr: Messages = {
   'settings.tabAppearance': 'Изглед',
   'settings.tabShortcuts': 'Пречице',
 
+  'general.loadModelOnStartup': 'Учитај изабрани модел при покретању',
+  'general.loadModelOnStartupDescription':
+    'Аутоматски учитај изабрани модел када се Бране покрене.',
   'general.sendWith': 'Шаљи са {shortcut}+Enter',
   'general.sendWithDescription':
     'Користи {shortcut}+Enter за слање поруке. Enter додаје нови ред.',

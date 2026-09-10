@@ -22,14 +22,12 @@ export function Header() {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
   const { canStartNewChat, startNewChat } = useChat()
-  const { loadedModel, loadingModel } = useModel()
+  const { loadingModel, selectedModel } = useModel()
   const { isSidebarOpen, isReady: isSidebarReady, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
   const isLoadingModel = loadingModel !== null
-  // Reflect what's actually loaded, not just selected: a model that was picked
-  // but never finished loading (canceled or failed) shouldn't show its name.
-  const modelLabel = loadedModel
-    ? formatModelName(loadedModel)
+  const modelLabel = selectedModel
+    ? formatModelName(selectedModel)
     : t('header.selectModel')
   const [isFullScreen, setIsFullScreen] = useState(false)
 
