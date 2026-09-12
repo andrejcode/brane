@@ -1,10 +1,25 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const SEARCH_DEBOUNCE_MS = 200
 
-export function useDebouncedQuery() {
+interface UseDebouncedQueryOptions {
+  resetOnActivate?: boolean
+}
+
+export function useDebouncedQuery({
+  resetOnActivate,
+}: UseDebouncedQueryOptions = {}) {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [wasActive, setWasActive] = useState(resetOnActivate)
+
+  if (resetOnActivate !== wasActive) {
+    setWasActive(resetOnActivate)
+    if (resetOnActivate) {
+      setQuery('')
+      setDebouncedQuery('')
+    }
+  }
 
   useEffect(() => {
     const timeout = setTimeout(
@@ -14,10 +29,7 @@ export function useDebouncedQuery() {
     return () => clearTimeout(timeout)
   }, [query])
 
-  const resetQuery = useCallback(() => {
-    setQuery('')
-    setDebouncedQuery('')
-  }, [])
+  const normalizedQuery = debouncedQuery.trim().toLowerCase()
 
-  return { query, debouncedQuery, setQuery, resetQuery }
+  return { query, debouncedQuery, normalizedQuery, setQuery }
 }

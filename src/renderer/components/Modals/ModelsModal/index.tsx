@@ -1,5 +1,5 @@
-import { Check, CircleStop, Search } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, CircleStop } from 'lucide-react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
@@ -8,6 +8,7 @@ import { CloseButton } from '@/ui/buttons/CloseButton'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { Modal } from '@/ui/Modal'
+import { SearchInput } from '@/ui/SearchInput'
 import { formatModelName } from '@/utils'
 
 export { SEARCH_DEBOUNCE_MS } from '@/hooks/useDebouncedQuery'
@@ -25,18 +26,11 @@ export function ModelsModal() {
     unloadModel,
   } = useModel()
   const isOpen = activeModal === 'models'
-  const { query, debouncedQuery, setQuery, resetQuery } = useDebouncedQuery()
-  const [wasOpen, setWasOpen] = useState(isOpen)
+  const { query, debouncedQuery, normalizedQuery, setQuery } =
+    useDebouncedQuery({ resetOnActivate: isOpen })
   const searchRef = useRef<HTMLInputElement>(null)
 
   const hasModels = models.length > 0
-
-  if (isOpen !== wasOpen) {
-    setWasOpen(isOpen)
-    if (isOpen) {
-      resetQuery()
-    }
-  }
 
   useEffect(() => {
     if (isOpen) {
@@ -62,12 +56,11 @@ export function ModelsModal() {
   }, [isOpen, hasModels])
 
   const filteredModels = useMemo(() => {
-    const normalized = debouncedQuery.trim().toLowerCase()
-    if (!normalized) return models
+    if (!normalizedQuery) return models
     return models.filter((model) =>
-      formatModelName(model).toLowerCase().includes(normalized),
+      formatModelName(model).toLowerCase().includes(normalizedQuery),
     )
-  }, [models, debouncedQuery])
+  }, [models, normalizedQuery])
 
   const isLoading = loadingModel !== null
 
@@ -86,23 +79,15 @@ export function ModelsModal() {
       </h2>
 
       <div className="flex shrink-0 items-center gap-2 p-3">
-        <div role="search" className="flex min-w-0 flex-1 items-center gap-2">
-          <Search
-            size={18}
-            aria-hidden
-            className="shrink-0 text-neutral-500 dark:text-neutral-400"
-          />
-          <input
-            ref={searchRef}
-            type="text"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            disabled={!hasModels}
-            placeholder={t('models.search')}
-            aria-label={t('models.search')}
-            className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-400 disabled:cursor-not-allowed"
-          />
-        </div>
+        <SearchInput
+          inputRef={searchRef}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          disabled={!hasModels}
+          placeholder={t('models.search')}
+          ariaLabel={t('models.search')}
+          className="flex-1"
+        />
         <CloseButton
           onClick={closeModal}
           title={t('models.close')}
