@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import type { MessageKey } from '@/i18n'
 import { CloseButton } from './buttons/CloseButton'
+import { ScrollArea } from './ScrollArea'
 
 export type AlertVariant = 'error' | 'success' | 'info'
 
@@ -80,10 +81,13 @@ export function Alert({ message, variant, className, onDismiss }: AlertProps) {
             indicatorClasses[variant],
           )}
         />
-        <span className="max-h-40 min-w-0 flex-1 overflow-y-auto wrap-break-word whitespace-pre-wrap">
+        <ScrollArea
+          className="min-w-0 flex-1"
+          viewportClassName="max-h-40 wrap-break-word whitespace-pre-wrap"
+        >
           <span className="sr-only">{t(variantLabelKey[variant])}: </span>
           {message}
-        </span>
+        </ScrollArea>
         <CloseButton
           onClick={handleClose}
           className="ml-2 shrink-0 rounded"

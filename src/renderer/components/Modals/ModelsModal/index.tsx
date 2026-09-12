@@ -8,6 +8,7 @@ import { CloseButton } from '@/ui/buttons/CloseButton'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
 import { Modal } from '@/ui/Modal'
+import { ScrollArea } from '@/ui/ScrollArea'
 import { SearchInput } from '@/ui/SearchInput'
 import { formatModelName } from '@/utils'
 
@@ -96,7 +97,7 @@ export function ModelsModal() {
       </div>
       <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <ScrollArea className="flex-1" viewportClassName="p-3">
         {!hasModels ? (
           <p className="px-3 py-2 text-neutral-500 dark:text-neutral-400">
             {t('models.emptyBeforeExtension')}
@@ -169,7 +170,7 @@ export function ModelsModal() {
             })}
           </ul>
         )}
-      </div>
+      </ScrollArea>
     </Modal>
   )
 }

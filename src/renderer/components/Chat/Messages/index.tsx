@@ -7,11 +7,10 @@ import {
   useState,
 } from 'react'
 import type { Message } from '@/types'
+import { ScrollArea } from '@/ui/ScrollArea'
 import { ChatMessage } from './ChatMessage'
 import { computeTailBottomInset } from './messagesLayout'
-import { Scrollbar } from './Scrollbar'
 import { ScrollToBottomButton } from './ScrollToBottomButton'
-import { useScrollbar } from './useScrollbar'
 
 interface MessagesProps {
   activeChatId: string | null
@@ -51,17 +50,6 @@ export function Messages({
   const tailStartIndex = Math.max(messages.length - messageTailCount, 0)
   const earlierMessages = messages.slice(0, tailStartIndex)
   const tailMessages = messages.slice(tailStartIndex)
-
-  const scrollbar = useScrollbar({
-    scrollContainerRef,
-    headerHeight,
-    bottomInset,
-  })
-  const {
-    update: updateScrollbar,
-    scheduleUpdate: scheduleScrollbarUpdate,
-    showTemporarily: showScrollbarTemporarily,
-  } = scrollbar
 
   const lastUserMessageId = useMemo(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
@@ -205,14 +193,8 @@ export function Messages({
   }, [])
 
   useEffect(() => {
-    scheduleScrollbarUpdate()
     updateAwayFromBottom()
-  }, [
-    contentBottomInset,
-    messages,
-    scheduleScrollbarUpdate,
-    updateAwayFromBottom,
-  ])
+  }, [contentBottomInset, messages, updateAwayFromBottom])
 
   useEffect(() => {
     scheduleTailSpacerUpdate()
@@ -306,10 +288,8 @@ export function Messages({
   }, [])
 
   const handleScroll = useCallback(() => {
-    updateScrollbar()
     updateAwayFromBottom()
-    showScrollbarTemporarily()
-  }, [showScrollbarTemporarily, updateAwayFromBottom, updateScrollbar])
+  }, [updateAwayFromBottom])
 
   const scrollToBottom = useCallback(() => {
     const scrollContainer = scrollContainerRef.current
@@ -334,13 +314,13 @@ export function Messages({
 
   return (
     <div className="relative min-h-0 flex-1">
-      <div
-        ref={scrollContainerRef}
-        // Opt out of Chromium's keyboard-focusable scrollers so the pane isn't
-        // a Tab stop that paints a focus ring around the whole message area
-        tabIndex={-1}
-        // Native scrollbars start at the viewport top. This pane uses an aligned custom one
-        className="h-full overflow-y-auto outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      <ScrollArea
+        className="h-full"
+        viewportRef={scrollContainerRef}
+        viewportProps={{ tabIndex: -1 }}
+        viewportClassName="outline-none"
+        headerInset={headerHeight}
+        bottomInset={bottomInset}
         onScroll={handleScroll}
       >
         <div
@@ -352,15 +332,13 @@ export function Messages({
             {tailMessages.map(renderMessage)}
           </div>
         </div>
-      </div>
+      </ScrollArea>
 
       <ScrollToBottomButton
         bottomInset={bottomInset}
         isVisible={isAwayFromBottom}
         onClick={scrollToBottom}
       />
-
-      <Scrollbar controller={scrollbar} />
     </div>
   )
 }

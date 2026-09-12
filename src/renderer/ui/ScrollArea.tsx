@@ -1,50 +1,60 @@
+import { clsx } from 'clsx'
 import {
+  type ComponentPropsWithoutRef,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   type RefObject,
+  type UIEventHandler,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react'
-import { clamp, computeScrollbarMetrics } from './messagesLayout'
+import { clamp, computeScrollbarMetrics } from './scrollAreaLayout'
 
 const MINIMUM_THUMB_HEIGHT = 20
 const THUMB_SCALE = 0.85
 const HIDE_DELAY = 900
+const TRACK_INSET = 4
 
-interface UseScrollbarOptions {
-  scrollContainerRef: RefObject<HTMLDivElement | null>
-  headerHeight: number
-  bottomInset: number
+export type ScrollAreaTone = 'content' | 'sidebar'
+
+interface ScrollAreaProps {
+  children: ReactNode
+  className?: string
+  viewportClassName?: string
+  viewportRef?: RefObject<HTMLDivElement | null>
+  viewportProps?: Omit<
+    ComponentPropsWithoutRef<'div'>,
+    'children' | 'className' | 'onScroll'
+  >
+  onScroll?: UIEventHandler<HTMLDivElement>
+  headerInset?: number
+  bottomInset?: number
+  tone?: ScrollAreaTone
 }
 
-export interface ScrollbarController {
-  trackRef: RefObject<HTMLDivElement | null>
-  isVisible: boolean
-  isActive: boolean
-  isDraggingThumb: boolean
-  thumbHeight: number
-  thumbTop: number
-  headerHeight: number
-  bottomInset: number
-  update: () => void
-  scheduleUpdate: () => void
-  showTemporarily: () => void
-  onTrackPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onThumbPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onTrackPointerEnter: () => void
-  onTrackPointerLeave: () => void
+const thumbToneClasses: Record<ScrollAreaTone, string> = {
+  content: 'bg-neutral-500/70 dark:bg-neutral-600/70',
+  sidebar: 'bg-neutral-400/70 dark:bg-neutral-700/80',
 }
 
-export function useScrollbar({
-  scrollContainerRef,
-  headerHeight,
-  bottomInset,
-}: UseScrollbarOptions): ScrollbarController {
+export function ScrollArea({
+  children,
+  className,
+  viewportClassName,
+  viewportRef,
+  viewportProps,
+  onScroll,
+  headerInset = 0,
+  bottomInset = 0,
+  tone = 'content',
+}: ScrollAreaProps) {
+  const internalViewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const updateFrameRef = useRef<number | null>(null)
   const hideTimeoutRef = useRef<number | null>(null)
-
+  const thumbHeightRef = useRef(MINIMUM_THUMB_HEIGHT)
   const [thumb, setThumb] = useState({
     isVisible: false,
     height: MINIMUM_THUMB_HEIGHT,
@@ -53,17 +63,20 @@ export function useScrollbar({
   const [isActive, setIsActive] = useState(false)
   const [isDraggingThumb, setIsDraggingThumb] = useState(false)
 
-  // Expose the latest layout inputs to imperative listeners without forcing
-  // them to re-subscribe whenever the composer or header size changes.
-  const bottomInsetRef = useRef(bottomInset)
-  const headerHeightRef = useRef(headerHeight)
-  const thumbHeightRef = useRef(thumb.height)
+  const setViewportRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      internalViewportRef.current = element
+
+      if (viewportRef) {
+        viewportRef.current = element
+      }
+    },
+    [viewportRef],
+  )
 
   useEffect(() => {
-    bottomInsetRef.current = bottomInset
-    headerHeightRef.current = headerHeight
     thumbHeightRef.current = thumb.height
-  }, [bottomInset, headerHeight, thumb.height])
+  }, [thumb.height])
 
   const clearHideTimeout = useCallback(() => {
     if (hideTimeoutRef.current !== null) {
@@ -83,7 +96,7 @@ export function useScrollbar({
   }, [clearHideTimeout])
 
   const update = useCallback(() => {
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = internalViewportRef.current
 
     if (!scrollContainer) {
       return
@@ -93,8 +106,9 @@ export function useScrollbar({
       scrollHeight: scrollContainer.scrollHeight,
       clientHeight: scrollContainer.clientHeight,
       scrollTop: scrollContainer.scrollTop,
-      headerHeight: headerHeightRef.current,
-      bottomInset: bottomInsetRef.current,
+      headerInset,
+      bottomInset,
+      trackInset: TRACK_INSET,
       minimumThumbHeight: MINIMUM_THUMB_HEIGHT,
       thumbScale: THUMB_SCALE,
     })
@@ -109,7 +123,7 @@ export function useScrollbar({
       height: metrics.thumbHeight,
       top: metrics.thumbTop,
     })
-  }, [scrollContainerRef])
+  }, [bottomInset, headerInset])
 
   const scheduleUpdate = useCallback(() => {
     if (updateFrameRef.current !== null) {
@@ -123,14 +137,20 @@ export function useScrollbar({
   }, [update])
 
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = internalViewportRef.current
 
     if (!scrollContainer) {
       return
     }
 
     const resizeObserver = new ResizeObserver(scheduleUpdate)
+    const mutationObserver = new MutationObserver(scheduleUpdate)
     resizeObserver.observe(scrollContainer)
+    mutationObserver.observe(scrollContainer, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    })
 
     if (scrollContainer.firstElementChild) {
       resizeObserver.observe(scrollContainer.firstElementChild)
@@ -140,8 +160,13 @@ export function useScrollbar({
 
     return () => {
       resizeObserver.disconnect()
+      mutationObserver.disconnect()
     }
-  }, [scheduleUpdate, scrollContainerRef])
+  }, [scheduleUpdate])
+
+  useEffect(() => {
+    scheduleUpdate()
+  }, [bottomInset, children, headerInset, scheduleUpdate])
 
   useEffect(() => {
     return () => {
@@ -153,18 +178,22 @@ export function useScrollbar({
     }
   }, [clearHideTimeout])
 
-  const onTrackPointerEnter = useCallback(() => {
-    clearHideTimeout()
-    setIsActive(true)
-  }, [clearHideTimeout])
+  const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(
+    (event) => {
+      update()
+      showTemporarily()
+      onScroll?.(event)
+    },
+    [onScroll, showTemporarily, update],
+  )
 
-  const onTrackPointerDown = useCallback(
+  const handleTrackPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.target !== event.currentTarget) {
         return
       }
 
-      const scrollContainer = scrollContainerRef.current
+      const scrollContainer = internalViewportRef.current
 
       if (!scrollContainer) {
         return
@@ -190,15 +219,15 @@ export function useScrollbar({
 
       showTemporarily()
     },
-    [scrollContainerRef, showTemporarily],
+    [showTemporarily],
   )
 
-  const onThumbPointerDown = useCallback(
+  const handleThumbPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       event.preventDefault()
       event.stopPropagation()
 
-      const scrollContainer = scrollContainerRef.current
+      const scrollContainer = internalViewportRef.current
       const track = trackRef.current
 
       if (!scrollContainer || !track) {
@@ -235,24 +264,59 @@ export function useScrollbar({
       window.addEventListener('pointermove', handlePointerMove)
       window.addEventListener('pointerup', handlePointerUp)
     },
-    [clearHideTimeout, scrollContainerRef, showTemporarily],
+    [clearHideTimeout, showTemporarily],
   )
 
-  return {
-    trackRef,
-    isVisible: thumb.isVisible,
-    isActive,
-    isDraggingThumb,
-    thumbHeight: thumb.height,
-    thumbTop: thumb.top,
-    headerHeight,
-    bottomInset,
-    update,
-    scheduleUpdate,
-    showTemporarily,
-    onTrackPointerDown,
-    onThumbPointerDown,
-    onTrackPointerEnter,
-    onTrackPointerLeave: showTemporarily,
-  }
+  return (
+    <div className={clsx('relative min-h-0 overflow-hidden', className)}>
+      <div
+        {...viewportProps}
+        ref={setViewportRef}
+        className={clsx(
+          'h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          viewportClassName,
+        )}
+        onScroll={handleScroll}
+      >
+        {children}
+      </div>
+
+      {thumb.isVisible && (
+        <div
+          ref={trackRef}
+          className={clsx(
+            'group absolute right-0.5 z-20 w-2 transition-opacity duration-150',
+            isActive ? 'opacity-100' : 'opacity-0',
+          )}
+          style={{
+            top: headerInset + TRACK_INSET,
+            bottom: bottomInset + TRACK_INSET,
+          }}
+          onPointerDown={handleTrackPointerDown}
+          onPointerEnter={() => {
+            clearHideTimeout()
+            setIsActive(true)
+          }}
+          onPointerLeave={showTemporarily}
+        >
+          <div
+            className={clsx(
+              'absolute right-0 rounded-full',
+              thumbToneClasses[tone],
+              'w-1.5 group-hover:w-2.5',
+              isDraggingThumb && 'w-2.5',
+              isDraggingThumb
+                ? 'transition-[width] duration-100 ease-out'
+                : 'transition-[height,transform,width] duration-100 ease-out',
+            )}
+            onPointerDown={handleThumbPointerDown}
+            style={{
+              height: thumb.height,
+              transform: `translateY(${thumb.top}px)`,
+            }}
+          />
+        </div>
+      )}
+    </div>
+  )
 }

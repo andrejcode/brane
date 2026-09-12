@@ -4,6 +4,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { CloseButton } from '@/ui/buttons/CloseButton'
 import { Modal } from '@/ui/Modal'
+import { ScrollArea } from '@/ui/ScrollArea'
 import { FOCUS_RING_INSET } from '@/ui/styles/focusRing'
 import { ApperanceSettings } from './ApperanceSettings'
 import { GeneralSettings } from './GeneralSettings'
@@ -41,22 +42,22 @@ export function SettingsModal() {
           <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
 
           {/* Settings content */}
-          <div
-            id={`settings-panel-${activeTab}`}
-            role="tabpanel"
-            aria-labelledby={`settings-tab-${activeTab}`}
-            tabIndex={0}
-            className={clsx(
-              'min-h-0 flex-1 overflow-y-auto rounded-br-2xl p-3',
-              FOCUS_RING_INSET,
-            )}
+          <ScrollArea
+            className="flex-1 rounded-br-2xl"
+            viewportClassName={clsx('rounded-br-2xl p-3', FOCUS_RING_INSET)}
+            viewportProps={{
+              id: `settings-panel-${activeTab}`,
+              role: 'tabpanel',
+              'aria-labelledby': `settings-tab-${activeTab}`,
+              tabIndex: 0,
+            }}
           >
             <div className="flex flex-col gap-4">
               {activeTab === 'general' && <GeneralSettings />}
               {activeTab === 'appearance' && <ApperanceSettings />}
               {activeTab === 'shortcuts' && <ShortcutsSettings />}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </div>
     </Modal>

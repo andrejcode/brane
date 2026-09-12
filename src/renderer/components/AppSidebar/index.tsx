@@ -4,6 +4,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { useDebouncedQuery } from '@/hooks/useDebouncedQuery'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
+import { ScrollArea } from '@/ui/ScrollArea'
 import { SearchInput } from '@/ui/SearchInput'
 import { Sidebar } from '@/ui/Sidebar'
 import type { ChatSummary } from '@shared/types'
@@ -70,28 +71,31 @@ export function AppSidebar() {
               {t('sidebar.noMatch', { query: debouncedQuery })}
             </p>
           ) : (
-            <ul
-              aria-label={t('sidebar.recentChats')}
-              className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 pb-4"
+            <ScrollArea
+              className="flex-1"
+              viewportClassName="px-2 pb-4"
+              tone="sidebar"
             >
-              {filteredChats.map((chat) => (
-                <ChatListItem
-                  key={chat.id}
-                  chat={chat}
-                  isActive={chat.id === activeChatId}
-                  isRenaming={chat.id === renamingChatId}
-                  onOpen={openChat}
-                  onStartRename={() => {
-                    setRenamingChatId(chat.id)
-                  }}
-                  onStopRename={() => {
-                    setRenamingChatId(null)
-                  }}
-                  onRename={renameChat}
-                  onRequestDelete={setChatPendingDeletion}
-                />
-              ))}
-            </ul>
+              <ul aria-label={t('sidebar.recentChats')} className="space-y-0.5">
+                {filteredChats.map((chat) => (
+                  <ChatListItem
+                    key={chat.id}
+                    chat={chat}
+                    isActive={chat.id === activeChatId}
+                    isRenaming={chat.id === renamingChatId}
+                    onOpen={openChat}
+                    onStartRename={() => {
+                      setRenamingChatId(chat.id)
+                    }}
+                    onStopRename={() => {
+                      setRenamingChatId(null)
+                    }}
+                    onRename={renameChat}
+                    onRequestDelete={setChatPendingDeletion}
+                  />
+                ))}
+              </ul>
+            </ScrollArea>
           )}
         </div>
       </Sidebar>
