@@ -54,9 +54,9 @@ export function AppSidebar() {
     <>
       <Sidebar
         isSidebarOpen={isSidebarOpen}
-        className="flex h-full flex-col pt-10"
+        className="flex h-full flex-col pt-14"
       >
-        <div className="flex flex-col px-2 py-2">
+        <div className="flex flex-col gap-1 px-2">
           <GhostButton
             title={t('chat.newChat')}
             ariaLabel={t('chat.newChat')}
@@ -92,7 +92,7 @@ export function AppSidebar() {
           />
         </div>
 
-        <div className="px-4 py-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+        <div className="px-4 pt-5 pb-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
           {t('sidebar.recentChats')}
         </div>
         {!hasChats ? (
