@@ -323,7 +323,14 @@ describe('AppSidebar', () => {
     const input = screen.getByRole('textbox', { name: 'Rename' })
 
     expect(input).toHaveValue('Sourdough tips')
-    expect(input).toHaveClass('h-5', 'border-0', 'bg-transparent', 'p-0')
+    expect(input).toHaveClass(
+      'block',
+      'h-5',
+      'border-0',
+      'bg-transparent',
+      'p-0',
+    )
+    expect(input.closest('form')).not.toHaveClass('h-full')
     expect(input.closest('li')).toHaveClass('h-14')
   })
 

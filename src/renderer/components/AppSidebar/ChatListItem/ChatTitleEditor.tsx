@@ -55,7 +55,7 @@ export function ChatTitleEditor({
 
   return (
     <form
-      className="h-full min-w-0 flex-1 px-2 py-2"
+      className="min-w-0 flex-1 px-2 py-2"
       onSubmit={(event) => {
         event.preventDefault()
         const title = deriveChatTitle(draft)
@@ -84,7 +84,7 @@ export function ChatTitleEditor({
           settle(null)
         }}
         className={clsx(
-          'h-5 w-full rounded-sm border-0 bg-transparent p-0 text-sm leading-5',
+          'block h-5 w-full rounded-sm border-0 bg-transparent p-0 text-sm leading-5',
           'text-neutral-800 dark:text-neutral-100',
           'focus:outline-none focus-visible:inset-ring-1',
           'focus-visible:inset-ring-neutral-300 dark:focus-visible:inset-ring-neutral-600',
