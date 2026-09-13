@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
@@ -217,14 +217,19 @@ describe('AppSidebar', () => {
 
   it('opens chat actions on right-click without opening the chat', async () => {
     renderSidebar({ chats: [chatSummary()] })
-    const user = userEvent.setup()
 
-    await user.pointer({
-      target: await screen.findByText('Untitled chat'),
-      keys: '[MouseRight]',
+    fireEvent.contextMenu(await screen.findByText('Untitled chat'), {
+      clientX: 120,
+      clientY: 80,
     })
 
-    expect(screen.getByRole('menu', { name: 'Chat actions' })).toBeVisible()
+    expect(screen.getByRole('menu', { name: 'Chat actions' })).toHaveStyle({
+      left: '120px',
+      top: '84px',
+    })
+    expect(
+      screen.getByRole('button', { name: 'Chat actions' }),
+    ).not.toHaveClass('bg-neutral-300', 'dark:bg-neutral-600')
     expect(mock.getChatMessages).not.toHaveBeenCalled()
   })
 

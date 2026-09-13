@@ -49,8 +49,12 @@ describe('Menu', () => {
 
   it('opens the actions and runs the chosen item', async () => {
     const { onRename, user } = renderMenu()
+    const trigger = screen.getByRole('button', { name: 'Chat actions' })
 
-    await user.click(screen.getByRole('button', { name: 'Chat actions' }))
+    await user.click(trigger)
+
+    expect(trigger).toHaveClass('bg-neutral-300', 'dark:bg-neutral-600')
+
     await user.click(screen.getByRole('menuitem', { name: 'Rename' }))
 
     expect(onRename).toHaveBeenCalledTimes(1)

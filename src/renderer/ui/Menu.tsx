@@ -29,8 +29,14 @@ interface MenuProps {
   triggerClassName?: string
 }
 
+interface MenuPosition {
+  x: number
+  y: number
+}
+
 export interface MenuHandle {
   open: () => void
+  openAt: (position: MenuPosition) => void
 }
 
 interface MenuItemProps {
@@ -41,6 +47,10 @@ interface MenuItemProps {
 
 const MENU_GAP = 4
 const VIEWPORT_MARGIN = 8
+
+type MenuAnchor =
+  | { type: 'trigger' }
+  | { type: 'pointer'; position: MenuPosition }
 
 function menuPosition(trigger: DOMRect, menu: DOMRect, align: 'start' | 'end') {
   let top = trigger.bottom + MENU_GAP
@@ -58,6 +68,21 @@ function menuPosition(trigger: DOMRect, menu: DOMRect, align: 'start' | 'end') {
   return { top, left }
 }
 
+function pointerMenuPosition(position: MenuPosition, menu: DOMRect) {
+  let top = position.y + MENU_GAP
+
+  if (top + menu.height > window.innerHeight - VIEWPORT_MARGIN) {
+    top = Math.max(VIEWPORT_MARGIN, position.y - MENU_GAP - menu.height)
+  }
+
+  const left = Math.min(
+    Math.max(VIEWPORT_MARGIN, position.x),
+    window.innerWidth - menu.width - VIEWPORT_MARGIN,
+  )
+
+  return { top, left }
+}
+
 export function Menu({
   ref,
   label,
@@ -65,20 +90,25 @@ export function Menu({
   align = 'end',
   triggerClassName,
 }: MenuProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [anchor, setAnchor] = useState<MenuAnchor | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
+  const isOpen = anchor !== null
 
   const close = useCallback(() => {
-    setIsOpen(false)
+    setAnchor(null)
   }, [])
 
   const open = useCallback(() => {
-    setIsOpen(true)
+    setAnchor({ type: 'trigger' })
   }, [])
 
-  useImperativeHandle(ref, () => ({ open }), [open])
+  const openAt = useCallback((position: MenuPosition) => {
+    setAnchor({ type: 'pointer', position })
+  }, [])
+
+  useImperativeHandle(ref, () => ({ open, openAt }), [open, openAt])
 
   useLayoutEffect(() => {
     if (!isOpen) {
@@ -172,10 +202,12 @@ export function Menu({
         ariaHasPopup="menu"
         ariaExpanded={isOpen}
         ariaControls={isOpen ? menuId : undefined}
-        isActive={isOpen}
+        isActive={anchor?.type === 'trigger'}
         className={triggerClassName}
         onClick={() => {
-          setIsOpen((open) => !open)
+          setAnchor((currentAnchor) =>
+            currentAnchor ? null : { type: 'trigger' },
+          )
         }}
       >
         <Ellipsis size={16} />
@@ -191,11 +223,15 @@ export function Menu({
                     return
                   }
 
-                  const { top, left } = menuPosition(
-                    triggerRef.current.getBoundingClientRect(),
-                    node.getBoundingClientRect(),
-                    align,
-                  )
+                  const menuBounds = node.getBoundingClientRect()
+                  const { top, left } =
+                    anchor.type === 'pointer'
+                      ? pointerMenuPosition(anchor.position, menuBounds)
+                      : menuPosition(
+                          triggerRef.current.getBoundingClientRect(),
+                          menuBounds,
+                          align,
+                        )
                   node.style.top = `${top}px`
                   node.style.left = `${left}px`
                 }}

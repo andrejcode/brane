@@ -48,7 +48,10 @@ export function ChatListItem({
         }
 
         event.preventDefault()
-        actionsMenuRef.current?.open()
+        actionsMenuRef.current?.openAt({
+          x: event.clientX,
+          y: event.clientY,
+        })
       }}
       className={clsx(
         'group flex h-14 items-center justify-between gap-1 rounded-lg pr-1',
