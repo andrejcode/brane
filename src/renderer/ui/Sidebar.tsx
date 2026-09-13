@@ -3,9 +3,10 @@ import { clsx } from 'clsx'
 interface SidebarProps {
   isSidebarOpen: boolean
   children: React.ReactNode
+  className?: string
 }
 
-export function Sidebar({ isSidebarOpen, children }: SidebarProps) {
+export function Sidebar({ isSidebarOpen, children, className }: SidebarProps) {
   return (
     <aside
       className={clsx(
@@ -14,7 +15,7 @@ export function Sidebar({ isSidebarOpen, children }: SidebarProps) {
         isSidebarOpen ? 'w-80' : 'w-0',
       )}
     >
-      <div className="min-h-0 w-80 flex-1">{children}</div>
+      <div className={clsx('min-h-0 w-80 flex-1', className)}>{children}</div>
     </aside>
   )
 }

@@ -1,8 +1,11 @@
+import { clsx } from 'clsx'
+import { SquarePen } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { useDebouncedQuery } from '@/hooks/useDebouncedQuery'
+import { GhostButton } from '@/ui/buttons/GhostButton'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { ScrollArea } from '@/ui/ScrollArea'
 import { SearchInput } from '@/ui/SearchInput'
@@ -17,6 +20,8 @@ export function AppSidebar() {
     chats,
     activeChatId,
     isHistoryUnavailable,
+    canStartNewChat,
+    startNewChat,
     openChat,
     removeChat,
     renameChat,
@@ -47,57 +52,75 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar isSidebarOpen={isSidebarOpen}>
-        <div className="flex h-full flex-col pt-12">
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        className="flex h-full flex-col pt-10"
+      >
+        <div className="flex flex-col px-2 py-2">
+          <GhostButton
+            title={t('chat.newChat')}
+            ariaLabel={t('chat.newChat')}
+            className={clsx(
+              'flex h-8 w-full items-center gap-2 px-2 text-left',
+              'text-sm font-medium text-neutral-500 dark:text-neutral-400',
+              'hover:bg-neutral-200! dark:hover:bg-neutral-800!',
+            )}
+            disabled={!canStartNewChat}
+            onClick={startNewChat}
+          >
+            <SquarePen size={18} className="shrink-0" />
+            {t('chat.newChat')}
+          </GhostButton>
+
           <SearchInput
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             disabled={!hasChats}
             placeholder={t('sidebar.search')}
             ariaLabel={t('sidebar.search')}
-            className="mx-4 my-2 flex items-center gap-2 border-b border-neutral-200 py-2 dark:border-neutral-600"
+            className={clsx('h-8 w-full px-2')}
             inputClassName="text-sm"
           />
-          <div className="px-4 pt-2 pb-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-            {t('sidebar.recentChats')}
-          </div>
-
-          {!hasChats ? (
-            <p className="px-4 py-2 text-sm text-neutral-400 dark:text-neutral-500">
-              {emptyMessage}
-            </p>
-          ) : filteredChats.length === 0 ? (
-            <p className="px-4 py-2 text-sm text-neutral-400 dark:text-neutral-500">
-              {t('sidebar.noMatch', { query: debouncedQuery })}
-            </p>
-          ) : (
-            <ScrollArea
-              className="flex-1"
-              viewportClassName="px-2 pb-4"
-              tone="sidebar"
-            >
-              <ul aria-label={t('sidebar.recentChats')} className="space-y-0.5">
-                {filteredChats.map((chat) => (
-                  <ChatListItem
-                    key={chat.id}
-                    chat={chat}
-                    isActive={chat.id === activeChatId}
-                    isRenaming={chat.id === renamingChatId}
-                    onOpen={openChat}
-                    onStartRename={() => {
-                      setRenamingChatId(chat.id)
-                    }}
-                    onStopRename={() => {
-                      setRenamingChatId(null)
-                    }}
-                    onRename={renameChat}
-                    onRequestDelete={setChatPendingDeletion}
-                  />
-                ))}
-              </ul>
-            </ScrollArea>
-          )}
         </div>
+
+        <div className="px-4 py-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+          {t('sidebar.recentChats')}
+        </div>
+        {!hasChats ? (
+          <p className="px-4 py-2 text-sm text-neutral-400 dark:text-neutral-500">
+            {emptyMessage}
+          </p>
+        ) : filteredChats.length === 0 ? (
+          <p className="px-4 py-2 text-sm text-neutral-400 dark:text-neutral-500">
+            {t('sidebar.noMatch', { query: debouncedQuery })}
+          </p>
+        ) : (
+          <ScrollArea
+            className="flex-1"
+            viewportClassName="px-2 pb-4"
+            tone="sidebar"
+          >
+            <ul aria-label={t('sidebar.recentChats')} className="space-y-0.5">
+              {filteredChats.map((chat) => (
+                <ChatListItem
+                  key={chat.id}
+                  chat={chat}
+                  isActive={chat.id === activeChatId}
+                  isRenaming={chat.id === renamingChatId}
+                  onOpen={openChat}
+                  onStartRename={() => {
+                    setRenamingChatId(chat.id)
+                  }}
+                  onStopRename={() => {
+                    setRenamingChatId(null)
+                  }}
+                  onRename={renameChat}
+                  onRequestDelete={setChatPendingDeletion}
+                />
+              ))}
+            </ul>
+          </ScrollArea>
+        )}
       </Sidebar>
 
       <ConfirmDialog

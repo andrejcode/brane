@@ -22,11 +22,11 @@ export const hr: Messages = {
     'Datoteka ovog modela promijenila se nakon stvaranja razgovora.',
 
   'header.toggleSidebar': 'Prikaži/sakrij bočnu traku',
-  'header.newChat': 'Novi razgovor',
   'header.selectModel': 'Odaberi model',
   'header.openSettings': 'Otvori postavke',
   'header.loadingModel': 'Učitavanje modela',
 
+  'chat.newChat': 'Novi razgovor',
   'chat.inputPlaceholder': 'Pitaj bilo što',
   'chat.sendMessage': 'Pošalji poruku',
   'chat.stopGenerating': 'Zaustavi generiranje',

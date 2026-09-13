@@ -23,11 +23,11 @@ export const de: Messages = {
     'Diese Modelldatei hat sich seit dem Erstellen des Chats geändert.',
 
   'header.toggleSidebar': 'Seitenleiste umschalten',
-  'header.newChat': 'Neuer Chat',
   'header.selectModel': 'Modell auswählen',
   'header.openSettings': 'Einstellungen öffnen',
   'header.loadingModel': 'Modell wird geladen',
 
+  'chat.newChat': 'Neuer Chat',
   'chat.inputPlaceholder': 'Frag mich etwas',
   'chat.sendMessage': 'Nachricht senden',
   'chat.stopGenerating': 'Generierung stoppen',

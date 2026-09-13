@@ -17,11 +17,11 @@ export const en = {
     'This model file has changed since the chat was created.',
 
   'header.toggleSidebar': 'Toggle sidebar',
-  'header.newChat': 'New chat',
   'header.selectModel': 'Select model',
   'header.openSettings': 'Open settings',
   'header.loadingModel': 'Loading model',
 
+  'chat.newChat': 'New chat',
   'chat.inputPlaceholder': 'Ask anything',
   'chat.sendMessage': 'Send message',
   'chat.stopGenerating': 'Stop generating',

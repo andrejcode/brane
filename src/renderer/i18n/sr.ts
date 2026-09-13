@@ -20,11 +20,11 @@ export const sr: Messages = {
     'Датотека овог модела променила се након стварања разговора.',
 
   'header.toggleSidebar': 'Прикажи/сакриј бочну траку',
-  'header.newChat': 'Нови разговор',
   'header.selectModel': 'Изабери модел',
   'header.openSettings': 'Отвори подешавања',
   'header.loadingModel': 'Учитавање модела',
 
+  'chat.newChat': 'Нови разговор',
   'chat.inputPlaceholder': 'Питај било шта',
   'chat.sendMessage': 'Пошаљи поруку',
   'chat.stopGenerating': 'Заустави генерисање',

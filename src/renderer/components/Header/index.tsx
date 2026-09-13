@@ -3,8 +3,8 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
-  Plus,
   Settings,
+  SquarePen,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useChat } from '@/contexts/ChatContext'
@@ -93,14 +93,16 @@ export function Header() {
             )}
           </GhostButton>
 
-          <GhostButton
-            title={t('header.newChat')}
-            ariaLabel={t('header.newChat')}
-            disabled={!canStartNewChat}
-            onClick={startNewChat}
-          >
-            <Plus size={20} />
-          </GhostButton>
+          {!isSidebarOpen && (
+            <GhostButton
+              title={t('chat.newChat')}
+              ariaLabel={t('chat.newChat')}
+              disabled={!canStartNewChat}
+              onClick={startNewChat}
+            >
+              <SquarePen size={20} />
+            </GhostButton>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
