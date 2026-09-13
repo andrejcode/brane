@@ -127,6 +127,26 @@ describe('Header on non-mac', () => {
     expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
   })
 
+  it('shows New chat only while the sidebar is closed', async () => {
+    const user = userEvent.setup()
+    renderHeader()
+    const toggleSidebarButton = screen.getByRole('button', {
+      name: 'Toggle sidebar',
+    })
+
+    expect(screen.getByRole('button', { name: 'New chat' })).toBeInTheDocument()
+
+    await user.click(toggleSidebarButton)
+
+    expect(
+      screen.queryByRole('button', { name: 'New chat' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(toggleSidebarButton)
+
+    expect(screen.getByRole('button', { name: 'New chat' })).toBeInTheDocument()
+  })
+
   it('opens settings when the settings button is clicked', async () => {
     const user = userEvent.setup()
     renderHeader()
