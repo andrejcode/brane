@@ -83,11 +83,31 @@ export function createWindow() {
     mainWindow.hide()
   }
 
+  let fallbackTimer: NodeJS.Timeout | null = null
+
   const showMainWindow = () => {
     if (!mainWindow.isDestroyed() && !mainWindow.isVisible()) {
-      clearTimeout(fallbackTimer)
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer)
+        fallbackTimer = null
+      }
       mainWindow.show()
     }
+  }
+
+  const scheduleReadyFallback = () => {
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer)
+    }
+
+    fallbackTimer = setTimeout(() => {
+      if (mainWindow.isDestroyed() || mainWindow.isVisible()) {
+        return
+      }
+
+      logger.warn('Window readiness timed out. Showing it anyway')
+      showMainWindow()
+    }, READY_FALLBACK_MS)
   }
 
   const handleAppReady = (event: IpcMainEvent) => {
@@ -98,17 +118,12 @@ export function createWindow() {
   }
   ipcMain.on(IpcChannels.appReady, handleAppReady)
 
-  const fallbackTimer = setTimeout(() => {
-    if (mainWindow.isDestroyed() || mainWindow.isVisible()) {
-      return
-    }
-
-    logger.warn('Window readiness timed out. Showing it anyway')
-    showMainWindow()
-  }, READY_FALLBACK_MS)
+  scheduleReadyFallback()
 
   mainWindow.on('closed', () => {
-    clearTimeout(fallbackTimer)
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer)
+    }
     ipcMain.removeListener(IpcChannels.appReady, handleAppReady)
   })
 
@@ -129,6 +144,7 @@ export function createWindow() {
 
   mainWindow.webContents.on('did-finish-load', () => {
     logger.info(`Renderer finished loading ${mainWindow.webContents.getURL()}`)
+    scheduleReadyFallback()
   })
 
   mainWindow.webContents.on('preload-error', (_event, preloadPath, error) => {
