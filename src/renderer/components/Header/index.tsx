@@ -93,16 +93,23 @@ export function Header() {
             )}
           </GhostButton>
 
-          {!isSidebarOpen && (
+          <span
+            aria-hidden={isSidebarOpen}
+            className={clsx(
+              'transition-opacity duration-200 ease-out',
+              isSidebarOpen ? 'pointer-events-none opacity-0' : 'opacity-100',
+            )}
+          >
             <GhostButton
               title={t('chat.newChat')}
               ariaLabel={t('chat.newChat')}
-              disabled={!canStartNewChat}
+              disabled={isSidebarOpen || !canStartNewChat}
+              tabIndex={isSidebarOpen ? -1 : undefined}
               onClick={startNewChat}
             >
               <SquarePen size={20} />
             </GhostButton>
-          )}
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
