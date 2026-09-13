@@ -54,7 +54,7 @@ export function ChatListItem({
         })
       }}
       className={clsx(
-        'group flex h-14 items-center justify-between gap-1 rounded-lg pr-1',
+        'group relative flex h-14 items-center rounded-lg',
         'transition-colors duration-200',
         'hover:bg-neutral-200 dark:hover:bg-neutral-800',
         isActive && 'bg-neutral-200 dark:bg-neutral-800',
@@ -78,8 +78,6 @@ export function ChatListItem({
         />
       ) : (
         <>
-          {/* Both flex children need min-w-0, or the label would push the
-              actions out instead of truncating. */}
           <BaseButton
             type="button"
             className="min-w-0 flex-1 rounded-lg px-2 py-2 text-left"
@@ -98,7 +96,8 @@ export function ChatListItem({
 
           <div
             className={clsx(
-              'shrink-0',
+              'absolute top-1/2 right-1 z-10 -translate-y-1/2 rounded-lg',
+              'bg-neutral-200 dark:bg-neutral-800',
               'opacity-0 transition-opacity',
               'group-hover:opacity-100 group-focus-within:opacity-100',
               'has-aria-expanded:opacity-100',

@@ -205,9 +205,12 @@ export function Menu({
         isActive={anchor?.type === 'trigger'}
         className={triggerClassName}
         onClick={() => {
-          setAnchor((currentAnchor) =>
-            currentAnchor ? null : { type: 'trigger' },
-          )
+          if (isOpen) {
+            close()
+            return
+          }
+
+          open()
         }}
       >
         <Ellipsis size={16} />
@@ -242,6 +245,7 @@ export function Menu({
                   'fixed z-50 w-max p-1',
                   'rounded-xl border border-neutral-200 bg-neutral-50 shadow-lg',
                   'dark:border-none dark:bg-neutral-700',
+                  'opacity-100 transition-opacity duration-100 ease-out starting:opacity-0',
                 )}
               >
                 {children}
