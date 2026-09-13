@@ -15,7 +15,7 @@ import { ChatListItem } from './ChatListItem'
 
 export function AppSidebar() {
   const { t } = useTranslation()
-  const { isSidebarOpen, isReady } = useSidebar()
+  const { isSidebarOpen, isReady, setSearchInput } = useSidebar()
   const {
     chats,
     activeChatId,
@@ -73,8 +73,17 @@ export function AppSidebar() {
           </GhostButton>
 
           <SearchInput
+            inputRef={setSearchInput}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                setQuery('')
+                event.currentTarget.blur()
+              } else if (event.key === 'Enter') {
+                event.currentTarget.blur()
+              }
+            }}
             disabled={!hasChats}
             placeholder={t('sidebar.search')}
             ariaLabel={t('sidebar.search')}

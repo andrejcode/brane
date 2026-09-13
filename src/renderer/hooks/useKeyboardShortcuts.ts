@@ -20,7 +20,7 @@ type ShortcutHandlers = Record<ShortcutAction, () => void>
 export function useKeyboardShortcuts() {
   const { shortcuts } = useShortcuts()
   const { toggleModal } = useModals()
-  const { toggleSidebar } = useSidebar()
+  const { focusSearch, toggleSidebar } = useSidebar()
   const { chats, isSending, openChat, startNewChat } = useChat()
   const { messageFontSize, setMessageFontSize } = useTheme()
   const { t } = useTranslation()
@@ -49,6 +49,7 @@ export function useKeyboardShortcuts() {
     toggleSettings: () => toggleModal('settings'),
     toggleModels: () => toggleModal('models'),
     toggleSidebar,
+    focusSearch,
     newChat: startNewChat,
     stopGeneration,
   })
@@ -57,10 +58,11 @@ export function useKeyboardShortcuts() {
       toggleSettings: () => toggleModal('settings'),
       toggleModels: () => toggleModal('models'),
       toggleSidebar,
+      focusSearch,
       newChat: startNewChat,
       stopGeneration,
     }
-  }, [toggleModal, toggleSidebar, startNewChat, stopGeneration])
+  }, [focusSearch, toggleModal, toggleSidebar, startNewChat, stopGeneration])
 
   useEffect(() => {
     const isMac = window.electronApi.isMac

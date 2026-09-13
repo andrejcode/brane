@@ -45,6 +45,9 @@ describe('ShortcutsSettings', () => {
     ).toBeInTheDocument()
     expect(screen.getByText('Start a new chat')).toBeInTheDocument()
     expect(
+      screen.getByRole('button', { name: 'Search chats' }),
+    ).toHaveTextContent('Ctrl+F')
+    expect(
       screen.getByRole('button', { name: 'Stop generating' }),
     ).toHaveTextContent('Ctrl+.')
   })

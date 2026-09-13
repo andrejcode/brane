@@ -111,6 +111,7 @@ export const SHORTCUT_ACTIONS = [
   'toggleSettings',
   'toggleModels',
   'toggleSidebar',
+  'focusSearch',
   'newChat',
   'stopGeneration',
 ] as const
@@ -132,6 +133,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
   toggleSettings: { key: ',', mod: true, shift: false, alt: false },
   toggleModels: { key: 'm', mod: true, shift: true, alt: false },
   toggleSidebar: { key: 'b', mod: true, shift: false, alt: false },
+  focusSearch: { key: 'f', mod: true, shift: false, alt: false },
   newChat: { key: 'n', mod: true, shift: false, alt: false },
   stopGeneration: { key: '.', mod: true, shift: false, alt: false },
 }

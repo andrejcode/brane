@@ -109,6 +109,7 @@ export const sr: Messages = {
   'shortcuts.toggleSettings': 'Отвори или затвори подешавања',
   'shortcuts.toggleModels': 'Отвори или затвори листу модела',
   'shortcuts.toggleSidebar': 'Прикажи или сакриј бочну траку',
+  'shortcuts.focusSearch': 'Претражи разговоре',
   'shortcuts.newChat': 'Започни нови разговор',
   'shortcuts.stopGeneration': 'Заустави генерисање',
 

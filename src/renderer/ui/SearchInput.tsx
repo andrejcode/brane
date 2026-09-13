@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { Search } from 'lucide-react'
-import type { ChangeEventHandler, Ref } from 'react'
+import type { ChangeEventHandler, KeyboardEventHandler, Ref } from 'react'
 
 interface SearchInputProps {
   value: string
@@ -11,6 +11,7 @@ interface SearchInputProps {
   inputClassName?: string
   inputRef?: Ref<HTMLInputElement>
   onChange: ChangeEventHandler<HTMLInputElement>
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement>
 }
 
 export function SearchInput({
@@ -22,6 +23,7 @@ export function SearchInput({
   inputClassName,
   inputRef,
   onChange,
+  onKeyDown,
 }: SearchInputProps) {
   return (
     <label
@@ -38,6 +40,7 @@ export function SearchInput({
         type="text"
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         placeholder={placeholder}
         aria-label={ariaLabel}

@@ -155,6 +155,32 @@ describe('AppSidebar', () => {
     ).toBeInTheDocument()
   })
 
+  it('keeps the search and removes focus on Enter', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
+    const searchInput = await screen.findByRole('textbox', {
+      name: 'Search chats',
+    })
+
+    await user.type(searchInput, 'dough{Enter}')
+
+    expect(searchInput).toHaveValue('dough')
+    expect(searchInput).not.toHaveFocus()
+  })
+
+  it('clears the search and removes focus on Escape', async () => {
+    renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
+    const searchInput = await screen.findByRole('textbox', {
+      name: 'Search chats',
+    })
+
+    await user.type(searchInput, 'dough{Escape}')
+
+    expect(searchInput).toHaveValue('')
+    expect(searchInput).not.toHaveFocus()
+  })
+
   it('disables search when there are no chats', async () => {
     renderSidebar()
 

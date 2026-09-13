@@ -15,6 +15,8 @@ interface SidebarContextValue {
   // already open on the first frame instead of sliding in.
   isReady: boolean
   toggleSidebar: () => void
+  focusSearch: () => void
+  setSearchInput: (input: HTMLInputElement | null) => void
 }
 
 const SidebarContext = createContext<SidebarContextValue | null>(null)
@@ -36,6 +38,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   // Mirror the latest value so toggleSidebar stays stable; it feeds the global
   // key listener in useKeyboardShortcuts.
   const isSidebarOpenRef = useRef(isSidebarOpen)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -68,9 +71,29 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     void persistSidebarOpen(next)
   }, [])
 
+  const setSearchInput = useCallback((input: HTMLInputElement | null) => {
+    searchInputRef.current = input
+  }, [])
+
+  const focusSearch = useCallback(() => {
+    if (!isSidebarOpenRef.current) {
+      isSidebarOpenRef.current = true
+      setIsSidebarOpen(true)
+      void persistSidebarOpen(true)
+    }
+
+    searchInputRef.current?.focus()
+  }, [])
+
   const value = useMemo(
-    () => ({ isSidebarOpen, isReady, toggleSidebar }),
-    [isSidebarOpen, isReady, toggleSidebar],
+    () => ({
+      isSidebarOpen,
+      isReady,
+      toggleSidebar,
+      focusSearch,
+      setSearchInput,
+    }),
+    [isSidebarOpen, isReady, toggleSidebar, focusSearch, setSearchInput],
   )
 
   return <SidebarContext value={value}>{children}</SidebarContext>

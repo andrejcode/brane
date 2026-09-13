@@ -5,7 +5,7 @@ import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
-import { SidebarProvider } from '@/contexts/SidebarContext'
+import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { DEFAULT_SHORTCUTS, type ChatSummary } from '@shared/types'
@@ -27,6 +27,7 @@ function ShortcutsHarness({ withMessages, isSending }: ShortcutsHarnessProps) {
   useKeyboardShortcuts()
   const { messages, setMessages, setIsSending } = useChat()
   const { activeModal } = useModals()
+  const { isSidebarOpen, setSearchInput } = useSidebar()
 
   useEffect(() => {
     if (withMessages) {
@@ -36,11 +37,15 @@ function ShortcutsHarness({ withMessages, isSending }: ShortcutsHarnessProps) {
   }, [isSending, withMessages, setIsSending, setMessages])
 
   return (
-    <div
-      data-testid="chat-state"
-      data-message-count={messages.length}
-      data-active-modal={activeModal ?? 'none'}
-    />
+    <>
+      <div
+        data-testid="chat-state"
+        data-message-count={messages.length}
+        data-active-modal={activeModal ?? 'none'}
+        data-sidebar-open={isSidebarOpen}
+      />
+      <input ref={setSearchInput} aria-label="Search chats" />
+    </>
   )
 }
 
@@ -129,6 +134,19 @@ describe('useKeyboardShortcuts', () => {
       '0',
     )
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
+  })
+
+  it('opens the sidebar and focuses chat search on Ctrl+F', async () => {
+    await renderHarness()
+
+    await userEvent.setup().keyboard('{Control>}f{/Control}')
+
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-sidebar-open',
+      'true',
+    )
+    expect(screen.getByRole('textbox', { name: 'Search chats' })).toHaveFocus()
+    expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
   })
 
   it('starts a new chat on Cmd+N on macOS', async () => {

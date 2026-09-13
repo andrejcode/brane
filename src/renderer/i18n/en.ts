@@ -103,6 +103,7 @@ export const en = {
   'shortcuts.toggleSettings': 'Open or close settings',
   'shortcuts.toggleModels': 'Open or close the model list',
   'shortcuts.toggleSidebar': 'Show or hide the sidebar',
+  'shortcuts.focusSearch': 'Search chats',
   'shortcuts.newChat': 'Start a new chat',
   'shortcuts.stopGeneration': 'Stop generating',
 
