@@ -24,7 +24,7 @@ export function SearchInput({
   onChange,
 }: SearchInputProps) {
   return (
-    <div
+    <label
       role="search"
       className={clsx('flex min-w-0 items-center gap-2', className)}
     >
@@ -47,6 +47,6 @@ export function SearchInput({
           inputClassName,
         )}
       />
-    </div>
+    </label>
   )
 }
