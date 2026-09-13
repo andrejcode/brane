@@ -135,14 +135,6 @@ export function createWindow() {
     logger.error(`Preload failed at ${preloadPath}`, error)
   })
 
-  mainWindow.webContents.on('console-message', (event) => {
-    if (event.level === 'warning' || event.level === 'error') {
-      logger[event.level === 'error' ? 'error' : 'warn'](
-        `Renderer console: ${event.message} (${event.sourceId}:${event.lineNumber})`,
-      )
-    }
-  })
-
   mainWindow.on('enter-full-screen', () => {
     mainWindow.webContents.send(IpcChannels.windowFullscreenChanged, true)
   })
