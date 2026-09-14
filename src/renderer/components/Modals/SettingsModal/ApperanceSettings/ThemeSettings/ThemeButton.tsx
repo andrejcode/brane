@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING_INSET } from '@/ui/styles/focusRing'
+import { BaseButton } from '@/ui/buttons/BaseButton'
 
 interface ThemeButtonProps {
   active: boolean
@@ -15,12 +15,12 @@ export function ThemeButton({
   isLast,
 }: ThemeButtonProps) {
   return (
-    <button
+    <BaseButton
       type="button"
       onClick={onClick}
+      focusRing="inset"
       className={clsx(
-        'cursor-pointer px-3 py-1 transition-colors duration-200',
-        FOCUS_RING_INSET,
+        'px-3 py-1 transition-colors duration-200',
         'first:rounded-l first:border-l-0 last:rounded-r',
         !isLast && 'border-r border-neutral-300 dark:border-neutral-500',
         active
@@ -32,6 +32,6 @@ export function ThemeButton({
       )}
     >
       {children}
-    </button>
+    </BaseButton>
   )
 }

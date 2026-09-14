@@ -1,5 +1,7 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING } from '@/ui/styles/focusRing'
+import { FOCUS_RING, FOCUS_RING_INSET } from '@/ui/styles/focusRing'
+
+type FocusRing = 'default' | 'inset'
 
 interface BaseButtonProps {
   children: React.ReactNode
@@ -9,7 +11,12 @@ interface BaseButtonProps {
   disabled?: boolean | undefined
   title?: string | undefined
   ariaLabel?: string | undefined
+  ariaLabelledBy?: string | undefined
+  ariaPressed?: boolean | undefined
+  ariaChecked?: boolean | undefined
   onClick?: (() => void) | undefined
+  onBlur?: React.FocusEventHandler<HTMLButtonElement> | undefined
+  focusRing?: FocusRing | undefined
   // Optional pass-through attributes, used to compose ARIA widget patterns.
   id?: string | undefined
   role?: string | undefined
@@ -29,7 +36,12 @@ export function BaseButton({
   disabled,
   title,
   ariaLabel,
+  ariaLabelledBy,
+  ariaPressed,
+  ariaChecked,
   onClick,
+  onBlur,
+  focusRing = 'default',
   id,
   role,
   ariaSelected,
@@ -39,7 +51,7 @@ export function BaseButton({
   tabIndex,
 }: BaseButtonProps) {
   const buttonClassName = clsx(
-    FOCUS_RING,
+    focusRing === 'inset' ? FOCUS_RING_INSET : FOCUS_RING,
     'cursor-pointer disabled:cursor-not-allowed',
     className,
   )
@@ -52,7 +64,11 @@ export function BaseButton({
       disabled={disabled}
       title={title}
       aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
+      aria-pressed={ariaPressed}
+      aria-checked={ariaChecked}
       onClick={onClick}
+      onBlur={onBlur}
       id={id}
       role={role}
       aria-selected={ariaSelected}

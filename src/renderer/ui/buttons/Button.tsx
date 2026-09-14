@@ -12,6 +12,9 @@ interface ButtonProps {
   disabled?: boolean
   title?: string
   ariaLabel?: string
+  ariaLabelledBy?: string
+  ariaPressed?: boolean
+  onBlur?: React.FocusEventHandler<HTMLButtonElement>
   className?: string
 }
 
@@ -42,6 +45,9 @@ export function Button({
   disabled,
   title,
   ariaLabel,
+  ariaLabelledBy,
+  ariaPressed,
+  onBlur,
   className,
 }: ButtonProps) {
   return (
@@ -52,6 +58,9 @@ export function Button({
       disabled={disabled}
       title={title}
       ariaLabel={ariaLabel}
+      ariaLabelledBy={ariaLabelledBy}
+      ariaPressed={ariaPressed}
+      onBlur={onBlur}
       className={clsx(
         'rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200',
         variantClasses[variant],

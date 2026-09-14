@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { useEffect, useState } from 'react'
-import { FOCUS_RING } from '@/ui/styles/focusRing'
+import { Button } from '@/ui/buttons/Button'
 import { eventToBinding, formatShortcut } from '@/utils'
 import type { ShortcutBinding } from '@shared/types'
 
@@ -57,21 +57,20 @@ export function ShortcutRecorder({
   }, [isRecording, isMac, onChange])
 
   return (
-    <button
-      type="button"
-      aria-labelledby={ariaLabelledBy}
-      aria-pressed={isRecording}
+    <Button
+      variant="outline"
+      ariaLabelledBy={ariaLabelledBy}
+      ariaPressed={isRecording}
       onClick={() => setIsRecording((recording) => !recording)}
       onBlur={() => setIsRecording(false)}
       className={clsx(
-        'min-w-28 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors duration-200',
-        FOCUS_RING,
+        'min-w-28 px-3 py-1.5',
         isRecording
-          ? 'border-neutral-800 text-neutral-500 dark:border-neutral-200 dark:text-neutral-400'
-          : 'border-neutral-300 text-neutral-800 hover:bg-neutral-200 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-600',
+          ? 'border-neutral-800 text-neutral-500 hover:bg-transparent dark:border-neutral-200 dark:text-neutral-400 dark:hover:bg-transparent'
+          : undefined,
       )}
     >
       {isRecording ? recordingHint : formatShortcut(binding, isMac)}
-    </button>
+    </Button>
   )
 }

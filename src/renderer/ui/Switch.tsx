@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { FOCUS_RING } from '@/ui/styles/focusRing'
+import { BaseButton } from '@/ui/buttons/BaseButton'
 
 interface SwitchProps {
   checked: boolean
@@ -19,20 +19,19 @@ export function Switch({
   ariaLabelledBy,
 }: SwitchProps) {
   return (
-    <button
+    <BaseButton
       type="button"
       role="switch"
       id={id}
-      aria-checked={checked}
-      aria-label={ariaLabel}
-      aria-labelledby={ariaLabelledBy}
+      ariaChecked={checked}
+      ariaLabel={ariaLabel}
+      ariaLabelledBy={ariaLabelledBy}
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={clsx(
         'relative inline-flex h-6 w-10 shrink-0 items-center rounded-full',
         'transition-colors duration-200',
-        FOCUS_RING,
-        'cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
+        'disabled:opacity-50',
         checked
           ? 'bg-neutral-800 dark:bg-neutral-200'
           : 'bg-neutral-300 dark:bg-neutral-600',
@@ -45,6 +44,6 @@ export function Switch({
           checked ? 'translate-x-5' : 'translate-x-1',
         )}
       />
-    </button>
+    </BaseButton>
   )
 }
