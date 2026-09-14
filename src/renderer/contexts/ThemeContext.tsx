@@ -15,9 +15,11 @@ import {
 interface ThemeContextValue {
   theme: Theme | null
   messageFontSize: number
+  showPointerCursor: boolean
   isReady: boolean
   setTheme: (theme: Theme) => Promise<void>
   setMessageFontSize: (fontSize: number) => Promise<void>
+  setShowPointerCursor: (enabled: boolean) => Promise<void>
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -27,6 +29,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [messageFontSize, setMessageFontSizeState] = useState(
     DEFAULT_MESSAGE_FONT_SIZE,
   )
+  const [showPointerCursor, setShowPointerCursorState] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -34,15 +37,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     const loadTheme = async () => {
       try {
-        const [currentTheme, currentMessageFontSize] = await Promise.all([
-          window.electronApi.getTheme(),
-          window.electronApi.getMessageFontSize(),
-        ])
+        const [currentTheme, currentMessageFontSize, currentShowPointerCursor] =
+          await Promise.all([
+            window.electronApi.getTheme(),
+            window.electronApi.getMessageFontSize(),
+            window.electronApi.getShowPointerCursor(),
+          ])
         if (isMounted) {
           setThemeState(currentTheme)
           setMessageFontSizeState(
             normalizeMessageFontSize(currentMessageFontSize),
           )
+          setShowPointerCursorState(currentShowPointerCursor)
         }
       } catch {
         if (isMounted) {
@@ -72,6 +78,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMessageFontSizeState(normalizeMessageFontSize(saved))
   }, [])
 
+  const setShowPointerCursor = useCallback(async (enabled: boolean) => {
+    const saved = await window.electronApi.setShowPointerCursor(enabled)
+    setShowPointerCursorState(saved)
+  }, [])
+
   useEffect(() => {
     document.documentElement.style.setProperty(
       '--message-font-size',
@@ -83,9 +94,36 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [messageFontSize])
 
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      'show-pointer-cursor',
+      showPointerCursor,
+    )
+
+    return () => {
+      document.documentElement.classList.remove('show-pointer-cursor')
+    }
+  }, [showPointerCursor])
+
   const value = useMemo(
-    () => ({ theme, messageFontSize, isReady, setTheme, setMessageFontSize }),
-    [theme, messageFontSize, isReady, setTheme, setMessageFontSize],
+    () => ({
+      theme,
+      messageFontSize,
+      showPointerCursor,
+      isReady,
+      setTheme,
+      setMessageFontSize,
+      setShowPointerCursor,
+    }),
+    [
+      theme,
+      messageFontSize,
+      showPointerCursor,
+      isReady,
+      setTheme,
+      setMessageFontSize,
+      setShowPointerCursor,
+    ],
   )
 
   return <ThemeContext value={value}>{children}</ThemeContext>

@@ -104,6 +104,11 @@ export const de: Messages = {
   'appearance.increaseFontSize': 'Nachrichtenschrift vergrößern',
   'appearance.decreaseFontSize': 'Nachrichtenschrift verkleinern',
   'appearance.fontSizeDescription': 'Ändert die Schriftgröße der Nachrichten.',
+  'appearance.pointerCursor': 'Zeiger-Cursor',
+  'appearance.pointerCursorDescription':
+    'Zeigt beim Bewegen über interaktive Steuerelemente einen Zeiger-Cursor an.',
+  'appearance.pointerCursorSaveFailed':
+    'Die Zeiger-Cursor-Einstellung konnte nicht gespeichert werden. Bitte versuche es erneut.',
 
   'shortcuts.resetLabel': 'Standard-Tastenkürzel wiederherstellen',
   'shortcuts.resetFailed':

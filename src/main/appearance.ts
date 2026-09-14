@@ -23,7 +23,7 @@ export function initializeTheme() {
   }
 }
 
-export function registerThemeHandlers() {
+export function registerAppearanceHandlers() {
   ipcMain.handle(IpcChannels.getTheme, () => {
     return getStoreValue('theme')
   })
@@ -58,5 +58,24 @@ export function registerThemeHandlers() {
     logger.info(`Message font size changed to ${fontSize}px`)
     setStoreValue('messageFontSize', fontSize)
     return fontSize
+  })
+
+  ipcMain.handle(IpcChannels.getShowPointerCursor, () => {
+    const enabled = getStoreValue('showPointerCursor') === true
+    setStoreValue('showPointerCursor', enabled)
+    return enabled
+  })
+
+  ipcMain.handle(IpcChannels.setShowPointerCursor, (_event, value: unknown) => {
+    if (typeof value !== 'boolean') {
+      logger.warn(
+        `Invalid pointer cursor preference received: ${String(value)}`,
+      )
+      throw new Error('Unable to save the pointer cursor preference.')
+    }
+
+    logger.info(`Pointer cursor ${value ? 'enabled' : 'disabled'}`)
+    setStoreValue('showPointerCursor', value)
+    return value
   })
 }

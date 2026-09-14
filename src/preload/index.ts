@@ -115,6 +115,19 @@ const electronApi: ElectronApi = {
     )
     return normalizeMessageFontSize(saved)
   },
+  getShowPointerCursor: async () => {
+    const enabled: unknown = await ipcRenderer.invoke(
+      IpcChannels.getShowPointerCursor,
+    )
+    return enabled === true
+  },
+  setShowPointerCursor: async (enabled: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setShowPointerCursor,
+      enabled,
+    )
+    return saved === true
+  },
   getLocale: async () => {
     const locale: unknown = await ipcRenderer.invoke(IpcChannels.getLocale)
     return locale as Locale

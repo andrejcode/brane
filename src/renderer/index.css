@@ -70,6 +70,10 @@ body {
   user-select: none;
 }
 
+.show-pointer-cursor :is(button, select, a[href]):not(:disabled) {
+  cursor: pointer;
+}
+
 /* Sweeps a bright band across clipped text to signal the model is thinking.
    Pair with a symmetric gradient and bg-[length:200%_100%] so the loop is
    seamless. */

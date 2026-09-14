@@ -6,7 +6,7 @@ import {
   resetElectronMock,
 } from '@test/main/electron'
 import { createStoreMock, resetStoreMock, storeValues } from '@test/main/store'
-import { initializeTheme, registerThemeHandlers } from '../theme'
+import { initializeTheme, registerAppearanceHandlers } from '../appearance'
 
 vi.mock('electron', () => createElectronMock({ includeNativeTheme: true }))
 
@@ -45,9 +45,9 @@ describe('initializeTheme', () => {
   })
 })
 
-describe('registerThemeHandlers', () => {
+describe('registerAppearanceHandlers', () => {
   function getHandler(channel: string) {
-    registerThemeHandlers()
+    registerAppearanceHandlers()
     return getIpcHandler(channel)
   }
 
@@ -84,5 +84,28 @@ describe('registerThemeHandlers', () => {
 
     expect(handler({}, 32)).toBe(24)
     expect(storeValues.get('messageFontSize')).toBe(24)
+  })
+
+  it('defaults an invalid pointer cursor preference to disabled', () => {
+    storeValues.set('showPointerCursor', 'yes')
+
+    expect(getHandler(IpcChannels.getShowPointerCursor)({})).toBe(false)
+    expect(storeValues.get('showPointerCursor')).toBe(false)
+  })
+
+  it('persists the pointer cursor preference', () => {
+    const handler = getHandler(IpcChannels.setShowPointerCursor)
+
+    expect(handler({}, true)).toBe(true)
+    expect(storeValues.get('showPointerCursor')).toBe(true)
+  })
+
+  it('rejects an invalid pointer cursor preference', () => {
+    const handler = getHandler(IpcChannels.setShowPointerCursor)
+
+    expect(() => handler({}, 'yes')).toThrow(
+      'Unable to save the pointer cursor preference.',
+    )
+    expect(storeValues.has('showPointerCursor')).toBe(false)
   })
 })

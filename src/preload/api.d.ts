@@ -31,6 +31,8 @@ declare global {
     setTheme: (theme: Theme) => Promise<void>
     getMessageFontSize: () => Promise<number>
     setMessageFontSize: (fontSize: number) => Promise<number>
+    getShowPointerCursor: () => Promise<boolean>
+    setShowPointerCursor: (enabled: boolean) => Promise<boolean>
     getLocale: () => Promise<Locale>
     setLocale: (locale: Locale) => Promise<Locale>
     getModelState: () => Promise<ModelState>

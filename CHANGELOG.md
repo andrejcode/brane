@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - Added customizable Cmd/Ctrl+F shortcut to open the sidebar and focus chat
   search
 - Added custom scrollbars throughout the app
+- Added an Appearance setting to show pointer cursors over interactive controls,
+  disabled by default
 
 ## Updated
 

@@ -62,7 +62,7 @@ export function Select<T extends string>({
           EDGE_PADDING,
           'pr-9',
           'border-neutral-300 bg-neutral-50 dark:border-neutral-500 dark:bg-neutral-700',
-          'cursor-pointer focus:outline-none',
+          'focus:outline-none',
           showFocusRing && FOCUS_RING_INSET_ACTIVE,
           'disabled:cursor-not-allowed disabled:opacity-50',
         )}

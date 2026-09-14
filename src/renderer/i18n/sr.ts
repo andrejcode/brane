@@ -96,6 +96,11 @@ export const sr: Messages = {
   'appearance.increaseFontSize': 'Повећај величину текста порука',
   'appearance.decreaseFontSize': 'Смањи величину текста порука',
   'appearance.fontSizeDescription': 'Мења величину текста порука.',
+  'appearance.pointerCursor': 'Показивач миша',
+  'appearance.pointerCursorDescription':
+    'Приказује показивач миша изнад интерактивних контрола.',
+  'appearance.pointerCursorSaveFailed':
+    'Чување поставке показивача миша није успело. Покушај поново.',
 
   'shortcuts.resetLabel': 'Врати подразумеване пречице',
   'shortcuts.resetFailed':

@@ -98,6 +98,11 @@ export const hr: Messages = {
   'appearance.increaseFontSize': 'Povećaj veličinu teksta poruka',
   'appearance.decreaseFontSize': 'Smanji veličinu teksta poruka',
   'appearance.fontSizeDescription': 'Mijenja veličinu teksta poruka.',
+  'appearance.pointerCursor': 'Pokazivač miša',
+  'appearance.pointerCursorDescription':
+    'Prikazuje pokazivač miša iznad interaktivnih kontrola.',
+  'appearance.pointerCursorSaveFailed':
+    'Spremanje postavke pokazivača miša nije uspjelo. Pokušaj ponovno.',
 
   'shortcuts.resetLabel': 'Vrati zadane prečace',
   'shortcuts.resetFailed':

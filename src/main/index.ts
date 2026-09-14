@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
+import { initializeTheme, registerAppearanceHandlers } from './appearance'
 import { registerApplicationMenu } from './applicationMenu'
 import { registerChatsHandlers } from './chats'
 import { registerChatSettingsHandlers } from './chatSettings'
@@ -16,7 +17,6 @@ import {
 } from './model'
 import { registerShortcutsHandlers } from './shortcuts'
 import { registerSidebarHandlers } from './sidebar'
-import { initializeTheme, registerThemeHandlers } from './theme'
 import { createWindow } from './window'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
@@ -78,7 +78,7 @@ void app.whenReady().then(() => {
     return BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false
   })
 
-  registerThemeHandlers()
+  registerAppearanceHandlers()
   registerApplicationMenu()
   registerLocaleHandlers()
   registerChatSettingsHandlers()

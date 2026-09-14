@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
+import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
@@ -23,6 +24,7 @@ beforeEach(() => {
 
 afterEach(() => {
   document.getElementById('modal-root')?.remove()
+  document.documentElement.classList.remove('show-pointer-cursor')
   clearMockElectronApi()
 })
 
@@ -37,6 +39,7 @@ function OpenOnMount({ modal }: { modal: ModalName }) {
 function renderSettings({ open = true } = {}) {
   return render(
     <AlertProvider>
+      <AppAlert />
       <ModalProvider>
         <ModelProvider>
           <ThemeProvider>
@@ -144,6 +147,60 @@ describe('SettingsModal', () => {
     )
 
     expect(mock.setMessageFontSize).toHaveBeenLastCalledWith(19)
+  })
+
+  it('keeps pointer cursors disabled by default', async () => {
+    renderSettings()
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole('tab', { name: 'Appearance' }))
+
+    expect(
+      screen.getByRole('switch', { name: 'Pointer cursor' }),
+    ).not.toBeChecked()
+    expect(document.documentElement).not.toHaveClass('show-pointer-cursor')
+  })
+
+  it('restores an enabled pointer cursor preference', async () => {
+    installMockElectronApi({ showPointerCursor: true })
+    renderSettings({ open: false })
+
+    await waitFor(() => {
+      expect(document.documentElement).toHaveClass('show-pointer-cursor')
+    })
+  })
+
+  it('enables pointer cursors from the appearance panel', async () => {
+    const mock = installMockElectronApi()
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    await user.click(screen.getByRole('switch', { name: 'Pointer cursor' }))
+
+    expect(mock.setShowPointerCursor).toHaveBeenCalledWith(true)
+    await waitFor(() => {
+      expect(document.documentElement).toHaveClass('show-pointer-cursor')
+    })
+  })
+
+  it('reports a pointer cursor preference that could not be saved', async () => {
+    const mock = installMockElectronApi()
+    mock.setShowPointerCursor.mockRejectedValueOnce(
+      new Error('read-only store'),
+    )
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    const toggle = screen.getByRole('switch', { name: 'Pointer cursor' })
+    await user.click(toggle)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to save the pointer cursor preference. Please try again.',
+    )
+    expect(toggle).not.toBeChecked()
   })
 
   // A confirmation opens on top of the modal, so dismissing it must not take

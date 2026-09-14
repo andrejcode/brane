@@ -1,4 +1,5 @@
 import { MessageFontSizeSettings } from './MessageFontSizeSettings'
+import { PointerCursorSettings } from './PointerCursorSettings'
 import { ThemeSettings } from './ThemeSettings'
 
 export function ApperanceSettings() {
@@ -6,6 +7,7 @@ export function ApperanceSettings() {
     <div className="flex flex-col gap-4">
       <ThemeSettings />
       <MessageFontSizeSettings />
+      <PointerCursorSettings />
     </div>
   )
 }

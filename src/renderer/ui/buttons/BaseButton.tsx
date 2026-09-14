@@ -52,7 +52,7 @@ export function BaseButton({
 }: BaseButtonProps) {
   const buttonClassName = clsx(
     focusRing === 'inset' ? FOCUS_RING_INSET : FOCUS_RING,
-    'cursor-pointer disabled:cursor-not-allowed',
+    'disabled:cursor-not-allowed',
     className,
   )
 
