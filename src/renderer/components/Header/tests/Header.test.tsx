@@ -197,10 +197,10 @@ describe('Header on non-mac', () => {
     expect(streamingId).toBeNull()
   })
 
-  it('disables New chat while the chat on screen is already new', () => {
+  it('keeps New chat available while the chat on screen is already new', () => {
     renderHeader()
 
-    expect(screen.getByRole('button', { name: 'New chat' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'New chat' })).toBeEnabled()
   })
 
   it('does not start another new chat right after one was started', async () => {
@@ -218,7 +218,7 @@ describe('Header on non-mac', () => {
     await user.click(newChatButton)
     await user.click(newChatButton)
 
-    expect(newChatButton).toBeDisabled()
+    expect(newChatButton).toBeEnabled()
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
   })
 

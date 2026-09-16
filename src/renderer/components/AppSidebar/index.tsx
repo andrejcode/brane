@@ -20,7 +20,6 @@ export function AppSidebar() {
     chats,
     activeChatId,
     isHistoryUnavailable,
-    canStartNewChat,
     startNewChat,
     openChat,
     removeChat,
@@ -65,7 +64,6 @@ export function AppSidebar() {
               'text-sm font-medium text-neutral-500 dark:text-neutral-400',
               'hover:bg-neutral-200! dark:hover:bg-neutral-800!',
             )}
-            disabled={!canStartNewChat}
             onClick={startNewChat}
           >
             <SquarePen size={18} className="shrink-0" />

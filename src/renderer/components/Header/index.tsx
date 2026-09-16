@@ -21,7 +21,7 @@ import { formatModelName } from '@/utils'
 export function Header() {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
-  const { canStartNewChat, startNewChat } = useChat()
+  const { startNewChat } = useChat()
   const { loadingModel, selectedModel } = useModel()
   const { isSidebarOpen, isReady: isSidebarReady, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
@@ -103,7 +103,6 @@ export function Header() {
             <GhostButton
               title={t('chat.newChat')}
               ariaLabel={t('chat.newChat')}
-              disabled={isSidebarOpen || !canStartNewChat}
               tabIndex={isSidebarOpen ? -1 : undefined}
               onClick={startNewChat}
             >

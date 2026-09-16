@@ -35,7 +35,6 @@ interface ChatContextValue {
   removeChat: (chatId: string) => Promise<void>
   renameChat: (chatId: string, title: string) => Promise<void>
   ensureActiveChat: (options: EnsureActiveChatOptions) => Promise<string>
-  canStartNewChat: boolean
   startNewChat: () => void
 }
 
@@ -264,7 +263,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       removeChat,
       renameChat,
       ensureActiveChat,
-      canStartNewChat,
       startNewChat,
     }),
     [
@@ -280,7 +278,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       removeChat,
       renameChat,
       ensureActiveChat,
-      canStartNewChat,
       startNewChat,
     ],
   )
