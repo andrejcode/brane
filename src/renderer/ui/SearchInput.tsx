@@ -45,8 +45,7 @@ export function SearchInput({
         placeholder={placeholder}
         aria-label={ariaLabel}
         className={clsx(
-          'min-w-0 flex-1 bg-transparent outline-none',
-          'placeholder:text-neutral-400 disabled:cursor-not-allowed',
+          'min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-400',
           inputClassName,
         )}
       />

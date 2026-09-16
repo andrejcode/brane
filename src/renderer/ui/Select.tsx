@@ -19,12 +19,6 @@ interface SelectProps<T extends string> {
   className?: string
 }
 
-// Matches the horizontal breathing room on both sides: text sits `pl-3` from the
-// left edge and the chevron sits `right-3` from the right edge, so the gap after
-// the icon mirrors the gap before the text.
-const EDGE_PADDING = 'pl-3'
-const ICON_INSET = 'right-3'
-
 export function Select<T extends string>({
   value,
   onChange,
@@ -58,13 +52,10 @@ export function Select<T extends string>({
         }}
         onBlur={() => setShowFocusRing(false)}
         className={clsx(
-          'w-full appearance-none rounded border py-1',
-          EDGE_PADDING,
-          'pr-9',
+          'w-full appearance-none rounded border py-1 pr-9 pl-3',
           'border-neutral-300 bg-neutral-50 dark:border-neutral-500 dark:bg-neutral-700',
-          'focus:outline-none',
+          'focus:outline-none disabled:opacity-50',
           showFocusRing && FOCUS_RING_INSET_ACTIVE,
-          'disabled:cursor-not-allowed disabled:opacity-50',
         )}
       >
         {options.map((option) => (
@@ -77,8 +68,7 @@ export function Select<T extends string>({
         size={16}
         aria-hidden
         className={clsx(
-          'pointer-events-none absolute top-1/2 -translate-y-1/2',
-          ICON_INSET,
+          'pointer-events-none absolute top-1/2 right-3 -translate-y-1/2',
           'text-neutral-500 dark:text-neutral-400',
         )}
       />
