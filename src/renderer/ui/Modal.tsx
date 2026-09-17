@@ -103,7 +103,7 @@ export function Modal({
         tabIndex={-1}
         className={clsx(
           'bg-neutral-50 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-100',
-          'rounded-2xl border border-neutral-200 dark:border-none',
+          'rounded-2xl border border-neutral-200 dark:border-transparent',
           'z-40 flex flex-col shadow-lg outline-none',
           className,
         )}
