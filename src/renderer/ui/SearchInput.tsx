@@ -28,12 +28,16 @@ export function SearchInput({
   return (
     <label
       role="search"
-      className={clsx('flex min-w-0 items-center gap-2', className)}
+      className={clsx('group flex min-w-0 items-center gap-2', className)}
     >
       <Search
         size={18}
         aria-hidden
-        className="shrink-0 text-neutral-500 dark:text-neutral-400"
+        className={clsx(
+          'shrink-0 transition-colors duration-200',
+          !value &&
+            'text-neutral-500 group-focus-within:text-inherit dark:text-neutral-400 dark:group-focus-within:text-inherit',
+        )}
       />
       <input
         ref={inputRef}

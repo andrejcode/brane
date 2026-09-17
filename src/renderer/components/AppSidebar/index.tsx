@@ -61,8 +61,8 @@ export function AppSidebar() {
             ariaLabel={t('chat.newChat')}
             className={clsx(
               'flex h-8 w-full items-center gap-2 px-2 text-left',
-              'text-sm font-medium text-neutral-500 dark:text-neutral-400',
-              'hover:bg-neutral-200! dark:hover:bg-neutral-800!',
+              'text-sm font-medium',
+              'hover:bg-neutral-200! dark:hover:bg-neutral-700!',
             )}
             onClick={startNewChat}
           >
