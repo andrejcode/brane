@@ -19,7 +19,12 @@ import { Messages } from './Messages'
 
 export function Chat() {
   const { showAlert } = useAlert()
-  const { selectedModel, loadedModel, selectModel } = useModel()
+  const {
+    selectedModel,
+    isReady: isModelReady,
+    loadedModel,
+    selectModel,
+  } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
   const {
     messages,
@@ -258,7 +263,7 @@ export function Chat() {
 
     const prompt = input.trim()
 
-    if (prompt.length === 0 || isSending) {
+    if (prompt.length === 0 || isSending || !isModelReady) {
       return
     }
 
@@ -370,6 +375,7 @@ export function Chat() {
                 <ChatInput
                   activeChatId={activeChatId}
                   input={input}
+                  isModelReady={isModelReady}
                   isSending={isSending}
                   onStop={handleStop}
                   onSubmit={handleSubmit}

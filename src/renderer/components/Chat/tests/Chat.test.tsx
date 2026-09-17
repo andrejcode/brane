@@ -8,6 +8,7 @@ import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider, useModel } from '@/contexts/ModelContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import { deriveChatTitle, MAX_CHAT_TITLE_LENGTH } from '@shared/chatTitle'
+import type { ModelState } from '@shared/types'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -185,6 +186,44 @@ describe('Chat intro greeting', () => {
 })
 
 describe('Chat submit', () => {
+  it('waits for the remembered model state before allowing a send', async () => {
+    let resolveModelState: (state: ModelState) => void = () => {}
+    mock.getModelState.mockReturnValue(
+      new Promise<ModelState>((resolve) => {
+        resolveModelState = resolve
+      }),
+    )
+    const user = userEvent.setup()
+    renderChat()
+
+    await user.type(screen.getByPlaceholderText('Ask anything'), 'hello')
+
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled()
+    expect(
+      screen.queryByText('Please select a model to send a message.'),
+    ).not.toBeInTheDocument()
+
+    act(() => {
+      resolveModelState({
+        models: ['test-model.gguf'],
+        selectedModel: 'test-model.gguf',
+      })
+    })
+
+    const sendButton = await screen.findByRole('button', {
+      name: 'Send message',
+    })
+    await waitFor(() => expect(sendButton).toBeEnabled())
+    await user.click(sendButton)
+
+    await waitFor(() => {
+      expect(mock.loadModel).toHaveBeenCalledWith('test-model.gguf')
+    })
+    expect(
+      screen.queryByText('Please select a model to send a message.'),
+    ).not.toBeInTheDocument()
+  })
+
   it('loads the selected model before sending the first prompt', async () => {
     let resolveLoad: () => void = () => {}
     mock.loadModel.mockReturnValue(

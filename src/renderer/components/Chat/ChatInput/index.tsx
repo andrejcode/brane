@@ -26,6 +26,7 @@ const MULTI_ROW_PADDING_RIGHT = 16
 interface ChatInputProps {
   activeChatId: string | null
   input: string
+  isModelReady: boolean
   isSending: boolean
   onStop: () => void
   onSubmit: SubmitEventHandler<HTMLFormElement>
@@ -37,6 +38,7 @@ interface ChatInputProps {
 export function ChatInput({
   activeChatId,
   input,
+  isModelReady,
   isSending,
   onStop,
   onSubmit,
@@ -203,7 +205,7 @@ export function ChatInput({
           type="submit"
           title={t('chat.sendMessage')}
           ariaLabel={t('chat.sendMessage')}
-          disabled={isModalOpen || input.trim().length === 0}
+          disabled={isModalOpen || !isModelReady || input.trim().length === 0}
         >
           <ArrowUp size={20} />
         </ChatActionButton>
