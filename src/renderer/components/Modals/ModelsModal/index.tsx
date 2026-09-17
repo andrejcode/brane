@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import { Check, CircleStop } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
@@ -120,10 +121,11 @@ export function ModelsModal() {
               const isSelected = model === selectedModel
               const isModelLoading = model === loadingModel
               const isLoaded = model === loadedModel
+              const showEjectButton = isModelLoading || isLoaded
               const displayName = formatModelName(model)
 
               return (
-                <li key={model} className="flex items-stretch gap-1">
+                <li key={model} className="flex items-stretch">
                   <GhostButton
                     className="flex min-w-0 flex-1 items-center justify-between gap-2 px-3 py-2 text-left"
                     isActive={isSelected}
@@ -143,28 +145,34 @@ export function ModelsModal() {
                       isLoaded && <Check size={18} className="shrink-0" />
                     )}
                   </GhostButton>
-                  {isModelLoading ? (
+                  <div
+                    aria-hidden={!showEjectButton}
+                    className={clsx(
+                      'min-w-0 overflow-hidden transition-[width,opacity] duration-200 ease-out',
+                      showEjectButton
+                        ? 'w-11 opacity-100'
+                        : 'pointer-events-none w-0 opacity-0',
+                    )}
+                  >
                     <GhostButton
-                      className="flex shrink-0 items-center justify-center px-2"
-                      title={t('models.stopLoading')}
-                      ariaLabel={t('models.stopLoading')}
+                      className="ml-1 flex h-full aspect-square items-center justify-center px-2"
+                      disabled={!showEjectButton || (isLoaded && isLoading)}
+                      tabIndex={showEjectButton ? undefined : -1}
+                      title={
+                        isModelLoading
+                          ? t('models.stopLoading')
+                          : t('models.unload')
+                      }
+                      ariaLabel={
+                        isModelLoading
+                          ? t('models.stopLoading')
+                          : t('models.unload')
+                      }
                       onClick={handleUnload}
                     >
                       <CircleStop size={22} />
                     </GhostButton>
-                  ) : (
-                    isLoaded && (
-                      <GhostButton
-                        className="flex shrink-0 items-center justify-center px-2"
-                        disabled={isLoading}
-                        title={t('models.unload')}
-                        ariaLabel={t('models.unload')}
-                        onClick={handleUnload}
-                      >
-                        <CircleStop size={22} />
-                      </GhostButton>
-                    )
-                  )}
+                  </div>
                 </li>
               )
             })}
