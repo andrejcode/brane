@@ -78,14 +78,14 @@ describe('ConfirmDialog', () => {
     expect(onConfirm).not.toHaveBeenCalled()
   })
 
-  // A stray click outside must not throw away a decision the user still owes.
-  it('ignores clicks on the backdrop', async () => {
+  it('cancels when clicking outside the dialog', async () => {
     const { onConfirm, onCancel } = renderDialog()
 
-    const overlay = screen.getByRole('alertdialog').closest('.m-4')
+    const overlay = screen.getByRole('alertdialog').parentElement
+    expect(overlay).not.toBeNull()
     await userEvent.setup().click(overlay as HTMLElement)
 
-    expect(onCancel).not.toHaveBeenCalled()
+    expect(onCancel).toHaveBeenCalledTimes(1)
     expect(onConfirm).not.toHaveBeenCalled()
   })
 

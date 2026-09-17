@@ -27,8 +27,6 @@ export function ConfirmDialog({
   const messageId = useId()
   const cancelRef = useRef<HTMLButtonElement>(null)
 
-  // A pending decision shouldn't be lost to a stray click outside, so only an
-  // explicit choice (or Escape) closes this.
   return (
     <Modal
       isOpen={isOpen}
@@ -37,7 +35,6 @@ export function ConfirmDialog({
       ariaLabelledBy={titleId}
       ariaDescribedBy={messageId}
       className="w-full max-w-md gap-3 p-4"
-      closeOnBackdropClick={false}
       initialFocusRef={cancelRef}
     >
       <h2 id={titleId} className="text-lg font-medium">

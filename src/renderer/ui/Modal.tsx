@@ -9,7 +9,6 @@ interface ModalProps {
   ariaDescribedBy?: string
   role?: 'dialog' | 'alertdialog'
   className?: string
-  closeOnBackdropClick?: boolean
   initialFocusRef?: React.RefObject<HTMLElement | null>
   children: React.ReactNode
 }
@@ -30,7 +29,6 @@ export function Modal({
   ariaDescribedBy,
   role = 'dialog',
   className = 'w-2xl h-2/3',
-  closeOnBackdropClick = true,
   initialFocusRef,
   children,
 }: ModalProps) {
@@ -92,7 +90,7 @@ export function Modal({
   return createPortal(
     <div
       className="fixed inset-0 z-40 m-4 flex items-center justify-center"
-      onClick={closeOnBackdropClick ? onClose : undefined}
+      onClick={onClose}
     >
       <div className="fixed inset-0 bg-neutral-900/50 dark:bg-neutral-900/80" />
 
