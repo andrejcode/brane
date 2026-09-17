@@ -275,7 +275,7 @@ export function MenuItem({
       className={clsx(
         'grid w-full grid-cols-[1rem_1fr] items-center gap-2 px-2 py-1.5 text-left text-sm whitespace-nowrap',
         isDestructive
-          ? 'text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40'
+          ? 'text-red-500 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-400/15'
           : 'text-neutral-800 dark:text-neutral-100',
       )}
       onClick={() => {

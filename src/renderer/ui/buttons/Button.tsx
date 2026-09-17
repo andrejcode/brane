@@ -30,8 +30,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     'disabled:opacity-50',
   ),
   danger: clsx(
-    'bg-red-600 text-neutral-50 hover:bg-red-700',
-    'dark:bg-red-500 dark:hover:bg-red-600',
+    'bg-red-500/15 text-red-500 hover:bg-red-500/25',
+    'dark:bg-red-400/15 dark:text-red-400 dark:hover:bg-red-400/25',
     'disabled:opacity-50',
   ),
 }

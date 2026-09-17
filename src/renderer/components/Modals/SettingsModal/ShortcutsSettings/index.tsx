@@ -69,7 +69,7 @@ export function ShortcutsSettings() {
                   {t(ACTION_LABEL_KEYS[action])}
                 </p>
                 {conflictAction === action && (
-                  <p className="text-sm text-red-600 dark:text-red-400">
+                  <p className="text-sm text-red-500 dark:text-red-400">
                     {t('shortcuts.conflict')}
                   </p>
                 )}
