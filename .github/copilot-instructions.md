@@ -48,6 +48,28 @@ Brane is an Electron desktop chat app that runs local GGUF models on-device with
   caveats, or platform quirks. Do not leave narrated, commented-out, or edit-log
   comments. Justify lint suppressions inline.
 
+## Git Commits
+
+- Follow Conventional Commits using `type(scope): description`, omitting the
+  scope only when no concise, meaningful scope applies.
+- Use the type that best describes the change, such as `feat`, `fix`,
+  `refactor`, `test`, `docs`, `style`, `perf`, `build`, `ci`, or `chore`.
+- Write a clear, specific subject in the imperative mood. Keep it concise,
+  lowercase after the colon, and do not end it with a period.
+- Make the subject describe the outcome of the change rather than the files
+  touched or the implementation activity. Avoid vague wording such as
+  "updates", "changes", or "fix issue".
+- Add a body when the subject alone does not adequately explain the change.
+  Use the body to describe what changed and why, including important behavior,
+  constraints, or tradeoffs. Do not merely repeat the subject.
+- Separate the body from the subject with a blank line, wrap body text at about
+  72 characters, and use additional paragraphs when they clarify distinct
+  aspects of the change.
+- Mark breaking changes with `!` in the header and include a
+  `BREAKING CHANGE:` footer that explains the impact and required migration.
+- Keep each commit focused on one logical change, and ensure the message
+  accurately describes everything included in the commit.
+
 ## Commands
 
 - Use Node.js 22 and install dependencies with `npm install`.
