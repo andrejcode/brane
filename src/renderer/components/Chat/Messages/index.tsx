@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
 import type { Message } from '@/types'
 import { ScrollArea } from '@/ui/ScrollArea'
 import { ChatMessage } from './ChatMessage'
@@ -34,7 +35,6 @@ export function Messages({
 }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const tailMessagesRef = useRef<HTMLDivElement>(null)
-  const tailSpacerUpdateAnimationFrameRef = useRef<number | null>(null)
   const lastUserMessageRef = useRef<HTMLElement | null>(null)
   const scrolledUserMessageIdRef = useRef<string | null>(null)
   const previousActiveChatIdRef = useRef<string | null | undefined>(undefined)
@@ -157,16 +157,9 @@ export function Messages({
     )
   }, [messages.length])
 
-  const scheduleTailSpacerUpdate = useCallback(() => {
-    if (tailSpacerUpdateAnimationFrameRef.current !== null) {
-      cancelAnimationFrame(tailSpacerUpdateAnimationFrameRef.current)
-    }
-
-    tailSpacerUpdateAnimationFrameRef.current = requestAnimationFrame(() => {
-      tailSpacerUpdateAnimationFrameRef.current = null
-      updateTailBottomInset()
-    })
-  }, [updateTailBottomInset])
+  const scheduleTailSpacerUpdate = useAnimationFrameScheduler(
+    updateTailBottomInset,
+  )
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current
@@ -277,10 +270,6 @@ export function Messages({
 
   useEffect(() => {
     return () => {
-      if (tailSpacerUpdateAnimationFrameRef.current !== null) {
-        cancelAnimationFrame(tailSpacerUpdateAnimationFrameRef.current)
-      }
-
       if (awayFromBottomStabilizeTimeoutRef.current !== null) {
         window.clearTimeout(awayFromBottomStabilizeTimeoutRef.current)
       }

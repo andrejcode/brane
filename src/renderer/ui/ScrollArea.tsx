@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
 import { clamp, computeScrollbarMetrics } from './scrollAreaLayout'
 
 const MINIMUM_THUMB_HEIGHT = 20
@@ -52,7 +53,6 @@ export function ScrollArea({
 }: ScrollAreaProps) {
   const internalViewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
-  const updateFrameRef = useRef<number | null>(null)
   const hideTimeoutRef = useRef<number | null>(null)
   const thumbHeightRef = useRef(MINIMUM_THUMB_HEIGHT)
   const [thumb, setThumb] = useState({
@@ -125,16 +125,7 @@ export function ScrollArea({
     })
   }, [bottomInset, headerInset])
 
-  const scheduleUpdate = useCallback(() => {
-    if (updateFrameRef.current !== null) {
-      cancelAnimationFrame(updateFrameRef.current)
-    }
-
-    updateFrameRef.current = requestAnimationFrame(() => {
-      updateFrameRef.current = null
-      update()
-    })
-  }, [update])
+  const scheduleUpdate = useAnimationFrameScheduler(update)
 
   useEffect(() => {
     const scrollContainer = internalViewportRef.current
@@ -170,10 +161,6 @@ export function ScrollArea({
 
   useEffect(() => {
     return () => {
-      if (updateFrameRef.current !== null) {
-        cancelAnimationFrame(updateFrameRef.current)
-      }
-
       clearHideTimeout()
     }
   }, [clearHideTimeout])
