@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import { X } from 'lucide-react'
 import { BaseButton } from './BaseButton'
 
@@ -20,7 +21,7 @@ export function CloseButton({
       onClick={onClick}
       title={title}
       ariaLabel={ariaLabel ?? title}
-      className={className}
+      className={clsx('rounded-lg', className)}
     >
       <X />
     </BaseButton>

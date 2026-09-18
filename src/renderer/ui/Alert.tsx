@@ -90,7 +90,7 @@ export function Alert({ message, variant, className, onDismiss }: AlertProps) {
         </ScrollArea>
         <CloseButton
           onClick={handleClose}
-          className="ml-2 shrink-0 rounded"
+          className="ml-2 shrink-0"
           title={t('alert.close')}
         />
       </div>

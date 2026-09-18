@@ -90,11 +90,7 @@ export function ModelsModal() {
           ariaLabel={t('models.search')}
           className="flex-1"
         />
-        <CloseButton
-          onClick={closeModal}
-          title={t('models.close')}
-          className="rounded-lg"
-        />
+        <CloseButton onClick={closeModal} title={t('models.close')} />
       </div>
       <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
 
