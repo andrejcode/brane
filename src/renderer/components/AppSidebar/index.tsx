@@ -57,7 +57,6 @@ export function AppSidebar() {
       >
         <div className="flex flex-col gap-1 px-2">
           <GhostButton
-            title={t('chat.newChat')}
             ariaLabel={t('chat.newChat')}
             className={clsx(
               'flex h-8 w-full items-center gap-2 px-2 text-left',

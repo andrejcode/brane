@@ -4,7 +4,7 @@ import { BaseButton } from './BaseButton'
 interface GhostButtonProps {
   children: React.ReactNode
   className?: string | undefined
-  title?: string
+  tooltip?: string
   ariaLabel?: string
   // Renders the button with its hover background applied permanently.
   isActive?: boolean
@@ -24,7 +24,7 @@ interface GhostButtonProps {
 export function GhostButton({
   children,
   className,
-  title,
+  tooltip,
   ariaLabel,
   isActive,
   disabled,
@@ -49,7 +49,7 @@ export function GhostButton({
         isActive && 'bg-neutral-300 dark:bg-neutral-600',
         className,
       )}
-      title={title}
+      tooltip={tooltip}
       ariaLabel={ariaLabel}
       disabled={disabled}
       onClick={onClick}

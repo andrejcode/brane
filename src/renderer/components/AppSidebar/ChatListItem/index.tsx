@@ -5,6 +5,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { BaseButton } from '@/ui/buttons/BaseButton'
 import { Menu, MenuItem } from '@/ui/Menu'
 import type { MenuHandle } from '@/ui/Menu'
+import { TooltipTrigger } from '@/ui/Tooltip'
 import type { ChatSummary } from '@shared/types'
 import { ChatModelLine } from './ChatModelLine'
 import { ChatTitleEditor } from './ChatTitleEditor'
@@ -85,12 +86,13 @@ export function ChatListItem({
               void onOpen(chat.id)
             }}
           >
-            <span
+            <TooltipTrigger
+              onlyWhenTruncated
               className="block truncate text-sm text-neutral-800 dark:text-neutral-100"
-              title={label}
+              tooltip={label}
             >
               {label}
-            </span>
+            </TooltipTrigger>
             <ChatModelLine chat={chat} modelWarning={modelWarning} />
           </BaseButton>
 

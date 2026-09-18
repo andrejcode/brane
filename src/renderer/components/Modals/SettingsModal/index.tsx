@@ -32,7 +32,7 @@ export function SettingsModal() {
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex shrink-0 items-center justify-between p-3">
             <h3 className="text-xl">{activeLabel}</h3>
-            <CloseButton onClick={closeModal} title={t('settings.close')} />
+            <CloseButton onClick={closeModal} ariaLabel={t('settings.close')} />
           </div>
 
           <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />

@@ -1,5 +1,7 @@
 import { clsx } from 'clsx'
+import { useId, useRef } from 'react'
 import { FOCUS_RING, FOCUS_RING_INSET } from '@/ui/styles/focusRing'
+import { Tooltip, useTooltipVisibility } from '@/ui/Tooltip'
 
 type FocusRing = 'default' | 'inset'
 
@@ -9,7 +11,7 @@ interface BaseButtonProps {
   ref?: React.Ref<HTMLButtonElement> | undefined
   type: 'button' | 'submit' | 'reset'
   disabled?: boolean | undefined
-  title?: string | undefined
+  tooltip?: string | undefined
   ariaLabel?: string | undefined
   ariaLabelledBy?: string | undefined
   ariaPressed?: boolean | undefined
@@ -34,7 +36,7 @@ export function BaseButton({
   ref,
   type,
   disabled,
-  title,
+  tooltip,
   ariaLabel,
   ariaLabelledBy,
   ariaPressed,
@@ -50,33 +52,59 @@ export function BaseButton({
   ariaControls,
   tabIndex,
 }: BaseButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const tooltipId = useId()
+  const { hideTooltip, isTooltipVisible, showTooltip } = useTooltipVisibility()
   const buttonClassName = clsx(
     focusRing === 'inset' ? FOCUS_RING_INSET : FOCUS_RING,
     className,
   )
 
   return (
-    <button
-      ref={ref}
-      className={buttonClassName}
-      type={type}
-      disabled={disabled}
-      title={title}
-      aria-label={ariaLabel}
-      aria-labelledby={ariaLabelledBy}
-      aria-pressed={ariaPressed}
-      aria-checked={ariaChecked}
-      onClick={onClick}
-      onBlur={onBlur}
-      id={id}
-      role={role}
-      aria-selected={ariaSelected}
-      aria-expanded={ariaExpanded}
-      aria-haspopup={ariaHasPopup}
-      aria-controls={ariaControls}
-      tabIndex={tabIndex}
-    >
-      {children}
-    </button>
+    <>
+      <button
+        ref={(element) => {
+          buttonRef.current = element
+
+          if (typeof ref === 'function') ref(element)
+          else if (ref) ref.current = element
+        }}
+        className={buttonClassName}
+        type={type}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={tooltip && isTooltipVisible ? tooltipId : undefined}
+        aria-pressed={ariaPressed}
+        aria-checked={ariaChecked}
+        onClick={onClick}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={(event) => {
+          if (event.currentTarget.matches(':focus-visible')) {
+            showTooltip()
+          }
+        }}
+        onBlur={(event) => {
+          hideTooltip()
+          onBlur?.(event)
+        }}
+        id={id}
+        role={role}
+        aria-selected={ariaSelected}
+        aria-expanded={ariaExpanded}
+        aria-haspopup={ariaHasPopup}
+        aria-controls={ariaControls}
+        tabIndex={tabIndex}
+      >
+        {children}
+      </button>
+
+      {tooltip && isTooltipVisible ? (
+        <Tooltip id={tooltipId} targetRef={buttonRef}>
+          {tooltip}
+        </Tooltip>
+      ) : null}
+    </>
   )
 }

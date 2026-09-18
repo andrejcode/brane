@@ -109,15 +109,17 @@ describe('AppSidebar', () => {
     expect(screen.getByText('test-model')).toBeInTheDocument()
   })
 
-  it('uses the title once a chat has one', async () => {
+  it('uses the title without a tooltip when it fits', async () => {
     renderSidebar({ chats: [chatSummary({ title: 'Sourdough tips' })] })
+    const user = userEvent.setup()
 
-    expect(await screen.findByText('Sourdough tips')).toBeInTheDocument()
-    expect(screen.getByText('Sourdough tips')).toHaveAttribute(
-      'title',
-      'Sourdough tips',
-    )
+    const title = await screen.findByText('Sourdough tips')
+    expect(title).not.toHaveAttribute('title')
     expect(screen.queryByText('Untitled chat')).not.toBeInTheDocument()
+
+    await user.hover(title)
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
   it('filters chats by title', async () => {
@@ -189,7 +191,7 @@ describe('AppSidebar', () => {
     ).toBeDisabled()
   })
 
-  it('flags a chat whose model is gone, explaining it on hover', async () => {
+  it('flags a chat whose model is gone', async () => {
     renderSidebar({ chats: [chatSummary({ modelAvailability: 'missing' })] })
 
     expect(
@@ -197,28 +199,25 @@ describe('AppSidebar', () => {
         'This model is no longer in your models folder.',
       ),
     ).toBeInTheDocument()
-    expect(
-      screen.getByTitle('This model is no longer in your models folder.'),
-    ).toBeInTheDocument()
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
   it('explains a model that changed since the chat was created', async () => {
     renderSidebar({ chats: [chatSummary({ modelAvailability: 'replaced' })] })
 
     expect(
-      await screen.findByTitle(
+      await screen.findByLabelText(
         'This model file has changed since the chat was created.',
       ),
     ).toBeInTheDocument()
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
   it('leaves the model line unexplained when nothing is wrong', async () => {
     renderSidebar({ chats: [chatSummary()] })
 
     expect(await screen.findByText('test-model')).toBeInTheDocument()
-    expect(
-      screen.queryByTitle('This model is no longer in your models folder.'),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
   it('loads the messages of the chat that was clicked', async () => {
@@ -264,11 +263,15 @@ describe('AppSidebar', () => {
     renderSidebar({ chats: [chatSummary()] })
     const user = userEvent.setup()
 
-    await user.click(await screen.findByText('Untitled chat'))
+    const chatButton = await screen.findByRole('button', {
+      name: /Untitled chat/,
+    })
+
+    await user.click(chatButton)
     await waitFor(() => {
       expect(mock.getChatMessages).toHaveBeenCalledTimes(1)
     })
-    await user.click(screen.getByText('Untitled chat'))
+    await user.click(chatButton)
 
     expect(mock.getChatMessages).toHaveBeenCalledTimes(1)
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)

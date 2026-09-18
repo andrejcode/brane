@@ -4,7 +4,6 @@ import { BaseButton } from '@/ui/buttons/BaseButton'
 interface ChatActionButtonProps {
   children: React.ReactNode
   type: 'button' | 'submit'
-  title?: string
   ariaLabel?: string
   disabled?: boolean
   onClick?: (() => void) | undefined
@@ -13,7 +12,6 @@ interface ChatActionButtonProps {
 export function ChatActionButton({
   children,
   type,
-  title,
   ariaLabel,
   disabled,
   onClick,
@@ -21,7 +19,6 @@ export function ChatActionButton({
   return (
     <BaseButton
       type={type}
-      title={title}
       ariaLabel={ariaLabel}
       disabled={disabled}
       onClick={onClick}

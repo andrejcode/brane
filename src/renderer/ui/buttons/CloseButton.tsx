@@ -4,14 +4,14 @@ import { BaseButton } from './BaseButton'
 
 interface CloseButtonProps {
   onClick: () => void
-  title?: string
+  tooltip?: string
   ariaLabel?: string
   className?: string
 }
 
 export function CloseButton({
   onClick,
-  title = 'Close',
+  tooltip,
   ariaLabel,
   className,
 }: CloseButtonProps) {
@@ -19,8 +19,8 @@ export function CloseButton({
     <BaseButton
       type="button"
       onClick={onClick}
-      title={title}
-      ariaLabel={ariaLabel ?? title}
+      tooltip={tooltip}
+      ariaLabel={ariaLabel ?? tooltip ?? 'Close'}
       className={clsx('rounded-lg', className)}
     >
       <X />

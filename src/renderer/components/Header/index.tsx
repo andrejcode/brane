@@ -14,6 +14,7 @@ import { useModel } from '@/contexts/ModelContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
+import { TooltipTrigger } from '@/ui/Tooltip'
 import { formatModelName } from '@/utils'
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
@@ -82,7 +83,7 @@ export function Header() {
       >
         <div className="flex items-center gap-3">
           <GhostButton
-            title={t('header.toggleSidebar')}
+            tooltip={t('header.toggleSidebar')}
             ariaLabel={t('header.toggleSidebar')}
             onClick={toggleSidebar}
           >
@@ -101,7 +102,7 @@ export function Header() {
             )}
           >
             <GhostButton
-              title={t('chat.newChat')}
+              tooltip={t('chat.newChat')}
               ariaLabel={t('chat.newChat')}
               tabIndex={isSidebarOpen ? -1 : undefined}
               onClick={startNewChat}
@@ -114,20 +115,25 @@ export function Header() {
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
-            title={isLoadingModel ? t('header.loadingModel') : modelLabel}
             ariaLabel={t('header.selectModel')}
             onClick={() => openModal('models')}
           >
             {isLoadingModel ? (
               <LoadingSpinner isLoading size={20} />
             ) : (
-              <span className="max-w-64 truncate">{modelLabel}</span>
+              <TooltipTrigger
+                onlyWhenTruncated
+                className="max-w-64 truncate"
+                tooltip={modelLabel}
+              >
+                {modelLabel}
+              </TooltipTrigger>
             )}
             <ChevronRight size={18} className="shrink-0" />
           </GhostButton>
 
           <GhostButton
-            title={t('header.openSettings')}
+            tooltip={t('header.openSettings')}
             ariaLabel={t('header.openSettings')}
             onClick={() => openModal('settings')}
           >

@@ -90,7 +90,7 @@ export function ModelsModal() {
           ariaLabel={t('models.search')}
           className="flex-1"
         />
-        <CloseButton onClick={closeModal} title={t('models.close')} />
+        <CloseButton onClick={closeModal} ariaLabel={t('models.close')} />
       </div>
       <hr className="shrink-0 border-neutral-200 dark:border-neutral-500" />
 
@@ -126,7 +126,6 @@ export function ModelsModal() {
                     className="flex min-w-0 flex-1 items-center justify-between gap-2 px-3 py-2 text-left"
                     isActive={isSelected}
                     disabled={isLoading}
-                    title={displayName}
                     ariaLabel={displayName}
                     onClick={() => handleSelect(model)}
                   >
@@ -154,11 +153,6 @@ export function ModelsModal() {
                       className="ml-1 flex h-full aspect-square items-center justify-center px-2"
                       disabled={!showEjectButton || (isLoaded && isLoading)}
                       tabIndex={showEjectButton ? undefined : -1}
-                      title={
-                        isModelLoading
-                          ? t('models.stopLoading')
-                          : t('models.unload')
-                      }
                       ariaLabel={
                         isModelLoading
                           ? t('models.stopLoading')

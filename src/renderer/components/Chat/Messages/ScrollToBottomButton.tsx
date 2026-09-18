@@ -31,7 +31,6 @@ export function ScrollToBottomButton({
     >
       <BaseButton
         type="button"
-        title={t('chat.scrollToBottom')}
         ariaLabel={t('chat.scrollToBottom')}
         onClick={onClick}
         tabIndex={isVisible ? 0 : -1}

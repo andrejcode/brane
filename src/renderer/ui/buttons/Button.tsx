@@ -10,7 +10,7 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset'
   variant?: ButtonVariant
   disabled?: boolean
-  title?: string
+  tooltip?: string
   ariaLabel?: string
   ariaLabelledBy?: string
   ariaPressed?: boolean
@@ -43,7 +43,7 @@ export function Button({
   type = 'button',
   variant = 'solid',
   disabled,
-  title,
+  tooltip,
   ariaLabel,
   ariaLabelledBy,
   ariaPressed,
@@ -56,7 +56,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      title={title}
+      tooltip={tooltip}
       ariaLabel={ariaLabel}
       ariaLabelledBy={ariaLabelledBy}
       ariaPressed={ariaPressed}

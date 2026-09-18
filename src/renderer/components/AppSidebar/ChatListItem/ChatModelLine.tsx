@@ -9,10 +9,7 @@ interface ChatModelLineProps {
 
 export function ChatModelLine({ chat, modelWarning }: ChatModelLineProps) {
   return (
-    <span
-      className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400"
-      title={modelWarning ?? undefined}
-    >
+    <span className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
       {modelWarning !== null && (
         <TriangleAlert
           size={12}

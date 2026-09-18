@@ -91,7 +91,7 @@ export function Alert({ message, variant, className, onDismiss }: AlertProps) {
         <CloseButton
           onClick={handleClose}
           className="ml-2 shrink-0"
-          title={t('alert.close')}
+          ariaLabel={t('alert.close')}
         />
       </div>
     )

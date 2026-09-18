@@ -24,6 +24,7 @@ const MenuContext = createContext<MenuContextValue | null>(null)
 interface MenuProps {
   ref?: Ref<MenuHandle>
   label: string
+  tooltip?: string
   children: React.ReactNode
   align?: 'start' | 'end'
   triggerClassName?: string
@@ -86,6 +87,7 @@ function pointerMenuPosition(position: MenuPosition, menu: DOMRect) {
 export function Menu({
   ref,
   label,
+  tooltip,
   children,
   align = 'end',
   triggerClassName,
@@ -198,7 +200,7 @@ export function Menu({
       <GhostButton
         ref={triggerRef}
         ariaLabel={label}
-        title={label}
+        {...(tooltip === undefined ? {} : { tooltip })}
         ariaHasPopup="menu"
         ariaExpanded={isOpen}
         ariaControls={isOpen ? menuId : undefined}

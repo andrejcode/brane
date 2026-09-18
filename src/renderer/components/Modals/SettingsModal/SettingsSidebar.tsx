@@ -93,7 +93,6 @@ export function SettingsSidebar({
               ariaControls={`settings-panel-${tab.id}`}
               tabIndex={isActive ? 0 : -1}
               isActive={isActive}
-              title={label}
               onClick={() => onTabChange(tab.id)}
               className="flex w-full items-center gap-2 px-2 text-left"
             >

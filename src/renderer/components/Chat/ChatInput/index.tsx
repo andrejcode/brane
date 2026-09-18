@@ -193,7 +193,6 @@ export function ChatInput({
       {isSending ? (
         <ChatActionButton
           type="button"
-          title={t('chat.stopGenerating')}
           ariaLabel={t('chat.stopGenerating')}
           disabled={isModalOpen}
           onClick={onStop}
@@ -203,7 +202,6 @@ export function ChatInput({
       ) : (
         <ChatActionButton
           type="submit"
-          title={t('chat.sendMessage')}
           ariaLabel={t('chat.sendMessage')}
           disabled={isModalOpen || !isModelReady || input.trim().length === 0}
         >
