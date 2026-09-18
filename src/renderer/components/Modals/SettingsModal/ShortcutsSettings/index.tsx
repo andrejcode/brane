@@ -16,10 +16,10 @@ import { ShortcutRecorder } from './ShortcutRecorder'
 const ACTION_LABEL_KEYS: Record<ShortcutAction, MessageKey> = {
   toggleSettings: 'shortcuts.toggleSettings',
   toggleModels: 'shortcuts.toggleModels',
-  toggleSidebar: 'shortcuts.toggleSidebar',
-  focusSearch: 'shortcuts.focusSearch',
+  toggleSidebar: 'header.toggleSidebar',
+  focusSearch: 'sidebar.search',
   newChat: 'shortcuts.newChat',
-  stopGeneration: 'shortcuts.stopGeneration',
+  stopGeneration: 'chat.stopGenerating',
 }
 
 export function ShortcutsSettings() {

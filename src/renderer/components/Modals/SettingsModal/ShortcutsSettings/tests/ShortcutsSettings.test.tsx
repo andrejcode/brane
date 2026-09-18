@@ -40,9 +40,7 @@ describe('ShortcutsSettings', () => {
   it('describes each action next to its shortcut', async () => {
     renderShortcuts()
 
-    expect(
-      await screen.findByText('Open or close settings'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Toggle settings')).toBeInTheDocument()
     expect(screen.getByText('Start a new chat')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Search chats' }),
