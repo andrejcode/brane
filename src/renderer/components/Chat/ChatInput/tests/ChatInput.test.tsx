@@ -175,22 +175,37 @@ describe('ChatInput global focus stealing', () => {
   })
 
   it.each([
-    ['Cmd+V', { metaKey: true }],
-    ['Ctrl+V', { ctrlKey: true }],
-  ])('focuses the textarea for %s', (_, modifier) => {
+    ['Cmd+V', { metaKey: true }, ''],
+    ['Ctrl+V', { ctrlKey: true }, ''],
+    ['Cmd+A', { metaKey: true }, 'hello'],
+    ['Ctrl+A', { ctrlKey: true }, 'hello'],
+  ])('focuses the textarea for %s', (shortcut, modifier, input) => {
+    renderChatInput({ input })
+    const textarea = screen.getByPlaceholderText('Ask anything')
+    const key = shortcut.slice(-1)
+
+    fireEvent.keyDown(document, { key, ...modifier })
+
+    expect(textarea).toHaveFocus()
+  })
+
+  it.each([
+    ['Cmd+A', { metaKey: true }],
+    ['Ctrl+A', { ctrlKey: true }],
+  ])('does not focus the empty textarea for %s', (shortcut, modifier) => {
     renderChatInput()
     const textarea = screen.getByPlaceholderText('Ask anything')
 
-    fireEvent.keyDown(document, { key: 'v', ...modifier })
+    fireEvent.keyDown(document, { key: shortcut.slice(-1), ...modifier })
 
-    expect(textarea).toHaveFocus()
+    expect(textarea).not.toHaveFocus()
   })
 
   it('ignores modifier shortcuts', () => {
     renderChatInput()
     const textarea = screen.getByPlaceholderText('Ask anything')
 
-    fireEvent.keyDown(document, { key: 'a', metaKey: true })
+    fireEvent.keyDown(document, { key: 'x', metaKey: true })
 
     expect(textarea).not.toHaveFocus()
   })
@@ -223,7 +238,7 @@ describe('ChatInput global focus stealing', () => {
     const other = screen.getByLabelText('other')
     other.focus()
 
-    fireEvent.keyDown(document, { key: 'a' })
+    fireEvent.keyDown(document, { key: 'a', metaKey: true })
 
     expect(other).toHaveFocus()
     expect(screen.getByPlaceholderText('Ask anything')).not.toHaveFocus()

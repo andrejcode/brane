@@ -120,14 +120,19 @@ export function ChatInput({
         return
       }
 
-      const isPasteShortcut =
-        event.key.toLowerCase() === 'v' &&
-        (event.ctrlKey || event.metaKey) &&
-        !event.altKey
+      const key = event.key.toLowerCase()
+      const hasPrimaryModifier = event.ctrlKey || event.metaKey
+      const isPasteShortcut = key === 'v' && hasPrimaryModifier && !event.altKey
+      const isSelectAllShortcut =
+        key === 'a' &&
+        hasPrimaryModifier &&
+        !event.altKey &&
+        textarea.value.length > 0
+      const isChatEditingShortcut = isPasteShortcut || isSelectAllShortcut
 
       // Let shortcuts and non-printable keys pass through untouched.
       if (
-        !isPasteShortcut &&
+        !isChatEditingShortcut &&
         (event.ctrlKey || event.metaKey || event.altKey)
       ) {
         return
