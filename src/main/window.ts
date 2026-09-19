@@ -9,6 +9,7 @@ import {
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { IpcChannels } from '@shared/types'
+import { registerContextMenu } from './contextMenu'
 import { logger } from './logger'
 import { getStoreValue, setStoreValue } from './store'
 
@@ -77,6 +78,8 @@ export function createWindow() {
       devTools: shouldOpenDevTools,
     },
   })
+
+  registerContextMenu(mainWindow)
 
   if (windowState.isMaximized) {
     mainWindow.maximize()
