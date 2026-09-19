@@ -36,6 +36,7 @@ export const en = {
   'chat.copy': 'Copy',
   'chat.copied': 'Copied',
   'chat.copyFailed': 'Failed',
+  'chat.contextUsed': '{used} / {size} tokens used',
 
   'models.title': 'Models',
   'models.search': 'Search models',

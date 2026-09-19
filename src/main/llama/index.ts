@@ -280,6 +280,8 @@ function persistAssistantTurn(
   content: string,
   reasoning: string,
   finishReason: FinishReason,
+  contextUsed?: number,
+  contextSize?: number,
 ) {
   // Nothing was generated, so there's no turn worth keeping. Matches the
   // renderer dropping its empty placeholder.
@@ -293,6 +295,8 @@ function persistAssistantTurn(
     content,
     reasoning: reasoning.length === 0 ? null : reasoning,
     finishReason,
+    ...(contextUsed === undefined ? {} : { contextUsed }),
+    ...(contextSize === undefined ? {} : { contextSize }),
   })
 }
 
@@ -342,8 +346,12 @@ async function streamPrompt(
 
     const responseText = responseChunks.join('') || response.responseText
     const stopped = response.stopReason === 'abort'
+    const contextUsed = session.sequence.nextTokenIndex
+    const contextSize = session.sequence.contextSize
+    const hasContextUsage =
+      Number.isInteger(contextUsed) && Number.isInteger(contextSize)
     logger.info(
-      `Response complete (${responseText.length} chars, stopReason: ${response.stopReason})`,
+      `Response complete (${responseText.length} chars, context: ${contextUsed}/${contextSize}, stopReason: ${response.stopReason})`,
     )
 
     persistAssistantTurn(
@@ -351,11 +359,13 @@ async function streamPrompt(
       responseText,
       thoughtChunks.join(''),
       stopped ? 'stopped' : 'done',
+      ...(hasContextUsage ? [contextUsed, contextSize] : []),
     )
     sendStreamEvent(sender, {
       type: 'done',
       response: responseText,
       stopped,
+      ...(hasContextUsage ? { contextUsed, contextSize } : {}),
     })
   } catch (error) {
     // Aborting before generation starts streaming rejects instead of

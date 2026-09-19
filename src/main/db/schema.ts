@@ -54,6 +54,8 @@ export const messages = sqliteTable(
     // Kept out of `content` so it isn't replayed into the next prompt.
     reasoning: text('reasoning'),
     finishReason: text('finish_reason').$type<FinishReason>(),
+    contextUsed: integer('context_used'),
+    contextSize: integer('context_size'),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -64,7 +66,7 @@ export const messages = sqliteTable(
     ),
     check(
       'messages_assistant_only_fields',
-      sql`${table.role} = 'assistant' or (${table.reasoning} is null and ${table.finishReason} is null)`,
+      sql`${table.role} = 'assistant' or (${table.reasoning} is null and ${table.finishReason} is null and ${table.contextUsed} is null and ${table.contextSize} is null)`,
     ),
   ],
 )

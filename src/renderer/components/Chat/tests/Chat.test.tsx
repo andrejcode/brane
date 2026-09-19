@@ -422,6 +422,8 @@ describe('Chat resuming a stored chat', () => {
           content: 'earlier question',
           reasoning: null,
           finishReason: null,
+          contextUsed: null,
+          contextSize: null,
         },
       ],
     })
@@ -506,6 +508,8 @@ describe('Chat when another model is selected', () => {
             content: 'earlier question',
             reasoning: null,
             finishReason: null,
+            contextUsed: null,
+            contextSize: null,
           },
         ],
       },
@@ -571,6 +575,8 @@ describe('Chat with a model that was deleted', () => {
           content: 'earlier question',
           reasoning: null,
           finishReason: null,
+          contextUsed: null,
+          contextSize: null,
         },
       ],
     })
@@ -653,6 +659,8 @@ describe('Chat with a model that was deleted', () => {
           content: 'earlier question',
           reasoning: null,
           finishReason: null,
+          contextUsed: null,
+          contextSize: null,
         },
       ],
     })

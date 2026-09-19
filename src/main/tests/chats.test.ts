@@ -105,6 +105,8 @@ describe('get chat messages', () => {
         content: 'answer',
         reasoning: 'pondering',
         finishReason: 'done',
+        contextUsed: 1234,
+        contextSize: 4096,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -117,6 +119,8 @@ describe('get chat messages', () => {
         content: 'answer',
         reasoning: 'pondering',
         finishReason: 'done',
+        contextUsed: 1234,
+        contextSize: 4096,
       },
     ])
   })

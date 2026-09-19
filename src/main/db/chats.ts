@@ -71,6 +71,8 @@ interface AppendMessageInput {
   id?: string
   reasoning?: string | null
   finishReason?: FinishReason | null
+  contextUsed?: number | null
+  contextSize?: number | null
 }
 
 // The position lookup and insert share a transaction so two turns can't land on
@@ -82,6 +84,8 @@ export function appendMessage({
   id = randomUUID(),
   reasoning = null,
   finishReason = null,
+  contextUsed = null,
+  contextSize = null,
 }: AppendMessageInput): MessageRow {
   return getDatabase().transaction((tx) => {
     const lastMessage = tx
@@ -101,6 +105,8 @@ export function appendMessage({
         content,
         reasoning,
         finishReason,
+        contextUsed,
+        contextSize,
         position: (lastMessage?.position ?? -1) + 1,
       })
       .returning()

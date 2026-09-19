@@ -4,4 +4,8 @@ export interface Message {
   content: string
   reasoning?: string
   isThinking?: boolean
+  contextUsage?: {
+    used: number
+    size: number
+  }
 }

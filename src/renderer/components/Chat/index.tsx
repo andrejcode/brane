@@ -135,6 +135,15 @@ export function Chat() {
                     ? event.response.trimStart()
                     : message.content,
                 isThinking: false,
+                ...(event.contextUsed === undefined ||
+                event.contextSize === undefined
+                  ? {}
+                  : {
+                      contextUsage: {
+                        used: event.contextUsed,
+                        size: event.contextSize,
+                      },
+                    }),
               },
             ]
           }),

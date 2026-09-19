@@ -134,7 +134,7 @@ describe('appendMessage', () => {
     expect(other.position).toBe(0)
   })
 
-  it('round-trips an assistant turn with its reasoning and finish reason', () => {
+  it('round-trips an assistant turn with its metadata', () => {
     const chat = createTestChat()
 
     appendMessage({
@@ -143,6 +143,8 @@ describe('appendMessage', () => {
       content: 'partial answer',
       reasoning: 'thinking out loud',
       finishReason: 'stopped',
+      contextUsed: 1234,
+      contextSize: 4096,
     })
 
     expect(listMessages(chat.id)[0]).toMatchObject({
@@ -150,6 +152,8 @@ describe('appendMessage', () => {
       content: 'partial answer',
       reasoning: 'thinking out loud',
       finishReason: 'stopped',
+      contextUsed: 1234,
+      contextSize: 4096,
     })
   })
 
@@ -161,6 +165,8 @@ describe('appendMessage', () => {
     expect(listMessages(chat.id)[0]).toMatchObject({
       reasoning: null,
       finishReason: null,
+      contextUsed: null,
+      contextSize: null,
     })
   })
 

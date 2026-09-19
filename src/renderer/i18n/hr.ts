@@ -41,6 +41,7 @@ export const hr: Messages = {
   'chat.copy': 'Kopiraj',
   'chat.copied': 'Kopirano',
   'chat.copyFailed': 'Neuspješno',
+  'chat.contextUsed': 'Iskorišteno {used} / {size} tokena',
 
   'models.title': 'Modeli',
   'models.search': 'Pretraži modele',

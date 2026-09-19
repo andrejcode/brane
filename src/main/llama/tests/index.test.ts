@@ -15,6 +15,7 @@ const {
   listMessages,
   setChatHistory,
   resetChatHistory,
+  sequence,
 } = vi.hoisted(() => ({
   promptWithMeta: vi.fn(),
   dispose: vi.fn(() => Promise.resolve()),
@@ -24,6 +25,10 @@ const {
   listMessages: vi.fn(() => []),
   setChatHistory: vi.fn(),
   resetChatHistory: vi.fn(),
+  sequence: {
+    nextTokenIndex: undefined as number | undefined,
+    contextSize: undefined as number | undefined,
+  },
 }))
 
 vi.mock('electron', () => createElectronMock())
@@ -41,6 +46,7 @@ vi.mock('node-llama-cpp', () => ({
     promptWithMeta = promptWithMeta
     setChatHistory = setChatHistory
     resetChatHistory = resetChatHistory
+    sequence = sequence
   },
 }))
 
@@ -86,6 +92,8 @@ beforeEach(() => {
   listMessages.mockReturnValue([])
   setChatHistory.mockReset()
   resetChatHistory.mockReset()
+  sequence.nextTokenIndex = undefined
+  sequence.contextSize = undefined
   dispose.mockClear()
   createContextMock.mockResolvedValue({ getSequence: () => ({}) })
   loadModelMock.mockImplementation(() => Promise.resolve(createFakeModel()))
@@ -101,6 +109,8 @@ afterEach(async () => {
 
 describe('llama send-prompt handler', () => {
   it('sends a done event with the response on normal completion', async () => {
+    sequence.nextTokenIndex = 1234
+    sequence.contextSize = 4096
     promptWithMeta.mockResolvedValueOnce({
       responseText: 'hello',
       stopReason: 'eogToken',
@@ -113,6 +123,8 @@ describe('llama send-prompt handler', () => {
       type: 'done',
       response: 'hello',
       stopped: false,
+      contextUsed: 1234,
+      contextSize: 4096,
     })
   })
 

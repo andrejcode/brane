@@ -44,6 +44,7 @@ export const de: Messages = {
   'chat.copy': 'Kopieren',
   'chat.copied': 'Kopiert',
   'chat.copyFailed': 'Fehlgeschlagen',
+  'chat.contextUsed': '{used} / {size} Tokens verwendet',
 
   'models.title': 'Modelle',
   'models.search': 'Modelle suchen',

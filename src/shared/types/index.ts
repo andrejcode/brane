@@ -212,6 +212,8 @@ export interface StoredMessage {
   content: string
   reasoning: string | null
   finishReason: FinishReason | null
+  contextUsed: number | null
+  contextSize: number | null
 }
 
 // Models emit their output in segments. A `thought` segment is the model's
@@ -229,6 +231,8 @@ export type LlamaStreamEvent =
       type: 'done'
       response: string
       stopped?: boolean
+      contextUsed?: number
+      contextSize?: number
     }
   | {
       type: 'error'

@@ -40,19 +40,31 @@ export function ChatMessage({ message, ref }: ChatMessageProps) {
       )}
 
       {canCopy && (
-        <CopyButton
-          copyStatus={copyStatus}
-          onClick={() => void copy(message.content)}
-          labels={{
-            copy: t('chat.copy'),
-            copied: t('chat.copied'),
-            error: t('chat.copyFailed'),
-          }}
+        <div
           className={clsx(
+            'flex items-center gap-2 text-xs text-neutral-500',
             'opacity-0 transition-opacity duration-200',
-            'group-hover:opacity-100 focus-visible:opacity-100',
+            'group-hover:opacity-100 group-focus-within:opacity-100',
           )}
-        />
+        >
+          {!isUser && message.contextUsage && (
+            <span>
+              {t('chat.contextUsed', {
+                used: message.contextUsage.used.toLocaleString(),
+                size: message.contextUsage.size.toLocaleString(),
+              })}
+            </span>
+          )}
+          <CopyButton
+            copyStatus={copyStatus}
+            onClick={() => void copy(message.content)}
+            labels={{
+              copy: t('chat.copy'),
+              copied: t('chat.copied'),
+              error: t('chat.copyFailed'),
+            }}
+          />
+        </div>
       )}
     </article>
   )

@@ -39,6 +39,7 @@ export const sr: Messages = {
   'chat.copy': 'Копирај',
   'chat.copied': 'Копирано',
   'chat.copyFailed': 'Неуспешно',
+  'chat.contextUsed': 'Искоришћено {used} / {size} токена',
 
   'models.title': 'Модели',
   'models.search': 'Претражи моделе',

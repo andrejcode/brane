@@ -70,6 +70,8 @@ function toStoredMessages(chatId: string): StoredMessage[] {
     content: message.content,
     reasoning: message.reasoning,
     finishReason: message.finishReason,
+    contextUsed: message.contextUsed,
+    contextSize: message.contextSize,
   }))
 }
 
