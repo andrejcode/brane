@@ -18,6 +18,8 @@ export const IpcChannels = {
   setMessageFontSize: 'appearance:set-message-font-size',
   getShowPointerCursor: 'appearance:get-show-pointer-cursor',
   setShowPointerCursor: 'appearance:set-show-pointer-cursor',
+  getShowContextUsage: 'appearance:get-show-context-usage',
+  setShowContextUsage: 'appearance:set-show-context-usage',
 
   getLocale: 'locale:get',
   setLocale: 'locale:set',

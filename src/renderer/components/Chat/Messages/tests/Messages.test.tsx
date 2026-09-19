@@ -137,6 +137,29 @@ describe('Messages', () => {
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
   })
 
+  it('hides context usage when the preference is disabled', () => {
+    render(
+      <Messages
+        activeChatId={null}
+        messages={[
+          {
+            id: '1',
+            role: 'assistant',
+            content: 'response',
+            contextUsage: { used: 1234, size: 4096 },
+          },
+        ]}
+        bottomInset={0}
+        showContextUsage={false}
+      />,
+    )
+
+    expect(
+      screen.queryByText('1,234 / 4,096 tokens used'),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
+  })
+
   it('opens a selected chat already scrolled to the bottom', () => {
     const { container, rerender } = render(
       <Messages activeChatId={null} messages={[]} bottomInset={0} />,

@@ -78,4 +78,21 @@ export function registerAppearanceHandlers() {
     setStoreValue('showPointerCursor', value)
     return value
   })
+
+  ipcMain.handle(IpcChannels.getShowContextUsage, () => {
+    const enabled = getStoreValue('showContextUsage') !== false
+    setStoreValue('showContextUsage', enabled)
+    return enabled
+  })
+
+  ipcMain.handle(IpcChannels.setShowContextUsage, (_event, value: unknown) => {
+    if (typeof value !== 'boolean') {
+      logger.warn(`Invalid context usage preference received: ${String(value)}`)
+      throw new Error('Unable to save the context usage preference.')
+    }
+
+    logger.info(`Context usage display ${value ? 'enabled' : 'disabled'}`)
+    setStoreValue('showContextUsage', value)
+    return value
+  })
 }

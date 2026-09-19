@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AppSidebar } from '@/components/AppSidebar'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { AppearanceProvider } from '@/contexts/AppearanceContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider, useModel } from '@/contexts/ModelContext'
@@ -73,20 +74,22 @@ function renderChat({
 }: { storedChatId?: string; selectableModel?: string } = {}) {
   return render(
     <AlertProvider>
-      <ModelProvider>
-        <ChatSettingsProvider>
-          <ChatProvider>
-            <Chat />
-            <AppAlert />
-            {storedChatId === undefined ? null : (
-              <OpenStoredChat chatId={storedChatId} />
-            )}
-            {selectableModel === undefined ? null : (
-              <SelectModel model={selectableModel} />
-            )}
-          </ChatProvider>
-        </ChatSettingsProvider>
-      </ModelProvider>
+      <AppearanceProvider>
+        <ModelProvider>
+          <ChatSettingsProvider>
+            <ChatProvider>
+              <Chat />
+              <AppAlert />
+              {storedChatId === undefined ? null : (
+                <OpenStoredChat chatId={storedChatId} />
+              )}
+              {selectableModel === undefined ? null : (
+                <SelectModel model={selectableModel} />
+              )}
+            </ChatProvider>
+          </ChatSettingsProvider>
+        </ModelProvider>
+      </AppearanceProvider>
     </AlertProvider>,
   )
 }
@@ -141,17 +144,19 @@ function renderChatWithSidebar(options: MockElectronApiOptions = {}) {
 
   return render(
     <AlertProvider>
-      <ModelProvider>
-        <ChatSettingsProvider>
-          <SidebarProvider>
-            <ChatProvider>
-              <AppSidebar />
-              <Chat />
-              <AppAlert />
-            </ChatProvider>
-          </SidebarProvider>
-        </ChatSettingsProvider>
-      </ModelProvider>
+      <AppearanceProvider>
+        <ModelProvider>
+          <ChatSettingsProvider>
+            <SidebarProvider>
+              <ChatProvider>
+                <AppSidebar />
+                <Chat />
+                <AppAlert />
+              </ChatProvider>
+            </SidebarProvider>
+          </ChatSettingsProvider>
+        </ModelProvider>
+      </AppearanceProvider>
     </AlertProvider>,
   )
 }

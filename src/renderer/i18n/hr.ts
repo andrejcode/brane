@@ -99,6 +99,11 @@ export const hr: Messages = {
   'appearance.increaseFontSize': 'Povećaj veličinu teksta poruka',
   'appearance.decreaseFontSize': 'Smanji veličinu teksta poruka',
   'appearance.fontSizeDescription': 'Mijenja veličinu teksta poruka.',
+  'appearance.contextUsage': 'Prikaži iskorištenost konteksta',
+  'appearance.contextUsageDescription':
+    'Prikazuje iskorištenost tokena ispod poruka asistenta.',
+  'appearance.contextUsageSaveFailed':
+    'Nije moguće spremiti postavku iskorištenosti konteksta. Pokušajte ponovno.',
   'appearance.pointerCursor': 'Pokazivač miša',
   'appearance.pointerCursorDescription':
     'Prikazuje pokazivač miša iznad interaktivnih kontrola.',

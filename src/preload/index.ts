@@ -128,6 +128,19 @@ const electronApi: ElectronApi = {
     )
     return saved === true
   },
+  getShowContextUsage: async () => {
+    const enabled: unknown = await ipcRenderer.invoke(
+      IpcChannels.getShowContextUsage,
+    )
+    return enabled !== false
+  },
+  setShowContextUsage: async (enabled: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setShowContextUsage,
+      enabled,
+    )
+    return saved !== false
+  },
   getLocale: async () => {
     const locale: unknown = await ipcRenderer.invoke(IpcChannels.getLocale)
     return locale as Locale

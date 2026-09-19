@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useAppearance } from '@/contexts/AppearanceContext'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { matchesBinding } from '@/utils'
 import {
   DEFAULT_MESSAGE_FONT_SIZE,
@@ -22,7 +22,7 @@ export function useKeyboardShortcuts() {
   const { toggleModal } = useModals()
   const { focusSearch, toggleSidebar } = useSidebar()
   const { chats, isSending, openChat, startNewChat } = useChat()
-  const { messageFontSize, setMessageFontSize } = useTheme()
+  const { messageFontSize, setMessageFontSize } = useAppearance()
   const { t } = useTranslation()
   const messageFontSizeRef = useRef(messageFontSize)
 

@@ -2,11 +2,11 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { AppearanceProvider } from '@/contexts/AppearanceContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { DEFAULT_SHORTCUTS, type ChatSummary } from '@shared/types'
 import {
@@ -67,7 +67,7 @@ async function renderHarness({
   const result = render(
     <AlertProvider>
       <ModalProvider>
-        <ThemeProvider>
+        <AppearanceProvider>
           <ShortcutsProvider>
             <SidebarProvider>
               <ChatProvider>
@@ -78,14 +78,14 @@ async function renderHarness({
               </ChatProvider>
             </SidebarProvider>
           </ShortcutsProvider>
-        </ThemeProvider>
+        </AppearanceProvider>
       </ModalProvider>
     </AlertProvider>,
   )
 
   await waitFor(() => {
     expect(mock.updateApplicationMenu).toHaveBeenCalled()
-    expect(mock.getTheme).toHaveBeenCalled()
+    expect(mock.getMessageFontSize).toHaveBeenCalled()
     expect(mock.listChats).toHaveBeenCalled()
     expect(
       document.documentElement.style.getPropertyValue('--message-font-size'),

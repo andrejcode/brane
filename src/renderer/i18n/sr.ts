@@ -97,6 +97,11 @@ export const sr: Messages = {
   'appearance.increaseFontSize': 'Повећај величину текста порука',
   'appearance.decreaseFontSize': 'Смањи величину текста порука',
   'appearance.fontSizeDescription': 'Мења величину текста порука.',
+  'appearance.contextUsage': 'Прикажи искоришћеност контекста',
+  'appearance.contextUsageDescription':
+    'Приказује искоришћеност токена испод порука асистента.',
+  'appearance.contextUsageSaveFailed':
+    'Није могуће сачувати поставку искоришћености контекста. Покушајте поново.',
   'appearance.pointerCursor': 'Показивач миша',
   'appearance.pointerCursorDescription':
     'Приказује показивач миша изнад интерактивних контрола.',

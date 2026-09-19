@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useAppearance } from '@/contexts/AppearanceContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
@@ -9,6 +10,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 export function useReady() {
   const { isReady: isModelReady } = useModel()
   const { isReady: isThemeReady } = useTheme()
+  const { isReady: isAppearanceReady } = useAppearance()
   const { isReady: isLocaleReady } = useLocale()
   const { isReady: isChatSettingsReady } = useChatSettings()
   const { isReady: isShortcutsReady } = useShortcuts()
@@ -22,6 +24,7 @@ export function useReady() {
     if (
       isModelReady &&
       isThemeReady &&
+      isAppearanceReady &&
       isLocaleReady &&
       isChatSettingsReady &&
       isShortcutsReady &&
@@ -34,6 +37,7 @@ export function useReady() {
   }, [
     isModelReady,
     isThemeReady,
+    isAppearanceReady,
     isLocaleReady,
     isChatSettingsReady,
     isShortcutsReady,

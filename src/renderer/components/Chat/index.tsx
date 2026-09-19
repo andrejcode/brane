@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { useAlert } from '@/contexts/AlertContext'
+import { useAppearance } from '@/contexts/AppearanceContext'
 import { useChat } from '@/contexts/ChatContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useTranslation } from '@/contexts/LocaleContext'
@@ -26,6 +27,7 @@ export function Chat() {
     selectModel,
   } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
+  const { showContextUsage } = useAppearance()
   const {
     messages,
     setMessages,
@@ -338,6 +340,7 @@ export function Chat() {
         activeChatId={activeChatId}
         messages={messages}
         bottomInset={bottomOverlayInset}
+        showContextUsage={showContextUsage}
       />
 
       {/* This overlay is outside normal layout, so we measure it above */}

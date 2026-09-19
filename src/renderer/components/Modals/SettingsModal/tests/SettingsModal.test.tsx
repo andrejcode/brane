@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { useEffect } from 'react'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { AppearanceProvider } from '@/contexts/AppearanceContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   type ModalName,
@@ -43,12 +44,14 @@ function renderSettings({ open = true } = {}) {
       <ModalProvider>
         <ModelProvider>
           <ThemeProvider>
-            <ChatSettingsProvider>
-              <ShortcutsProvider>
-                {open && <OpenOnMount modal="settings" />}
-                <SettingsModal />
-              </ShortcutsProvider>
-            </ChatSettingsProvider>
+            <AppearanceProvider>
+              <ChatSettingsProvider>
+                <ShortcutsProvider>
+                  {open && <OpenOnMount modal="settings" />}
+                  <SettingsModal />
+                </ShortcutsProvider>
+              </ChatSettingsProvider>
+            </AppearanceProvider>
           </ThemeProvider>
         </ModelProvider>
       </ModalProvider>
@@ -147,6 +150,37 @@ describe('SettingsModal', () => {
     )
 
     expect(mock.setMessageFontSize).toHaveBeenLastCalledWith(19)
+  })
+
+  it('shows context usage by default and allows disabling it', async () => {
+    const mock = installMockElectronApi()
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    const toggle = screen.getByRole('switch', { name: 'Show context usage' })
+
+    expect(toggle).toBeChecked()
+    await user.click(toggle)
+
+    expect(mock.setShowContextUsage).toHaveBeenCalledWith(false)
+    await waitFor(() => expect(toggle).not.toBeChecked())
+  })
+
+  it('reports a context usage preference that could not be saved', async () => {
+    const mock = installMockElectronApi()
+    mock.setShowContextUsage.mockRejectedValueOnce(new Error('read-only store'))
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    const toggle = screen.getByRole('switch', { name: 'Show context usage' })
+    await user.click(toggle)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to save the context usage preference. Please try again.',
+    )
+    expect(toggle).toBeChecked()
   })
 
   it('keeps pointer cursors disabled by default', async () => {

@@ -17,6 +17,7 @@ interface MessagesProps {
   activeChatId: string | null
   bottomInset: number
   messages: Message[]
+  showContextUsage?: boolean
 }
 
 const headerHeight = 56
@@ -32,6 +33,7 @@ export function Messages({
   activeChatId,
   bottomInset,
   messages,
+  showContextUsage = true,
 }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const tailMessagesRef = useRef<HTMLDivElement>(null)
@@ -297,6 +299,7 @@ export function Messages({
     <ChatMessage
       key={message.id}
       message={message}
+      showContextUsage={showContextUsage}
       ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
     />
   )

@@ -8,10 +8,15 @@ import { AssistantMessage } from './AssistantMessage'
 
 interface ChatMessageProps {
   message: Message
+  showContextUsage: boolean
   ref?: Ref<HTMLElement> | undefined
 }
 
-export function ChatMessage({ message, ref }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  showContextUsage,
+  ref,
+}: ChatMessageProps) {
   const { t } = useTranslation()
   const { copyStatus, copy } = useCopyToClipboard()
   const isUser = message.role === 'user'
@@ -47,7 +52,7 @@ export function ChatMessage({ message, ref }: ChatMessageProps) {
             'group-hover:opacity-100 group-focus-within:opacity-100',
           )}
         >
-          {!isUser && message.contextUsage && (
+          {showContextUsage && !isUser && message.contextUsage && (
             <span>
               {t('chat.contextUsed', {
                 used: message.contextUsage.used.toLocaleString(),

@@ -20,6 +20,7 @@ interface StoreSchema {
   theme: Theme
   messageFontSize: number
   showPointerCursor: boolean
+  showContextUsage: boolean
   // Filename (e.g. "Qwen3-4B-Q5_K_M.gguf") of the last selected model, or null
   // when no model has been chosen yet.
   selectedModel: string | null
@@ -46,6 +47,7 @@ const defaults: StoreSchema = {
   theme: 'system',
   messageFontSize: DEFAULT_MESSAGE_FONT_SIZE,
   showPointerCursor: false,
+  showContextUsage: true,
   selectedModel: null,
   loadModelOnStartup: false,
   sendWithModifierEnter: false,

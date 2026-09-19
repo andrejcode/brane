@@ -1,5 +1,5 @@
+import { useAppearance } from '@/contexts/AppearanceContext'
 import { useTranslation } from '@/contexts/LocaleContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { NumberStepper } from '@/ui/NumberStepper'
 import {
   MAX_MESSAGE_FONT_SIZE,
@@ -9,7 +9,7 @@ import {
 
 export function MessageFontSizeSettings() {
   const { t } = useTranslation()
-  const { messageFontSize, setMessageFontSize } = useTheme()
+  const { messageFontSize, setMessageFontSize } = useAppearance()
 
   return (
     <div className="flex items-center justify-between gap-6">

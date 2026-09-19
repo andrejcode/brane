@@ -92,6 +92,11 @@ export const en = {
   'appearance.increaseFontSize': 'Increase message font size',
   'appearance.decreaseFontSize': 'Decrease message font size',
   'appearance.fontSizeDescription': 'Changes the font size of messages.',
+  'appearance.contextUsage': 'Show context usage',
+  'appearance.contextUsageDescription':
+    'Shows token usage below assistant messages.',
+  'appearance.contextUsageSaveFailed':
+    'Failed to save the context usage preference. Please try again.',
   'appearance.pointerCursor': 'Pointer cursor',
   'appearance.pointerCursorDescription':
     'Show a pointer cursor when hovering over interactive controls.',

@@ -33,6 +33,8 @@ declare global {
     setMessageFontSize: (fontSize: number) => Promise<number>
     getShowPointerCursor: () => Promise<boolean>
     setShowPointerCursor: (enabled: boolean) => Promise<boolean>
+    getShowContextUsage: () => Promise<boolean>
+    setShowContextUsage: (enabled: boolean) => Promise<boolean>
     getLocale: () => Promise<Locale>
     setLocale: (locale: Locale) => Promise<Locale>
     getModelState: () => Promise<ModelState>

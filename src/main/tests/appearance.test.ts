@@ -108,4 +108,27 @@ describe('registerAppearanceHandlers', () => {
     )
     expect(storeValues.has('showPointerCursor')).toBe(false)
   })
+
+  it('defaults an invalid context usage preference to enabled', () => {
+    storeValues.set('showContextUsage', 'yes')
+
+    expect(getHandler(IpcChannels.getShowContextUsage)({})).toBe(true)
+    expect(storeValues.get('showContextUsage')).toBe(true)
+  })
+
+  it('persists the context usage preference', () => {
+    const handler = getHandler(IpcChannels.setShowContextUsage)
+
+    expect(handler({}, false)).toBe(false)
+    expect(storeValues.get('showContextUsage')).toBe(false)
+  })
+
+  it('rejects an invalid context usage preference', () => {
+    const handler = getHandler(IpcChannels.setShowContextUsage)
+
+    expect(() => handler({}, 'no')).toThrow(
+      'Unable to save the context usage preference.',
+    )
+    expect(storeValues.has('showContextUsage')).toBe(false)
+  })
 })

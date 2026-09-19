@@ -105,6 +105,11 @@ export const de: Messages = {
   'appearance.increaseFontSize': 'Nachrichtenschrift vergrößern',
   'appearance.decreaseFontSize': 'Nachrichtenschrift verkleinern',
   'appearance.fontSizeDescription': 'Ändert die Schriftgröße der Nachrichten.',
+  'appearance.contextUsage': 'Kontextnutzung anzeigen',
+  'appearance.contextUsageDescription':
+    'Zeigt die Token-Nutzung unter Assistentennachrichten an.',
+  'appearance.contextUsageSaveFailed':
+    'Die Einstellung zur Kontextnutzung konnte nicht gespeichert werden. Bitte erneut versuchen.',
   'appearance.pointerCursor': 'Zeiger-Cursor',
   'appearance.pointerCursorDescription':
     'Zeigt beim Bewegen über interaktive Steuerelemente einen Zeiger-Cursor an.',

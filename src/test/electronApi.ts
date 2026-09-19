@@ -36,6 +36,8 @@ export interface MockElectronApi {
   setMessageFontSize: ReturnType<typeof vi.fn>
   getShowPointerCursor: ReturnType<typeof vi.fn>
   setShowPointerCursor: ReturnType<typeof vi.fn>
+  getShowContextUsage: ReturnType<typeof vi.fn>
+  setShowContextUsage: ReturnType<typeof vi.fn>
   getLocale: ReturnType<typeof vi.fn>
   setLocale: ReturnType<typeof vi.fn>
   getModelState: ReturnType<typeof vi.fn>
@@ -67,6 +69,7 @@ export interface MockElectronApiOptions {
   theme?: Theme
   messageFontSize?: number
   showPointerCursor?: boolean
+  showContextUsage?: boolean
   locale?: Locale
   models?: string[]
   selectedModel?: string | null
@@ -90,6 +93,7 @@ export function installMockElectronApi(
     theme = 'system',
     messageFontSize = DEFAULT_MESSAGE_FONT_SIZE,
     showPointerCursor = false,
+    showContextUsage = true,
     locale = 'en',
     models = [],
     selectedModel = null,
@@ -138,6 +142,12 @@ export function installMockElectronApi(
     (): Promise<boolean> => Promise.resolve(showPointerCursor),
   )
   const setShowPointerCursor = vi.fn(
+    (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
+  )
+  const getShowContextUsage = vi.fn(
+    (): Promise<boolean> => Promise.resolve(showContextUsage),
+  )
+  const setShowContextUsage = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
   const getLocale = vi.fn((): Promise<Locale> => Promise.resolve(locale))
@@ -276,6 +286,8 @@ export function installMockElectronApi(
     setMessageFontSize,
     getShowPointerCursor,
     setShowPointerCursor,
+    getShowContextUsage,
+    setShowContextUsage,
     getLocale,
     setLocale,
     getModelState,
@@ -318,6 +330,8 @@ export function installMockElectronApi(
     setMessageFontSize,
     getShowPointerCursor,
     setShowPointerCursor,
+    getShowContextUsage,
+    setShowContextUsage,
     getLocale,
     setLocale,
     getModelState,
