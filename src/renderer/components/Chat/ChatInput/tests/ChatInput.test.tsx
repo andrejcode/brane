@@ -174,6 +174,18 @@ describe('ChatInput global focus stealing', () => {
     expect(textarea).toHaveFocus()
   })
 
+  it.each([
+    ['Cmd+V', { metaKey: true }],
+    ['Ctrl+V', { ctrlKey: true }],
+  ])('focuses the textarea for %s', (_, modifier) => {
+    renderChatInput()
+    const textarea = screen.getByPlaceholderText('Ask anything')
+
+    fireEvent.keyDown(document, { key: 'v', ...modifier })
+
+    expect(textarea).toHaveFocus()
+  })
+
   it('ignores modifier shortcuts', () => {
     renderChatInput()
     const textarea = screen.getByPlaceholderText('Ask anything')
