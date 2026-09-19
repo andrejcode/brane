@@ -4,6 +4,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import type { Message } from '@/types'
 import { CopyButton } from '@/ui/buttons/CopyButton'
+import { Tag } from '@/ui/Tag'
 import { AssistantMessage } from './AssistantMessage'
 
 interface ChatMessageProps {
@@ -53,12 +54,12 @@ export function ChatMessage({
           )}
         >
           {showContextUsage && !isUser && message.contextUsage && (
-            <span>
+            <Tag>
               {t('chat.contextUsed', {
                 used: message.contextUsage.used.toLocaleString(),
                 size: message.contextUsage.size.toLocaleString(),
               })}
-            </span>
+            </Tag>
           )}
           <CopyButton
             copyStatus={copyStatus}
