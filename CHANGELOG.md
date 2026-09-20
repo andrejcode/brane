@@ -2,15 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-# Unreleased
+# v0.2.0 - 2026-09-20
+
+These changes are focused on UI/UX improvements.
 
 ## Added
 
 - Added a setting to load the selected model automatically on startup
-- Added a New chat button to the sidebar
+- Added a New chat button to the sidebar and hid the header’s New chat button when the sidebar is open.
 - Added customizable Cmd/Ctrl+F shortcut to open the sidebar and focus chat
   search
 - Added custom scrollbars throughout the app
+- Added persisted context token usage to assistant messages, with an Appearance
+  setting to show or hide it
 - Added an Appearance setting to show pointer cursors over interactive controls,
   disabled by default
 

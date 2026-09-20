@@ -79,6 +79,7 @@ the same name is also detected.
 - Rename and delete conversations
 - Stop generation at any time
 - Display of supported model reasoning segments
+- Optional context token usage display for assistant responses
 - Markdown, code highlighting, tables, and math in responses
 - Light, dark, and system themes
 - Adjustable message font size
