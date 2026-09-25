@@ -8,6 +8,7 @@ import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { Modal } from '@/ui/Modal'
 import { DEFAULT_SHORTCUTS, type ChatSummary } from '@shared/types'
 import {
   clearMockElectronApi,
@@ -20,10 +21,15 @@ let mock: MockElectronApi
 interface ShortcutsHarnessProps {
   withMessages: boolean
   isSending: boolean
+  isStandaloneModalOpen: boolean
 }
 
 // Seeds chat state so shortcuts can exercise generation and conversation actions.
-function ShortcutsHarness({ withMessages, isSending }: ShortcutsHarnessProps) {
+function ShortcutsHarness({
+  withMessages,
+  isSending,
+  isStandaloneModalOpen,
+}: ShortcutsHarnessProps) {
   useKeyboardShortcuts()
   const { messages, setMessages, setIsSending } = useChat()
   const { activeModal } = useModals()
@@ -45,6 +51,13 @@ function ShortcutsHarness({ withMessages, isSending }: ShortcutsHarnessProps) {
         data-sidebar-open={isSidebarOpen}
       />
       <input ref={setSearchInput} aria-label="Search chats" />
+      <Modal
+        isOpen={isStandaloneModalOpen}
+        onClose={() => undefined}
+        ariaLabelledBy="standalone-modal-title"
+      >
+        <h2 id="standalone-modal-title">Confirm action</h2>
+      </Modal>
     </>
   )
 }
@@ -55,12 +68,14 @@ async function renderHarness({
   isSending = false,
   messageFontSize = 16,
   chats = [],
+  isStandaloneModalOpen = false,
 }: {
   isMac?: boolean
   withMessages?: boolean
   isSending?: boolean
   messageFontSize?: number
   chats?: ChatSummary[]
+  isStandaloneModalOpen?: boolean
 } = {}) {
   mock = installMockElectronApi({ isMac, messageFontSize, chats })
 
@@ -74,6 +89,7 @@ async function renderHarness({
                 <ShortcutsHarness
                   withMessages={withMessages}
                   isSending={isSending}
+                  isStandaloneModalOpen={isStandaloneModalOpen}
                 />
               </ChatProvider>
             </SidebarProvider>
@@ -98,6 +114,7 @@ async function renderHarness({
 afterEach(() => {
   cleanup()
   clearMockElectronApi()
+  document.getElementById('modal-root')?.remove()
 })
 
 describe('useKeyboardShortcuts', () => {
@@ -183,6 +200,44 @@ describe('useKeyboardShortcuts', () => {
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-active-modal',
       'settings',
+    )
+  })
+
+  it('blocks main-view shortcuts while a modal is open', async () => {
+    await renderHarness({ withMessages: true })
+    const user = userEvent.setup()
+
+    await user.keyboard('{Control>},{/Control}')
+    await user.keyboard('{Control>}n{/Control}')
+    await user.keyboard('{Control>}f{/Control}')
+
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-message-count',
+      '1',
+    )
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-sidebar-open',
+      'false',
+    )
+
+    act(() => {
+      mock.emitApplicationMenuAction({ type: 'toggleSidebar' })
+    })
+
+    expect(mock.setSidebarOpen).not.toHaveBeenCalled()
+  })
+
+  it('blocks main-view shortcuts while a standalone modal is open', async () => {
+    const modalRoot = document.createElement('div')
+    modalRoot.id = 'modal-root'
+    document.body.appendChild(modalRoot)
+    await renderHarness({ withMessages: true, isStandaloneModalOpen: true })
+
+    await userEvent.setup().keyboard('{Control>}n{/Control}')
+
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-message-count',
+      '1',
     )
   })
 

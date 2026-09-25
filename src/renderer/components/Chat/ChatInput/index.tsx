@@ -14,7 +14,7 @@ import type {
   SubmitEventHandler,
 } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
-import { useIsAnyModalOpen } from '@/contexts/ModalContext'
+import { useIsModalOpen } from '@/contexts/ModalContext'
 import { ChatActionButton } from './ChatActionButton'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
 
@@ -48,7 +48,7 @@ export function ChatInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const previousActiveChatIdRef = useRef(activeChatId)
   const [isMultiline, setIsMultiline] = useState(false)
-  const isModalOpen = useIsAnyModalOpen()
+  const isModalOpen = useIsModalOpen()
   const { t } = useTranslation()
 
   useEffect(() => {

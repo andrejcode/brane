@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useTrackModalOpenState } from '@/contexts/ModalContext'
 
 interface ModalProps {
   isOpen: boolean
@@ -33,6 +34,7 @@ export function Modal({
   children,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
+  useTrackModalOpenState(isOpen)
 
   // Move focus into the dialog when it opens, and restore it to whatever was
   // focused before once it closes. Dialogs that ask for a decision point at

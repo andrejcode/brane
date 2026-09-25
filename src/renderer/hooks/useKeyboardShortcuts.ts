@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useAppearance } from '@/contexts/AppearanceContext'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
-import { useModals } from '@/contexts/ModalContext'
+import { useIsModalOpen, useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { matchesBinding } from '@/utils'
@@ -20,6 +20,7 @@ type ShortcutHandlers = Record<ShortcutAction, () => void>
 export function useKeyboardShortcuts() {
   const { shortcuts } = useShortcuts()
   const { toggleModal } = useModals()
+  const isModalOpen = useIsModalOpen()
   const { focusSearch, toggleSidebar } = useSidebar()
   const { chats, isSending, openChat, startNewChat } = useChat()
   const { messageFontSize, setMessageFontSize } = useAppearance()
@@ -68,6 +69,10 @@ export function useKeyboardShortcuts() {
     const isMac = window.electronApi.isMac
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isModalOpen) {
+        return
+      }
+
       const primaryModifier = isMac ? event.metaKey : event.ctrlKey
       const crossModifier = isMac ? event.ctrlKey : event.metaKey
 
@@ -102,7 +107,7 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [shortcuts, setNextMessageFontSize])
+  }, [isModalOpen, shortcuts, setNextMessageFontSize])
 
   useEffect(() => {
     void window.electronApi
@@ -118,6 +123,10 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     return window.electronApi.onApplicationMenuAction((action) => {
+      if (isModalOpen) {
+        return
+      }
+
       switch (action.type) {
         case 'newChat':
           startNewChat()
@@ -139,5 +148,11 @@ export function useKeyboardShortcuts() {
           break
       }
     })
-  }, [openChat, setNextMessageFontSize, startNewChat, toggleSidebar])
+  }, [
+    isModalOpen,
+    openChat,
+    setNextMessageFontSize,
+    startNewChat,
+    toggleSidebar,
+  ])
 }
