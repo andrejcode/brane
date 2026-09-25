@@ -35,15 +35,6 @@
     "trinity:force": "npm run lint; npm run typecheck; npm run test",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,mjs,cjs}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,css,md,html,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
