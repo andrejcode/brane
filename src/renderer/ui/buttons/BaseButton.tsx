@@ -11,7 +11,7 @@ interface BaseButtonProps {
   ref?: React.Ref<HTMLButtonElement> | undefined
   type: 'button' | 'submit' | 'reset'
   disabled?: boolean | undefined
-  tooltip?: string | undefined
+  tooltip?: React.ReactNode
   ariaLabel?: string | undefined
   ariaLabelledBy?: string | undefined
   ariaPressed?: boolean | undefined

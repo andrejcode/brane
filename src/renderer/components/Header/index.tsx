@@ -11,11 +11,12 @@ import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
 import { useModel } from '@/contexts/ModelContext'
+import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
-import { TooltipTrigger } from '@/ui/Tooltip'
-import { formatModelName } from '@/utils'
+import { Tag } from '@/ui/Tag'
+import { formatModelName, formatShortcut } from '@/utils'
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
 // Also icons are positioned differently on macOS because of the traffic lights
@@ -24,12 +25,22 @@ export function Header() {
   const { openModal } = useModals()
   const { startNewChat } = useChat()
   const { loadingModel, selectedModel } = useModel()
+  const { shortcuts } = useShortcuts()
   const { isSidebarOpen, isReady: isSidebarReady, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
   const isLoadingModel = loadingModel !== null
   const modelLabel = selectedModel
     ? formatModelName(selectedModel)
     : t('header.selectModel')
+  const selectModelShortcut = formatShortcut(shortcuts.toggleModels, isMac)
+  const selectModelTooltip = selectedModel ? (
+    <span className="flex items-center gap-2">
+      {t('header.selectModel')}
+      <Tag>{selectModelShortcut}</Tag>
+    </span>
+  ) : (
+    <span>{selectModelShortcut}</span>
+  )
   const [isFullScreen, setIsFullScreen] = useState(false)
 
   useEffect(() => {
@@ -115,19 +126,14 @@ export function Header() {
         <div className="flex items-center gap-3">
           <GhostButton
             className="flex items-center gap-0.5 px-2"
+            tooltip={selectModelTooltip}
             ariaLabel={t('header.selectModel')}
             onClick={() => openModal('models')}
           >
             {isLoadingModel ? (
               <LoadingSpinner isLoading size={20} />
             ) : (
-              <TooltipTrigger
-                onlyWhenTruncated
-                className="max-w-64 truncate"
-                tooltip={modelLabel}
-              >
-                {modelLabel}
-              </TooltipTrigger>
+              <span className="max-w-64 truncate">{modelLabel}</span>
             )}
             <ChevronRight size={18} className="shrink-0" />
           </GhostButton>

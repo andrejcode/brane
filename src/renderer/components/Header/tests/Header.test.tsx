@@ -5,7 +5,9 @@ import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ModalProvider, useModals } from '@/contexts/ModalContext'
 import { ModelProvider } from '@/contexts/ModelContext'
+import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
+import { DEFAULT_SHORTCUTS } from '@shared/types'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -81,16 +83,18 @@ function renderHeader({
     <AlertProvider>
       <ModalProvider>
         <ModelProvider>
-          <SidebarProvider>
-            <ChatProvider>
-              <Header />
-              <ActiveModalProbe />
-              {withChatState ? <ChatStateProbe /> : null}
-              {onStreamingId ? (
-                <StreamingIdProbe onStreamingId={onStreamingId} />
-              ) : null}
-            </ChatProvider>
-          </SidebarProvider>
+          <ShortcutsProvider>
+            <SidebarProvider>
+              <ChatProvider>
+                <Header />
+                <ActiveModalProbe />
+                {withChatState ? <ChatStateProbe /> : null}
+                {onStreamingId ? (
+                  <StreamingIdProbe onStreamingId={onStreamingId} />
+                ) : null}
+              </ChatProvider>
+            </SidebarProvider>
+          </ShortcutsProvider>
         </ModelProvider>
       </ModalProvider>
     </AlertProvider>,
@@ -165,6 +169,21 @@ describe('Header on non-mac', () => {
     expect(screen.getByTestId('active-modal')).toHaveTextContent('models')
   })
 
+  it('shows the customized shortcut when no model is selected', async () => {
+    const user = userEvent.setup()
+    mock.getShortcuts.mockResolvedValue({
+      ...DEFAULT_SHORTCUTS,
+      toggleModels: { key: 'k', mod: true, shift: false, alt: true },
+    })
+    renderHeader()
+
+    await user.hover(screen.getByRole('button', { name: 'Select model' }))
+
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Ctrl+Alt+K')
+  })
+
   it('stops generation and resets chat UI when New chat is clicked', async () => {
     const user = userEvent.setup()
     let streamingId: string | null = 'unset'
@@ -232,6 +251,13 @@ describe('Header on non-mac', () => {
     renderHeader()
 
     expect(await screen.findByText('my-model')).toBeInTheDocument()
+
+    const user = userEvent.setup()
+    await user.hover(screen.getByRole('button', { name: 'Select model' }))
+
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Select modelCtrl+Shift+M')
   })
 
   it('shows a loading spinner instead of the name while the model loads', async () => {

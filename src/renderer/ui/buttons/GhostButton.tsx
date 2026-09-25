@@ -4,7 +4,7 @@ import { BaseButton } from './BaseButton'
 interface GhostButtonProps {
   children: React.ReactNode
   className?: string | undefined
-  tooltip?: string
+  tooltip?: React.ReactNode
   ariaLabel?: string
   // Renders the button with its hover background applied permanently.
   isActive?: boolean
