@@ -18,6 +18,27 @@ import {
 
 let mock: MockElectronApi
 
+const PLATFORM_CASES = [
+  { name: 'macOS', isMac: true, primaryModifier: 'Meta' },
+  { name: 'Windows/Linux', isMac: false, primaryModifier: 'Control' },
+] as const
+
+type PlatformCase = (typeof PLATFORM_CASES)[number]
+
+function pressShortcut(
+  user: ReturnType<typeof userEvent.setup>,
+  platform: PlatformCase,
+  key: string,
+  { shift = false }: { shift?: boolean } = {},
+) {
+  const shiftDown = shift ? '{Shift>}' : ''
+  const shiftUp = shift ? '{/Shift}' : ''
+
+  return user.keyboard(
+    `{${platform.primaryModifier}>}${shiftDown}${key}${shiftUp}{/${platform.primaryModifier}}`,
+  )
+}
+
 interface ShortcutsHarnessProps {
   withMessages: boolean
   isSending: boolean
@@ -117,25 +138,25 @@ afterEach(() => {
   document.getElementById('modal-root')?.remove()
 })
 
-describe('useKeyboardShortcuts', () => {
-  it('stops an active generation on Cmd+Period on macOS', async () => {
-    await renderHarness({ isMac: true, isSending: true })
+describe.each(PLATFORM_CASES)('useKeyboardShortcuts on $name', (platform) => {
+  it('stops an active generation with the primary modifier', async () => {
+    await renderHarness({ isMac: platform.isMac, isSending: true })
 
-    await userEvent.setup().keyboard('{Meta>}.{/Meta}')
+    await pressShortcut(userEvent.setup(), platform, '.')
 
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
   })
 
-  it('does not stop generation on Cmd+Period while idle', async () => {
-    await renderHarness({ isMac: true })
+  it('does not stop generation while idle', async () => {
+    await renderHarness({ isMac: platform.isMac })
 
-    await userEvent.setup().keyboard('{Meta>}.{/Meta}')
+    await pressShortcut(userEvent.setup(), platform, '.')
 
     expect(mock.stopGeneration).not.toHaveBeenCalled()
   })
 
-  it('starts a new chat on Ctrl+N', async () => {
-    await renderHarness({ withMessages: true })
+  it('starts a new chat with the primary modifier', async () => {
+    await renderHarness({ isMac: platform.isMac, withMessages: true })
 
     await waitFor(() => {
       expect(screen.getByTestId('chat-state')).toHaveAttribute(
@@ -144,7 +165,7 @@ describe('useKeyboardShortcuts', () => {
       )
     })
 
-    await userEvent.setup().keyboard('{Control>}n{/Control}')
+    await pressShortcut(userEvent.setup(), platform, 'n')
 
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-message-count',
@@ -153,10 +174,18 @@ describe('useKeyboardShortcuts', () => {
     expect(mock.stopGeneration).toHaveBeenCalledTimes(1)
   })
 
-  it('opens the sidebar and focuses chat search on Ctrl+F', async () => {
-    await renderHarness()
+  it('does nothing when the chat on screen is already new', async () => {
+    await renderHarness({ isMac: platform.isMac })
 
-    await userEvent.setup().keyboard('{Control>}f{/Control}')
+    await pressShortcut(userEvent.setup(), platform, 'n')
+
+    expect(mock.stopGeneration).not.toHaveBeenCalled()
+  })
+
+  it('opens the sidebar and focuses chat search', async () => {
+    await renderHarness({ isMac: platform.isMac })
+
+    await pressShortcut(userEvent.setup(), platform, 'f')
 
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-sidebar-open',
@@ -166,36 +195,18 @@ describe('useKeyboardShortcuts', () => {
     expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
   })
 
-  it('starts a new chat on Cmd+N on macOS', async () => {
-    await renderHarness({ isMac: true, withMessages: true })
+  it('toggles the sidebar', async () => {
+    await renderHarness({ isMac: platform.isMac })
 
-    await waitFor(() => {
-      expect(screen.getByTestId('chat-state')).toHaveAttribute(
-        'data-message-count',
-        '1',
-      )
-    })
+    await pressShortcut(userEvent.setup(), platform, 'b')
 
-    await userEvent.setup().keyboard('{Meta>}n{/Meta}')
-
-    expect(screen.getByTestId('chat-state')).toHaveAttribute(
-      'data-message-count',
-      '0',
-    )
+    expect(mock.setSidebarOpen).toHaveBeenCalledWith(true)
   })
 
-  it('does nothing when the chat on screen is already new', async () => {
-    await renderHarness()
+  it('opens settings', async () => {
+    await renderHarness({ isMac: platform.isMac })
 
-    await userEvent.setup().keyboard('{Control>}n{/Control}')
-
-    expect(mock.stopGeneration).not.toHaveBeenCalled()
-  })
-
-  it('still handles the other shortcuts', async () => {
-    await renderHarness()
-
-    await userEvent.setup().keyboard('{Control>},{/Control}')
+    await pressShortcut(userEvent.setup(), platform, ',')
 
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-active-modal',
@@ -203,13 +214,24 @@ describe('useKeyboardShortcuts', () => {
     )
   })
 
-  it('blocks main-view shortcuts while a modal is open', async () => {
-    await renderHarness({ withMessages: true })
+  it('opens models', async () => {
+    await renderHarness({ isMac: platform.isMac })
+
+    await pressShortcut(userEvent.setup(), platform, 'm', { shift: true })
+
+    expect(screen.getByTestId('chat-state')).toHaveAttribute(
+      'data-active-modal',
+      'models',
+    )
+  })
+
+  it('blocks main-view shortcuts while a named modal is open', async () => {
+    await renderHarness({ isMac: platform.isMac, withMessages: true })
     const user = userEvent.setup()
 
-    await user.keyboard('{Control>},{/Control}')
-    await user.keyboard('{Control>}n{/Control}')
-    await user.keyboard('{Control>}f{/Control}')
+    await pressShortcut(user, platform, ',')
+    await pressShortcut(user, platform, 'n')
+    await pressShortcut(user, platform, 'f')
 
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-message-count',
@@ -219,21 +241,19 @@ describe('useKeyboardShortcuts', () => {
       'data-sidebar-open',
       'false',
     )
-
-    act(() => {
-      mock.emitApplicationMenuAction({ type: 'toggleSidebar' })
-    })
-
-    expect(mock.setSidebarOpen).not.toHaveBeenCalled()
   })
 
   it('blocks main-view shortcuts while a standalone modal is open', async () => {
     const modalRoot = document.createElement('div')
     modalRoot.id = 'modal-root'
     document.body.appendChild(modalRoot)
-    await renderHarness({ withMessages: true, isStandaloneModalOpen: true })
+    await renderHarness({
+      isMac: platform.isMac,
+      withMessages: true,
+      isStandaloneModalOpen: true,
+    })
 
-    await userEvent.setup().keyboard('{Control>}n{/Control}')
+    await pressShortcut(userEvent.setup(), platform, 'n')
 
     expect(screen.getByTestId('chat-state')).toHaveAttribute(
       'data-message-count',
@@ -241,47 +261,44 @@ describe('useKeyboardShortcuts', () => {
     )
   })
 
-  it('uses Cmd++ to increase message font size instead of page zoom', async () => {
-    await renderHarness({ isMac: true })
-    const event = new KeyboardEvent('keydown', {
-      key: '+',
-      metaKey: true,
-      shiftKey: true,
-      cancelable: true,
+  it.each([
+    { key: '+', shiftKey: true, initialSize: 16, expectedSize: 17 },
+    { key: '-', shiftKey: false, initialSize: 16, expectedSize: 15 },
+    { key: '0', shiftKey: false, initialSize: 20, expectedSize: 16 },
+  ])(
+    'handles primary modifier+$key message font sizing',
+    async ({ key, shiftKey, initialSize, expectedSize }) => {
+      await renderHarness({
+        isMac: platform.isMac,
+        messageFontSize: initialSize,
+      })
+      const event = new KeyboardEvent('keydown', {
+        key,
+        metaKey: platform.isMac,
+        ctrlKey: !platform.isMac,
+        shiftKey,
+        cancelable: true,
+      })
+
+      window.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
+      expect(mock.setMessageFontSize).toHaveBeenCalledWith(expectedSize)
+    },
+  )
+})
+
+describe('useKeyboardShortcuts native menu integration', () => {
+  it('blocks main-view commands while a modal is open', async () => {
+    await renderHarness()
+
+    await pressShortcut(userEvent.setup(), PLATFORM_CASES[1], ',')
+
+    act(() => {
+      mock.emitApplicationMenuAction({ type: 'toggleSidebar' })
     })
 
-    window.dispatchEvent(event)
-
-    expect(event.defaultPrevented).toBe(true)
-    expect(mock.setMessageFontSize).toHaveBeenCalledWith(17)
-  })
-
-  it('uses Cmd+- to decrease message font size instead of page zoom', async () => {
-    await renderHarness({ isMac: true })
-    const event = new KeyboardEvent('keydown', {
-      key: '-',
-      metaKey: true,
-      cancelable: true,
-    })
-
-    window.dispatchEvent(event)
-
-    expect(event.defaultPrevented).toBe(true)
-    expect(mock.setMessageFontSize).toHaveBeenCalledWith(15)
-  })
-
-  it('uses Cmd+0 to reset message font size to 16px', async () => {
-    await renderHarness({ isMac: true, messageFontSize: 20 })
-    const event = new KeyboardEvent('keydown', {
-      key: '0',
-      metaKey: true,
-      cancelable: true,
-    })
-
-    window.dispatchEvent(event)
-
-    expect(event.defaultPrevented).toBe(true)
-    expect(mock.setMessageFontSize).toHaveBeenCalledWith(16)
+    expect(mock.setSidebarOpen).not.toHaveBeenCalled()
   })
 
   it('syncs current shortcuts and recent chats to the native menu', async () => {
