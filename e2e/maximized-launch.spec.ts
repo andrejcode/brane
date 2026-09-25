@@ -4,8 +4,20 @@ import os from 'node:os'
 import path from 'node:path'
 import { expect, test, _electron as electron } from '@playwright/test'
 
+const ELECTRON_EXECUTABLE_NAMES: Partial<Record<NodeJS.Platform, string>> = {
+  darwin: 'Electron.app/Contents/MacOS/Electron',
+  linux: 'electron',
+  win32: 'electron.exe',
+}
+const electronExecutableName = ELECTRON_EXECUTABLE_NAMES[process.platform]
+
+if (!electronExecutableName) {
+  throw new Error(`Unsupported E2E platform: ${process.platform}`)
+}
+
 const ELECTRON_EXECUTABLE = path.resolve(
-  'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron',
+  'node_modules/electron/dist',
+  electronExecutableName,
 )
 const APP_DIRECTORY = path.resolve('.')
 
@@ -56,7 +68,6 @@ async function launchAndVerify(userDataDir: string, requestQuit = false) {
 }
 
 test('quits fully and shows a maximized window on relaunch', async () => {
-  test.skip(process.platform !== 'darwin', 'macOS-specific window regression')
   expect(fs.existsSync(ELECTRON_EXECUTABLE)).toBe(true)
 
   const userDataDir = fs.mkdtempSync(
