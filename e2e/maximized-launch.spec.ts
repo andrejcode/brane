@@ -1,37 +1,22 @@
 import type { BrowserWindow } from 'electron'
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
-import { expect, test, _electron as electron } from '@playwright/test'
-
-const ELECTRON_EXECUTABLE_NAMES: Partial<Record<NodeJS.Platform, string>> = {
-  darwin: 'Electron.app/Contents/MacOS/Electron',
-  linux: 'electron',
-  win32: 'electron.exe',
-}
-const electronExecutableName = ELECTRON_EXECUTABLE_NAMES[process.platform]
-
-if (!electronExecutableName) {
-  throw new Error(`Unsupported E2E platform: ${process.platform}`)
-}
-
-const ELECTRON_EXECUTABLE = path.resolve(
-  'node_modules/electron/dist',
-  electronExecutableName,
-)
-const APP_DIRECTORY = path.resolve('.')
+import { expect, test } from '@playwright/test'
+import type { E2eWorkspace } from './fixtures'
+import {
+  createE2eWorkspace,
+  electronExecutableExists,
+  launchBrane,
+  removeE2eWorkspace,
+} from './fixtures'
 
 interface NativeWindowState {
   isMaximized: boolean
   isVisible: boolean
 }
 
-async function launchAndVerify(userDataDir: string, requestQuit = false) {
-  const electronApp = await electron.launch({
-    executablePath: ELECTRON_EXECUTABLE,
-    args: [APP_DIRECTORY, `--user-data-dir=${userDataDir}`],
-    env: { ...process.env, BRANE_E2E: '1' },
-  })
+async function launchAndVerify(workspace: E2eWorkspace, requestQuit = false) {
+  const electronApp = await launchBrane(workspace)
   const electronProcess = electronApp.process()
 
   try {
@@ -68,15 +53,12 @@ async function launchAndVerify(userDataDir: string, requestQuit = false) {
 }
 
 test('quits fully and shows a maximized window on relaunch', async () => {
-  expect(fs.existsSync(ELECTRON_EXECUTABLE)).toBe(true)
-
-  const userDataDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), 'brane-maximized-launch-'),
-  )
+  expect(electronExecutableExists()).toBe(true)
+  const workspace = createE2eWorkspace('maximized-launch')
 
   try {
     fs.writeFileSync(
-      path.join(userDataDir, 'settings.json'),
+      path.join(workspace.userDataDir, 'settings.json'),
       JSON.stringify({
         window: {
           width: 1200,
@@ -88,9 +70,9 @@ test('quits fully and shows a maximized window on relaunch', async () => {
       }),
     )
 
-    await launchAndVerify(userDataDir, true)
-    await launchAndVerify(userDataDir)
+    await launchAndVerify(workspace, true)
+    await launchAndVerify(workspace)
   } finally {
-    fs.rmSync(userDataDir, { force: true, recursive: true })
+    removeE2eWorkspace(workspace)
   }
 })
