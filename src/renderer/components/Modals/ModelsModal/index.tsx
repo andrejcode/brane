@@ -21,8 +21,9 @@ export function ModelsModal() {
   const {
     models,
     selectedModel,
-    loadingModel,
-    loadedModel,
+    isModelLoading,
+    modelBeingLoaded,
+    modelInMemory,
     refreshModels,
     selectModel,
     unloadModel,
@@ -63,8 +64,6 @@ export function ModelsModal() {
       formatModelName(model).toLowerCase().includes(normalizedQuery),
     )
   }, [models, normalizedQuery])
-
-  const isLoading = loadingModel !== null
 
   const handleSelect = (model: string) => {
     void selectModel(model)
@@ -115,9 +114,9 @@ export function ModelsModal() {
           <ul className="flex flex-col gap-1">
             {filteredModels.map((model) => {
               const isSelected = model === selectedModel
-              const isModelLoading = model === loadingModel
-              const isLoaded = model === loadedModel
-              const showEjectButton = isModelLoading || isLoaded
+              const isCurrentModelLoading = model === modelBeingLoaded
+              const isLoaded = model === modelInMemory
+              const showEjectButton = isCurrentModelLoading || isLoaded
               const displayName = formatModelName(model)
 
               return (
@@ -125,12 +124,12 @@ export function ModelsModal() {
                   <GhostButton
                     className="flex min-w-0 flex-1 items-center justify-between gap-2 px-3 py-2 text-left"
                     isActive={isSelected}
-                    disabled={isLoading}
+                    disabled={isModelLoading}
                     ariaLabel={displayName}
                     onClick={() => handleSelect(model)}
                   >
                     <span className="min-w-0 truncate">{displayName}</span>
-                    {isModelLoading ? (
+                    {isCurrentModelLoading ? (
                       <LoadingSpinner
                         isLoading
                         size={18}
@@ -151,10 +150,12 @@ export function ModelsModal() {
                   >
                     <GhostButton
                       className="ml-1 flex h-full aspect-square items-center justify-center px-2"
-                      disabled={!showEjectButton || (isLoaded && isLoading)}
+                      disabled={
+                        !showEjectButton || (isLoaded && isModelLoading)
+                      }
                       tabIndex={showEjectButton ? undefined : -1}
                       ariaLabel={
-                        isModelLoading
+                        isCurrentModelLoading
                           ? t('models.stopLoading')
                           : t('models.unload')
                       }

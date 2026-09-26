@@ -9,6 +9,22 @@ function ModelStatus() {
   return <div>{selectedModel ?? 'No model selected'}</div>
 }
 
+function ModelLifecycleStatus() {
+  const { isModelLoading, modelBeingLoaded, modelInMemory, selectModel } =
+    useModel()
+
+  return (
+    <>
+      <button type="button" onClick={() => void selectModel('model.gguf')}>
+        Load model
+      </button>
+      <div>{isModelLoading ? 'Loading' : 'Idle'}</div>
+      <div>{modelBeingLoaded ?? 'No model being loaded'}</div>
+      <div>{modelInMemory ?? 'No model in memory'}</div>
+    </>
+  )
+}
+
 afterEach(() => {
   clearMockElectronApi()
 })
@@ -50,5 +66,37 @@ describe('ModelProvider startup loading', () => {
     await waitFor(() => {
       expect(mock.loadModel).toHaveBeenCalledWith('model.gguf')
     })
+  })
+})
+
+describe('ModelProvider loading state', () => {
+  it('exposes the model loading lifecycle', async () => {
+    const mock = installMockElectronApi({ models: ['model.gguf'] })
+    let resolveLoad: () => void = () => {}
+    mock.loadModel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveLoad = resolve
+      }),
+    )
+
+    render(
+      <AlertProvider>
+        <ModelProvider>
+          <ModelLifecycleStatus />
+        </ModelProvider>
+      </AlertProvider>,
+    )
+
+    screen.getByRole('button', { name: 'Load model' }).click()
+
+    expect(await screen.findByText('Loading')).toBeInTheDocument()
+    expect(screen.getByText('model.gguf')).toBeInTheDocument()
+    expect(screen.getByText('No model in memory')).toBeInTheDocument()
+
+    resolveLoad()
+
+    expect(await screen.findByText('Idle')).toBeInTheDocument()
+    expect(screen.getByText('No model being loaded')).toBeInTheDocument()
+    expect(screen.getByText('model.gguf')).toBeInTheDocument()
   })
 })

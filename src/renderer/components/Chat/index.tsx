@@ -23,7 +23,7 @@ export function Chat() {
   const {
     selectedModel,
     isReady: isModelReady,
-    loadedModel,
+    modelInMemory,
     selectModel,
   } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
@@ -260,13 +260,13 @@ export function Chat() {
   // does not consume model resources until the user needs them.
   const loadChatModel = useCallback(
     async (modelFile: string) => {
-      if (modelFile === loadedModel) {
+      if (modelFile === modelInMemory) {
         return
       }
 
       await selectModel(modelFile)
     },
-    [loadedModel, selectModel],
+    [modelInMemory, selectModel],
   )
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {

@@ -14,8 +14,9 @@ interface ModelContextValue {
   models: string[]
   selectedModel: string | null
   isReady: boolean
-  loadingModel: string | null
-  loadedModel: string | null
+  isModelLoading: boolean
+  modelBeingLoaded: string | null
+  modelInMemory: string | null
   loadModelOnStartup: boolean
   refreshModels: () => Promise<void>
   selectModel: (model: string) => Promise<void>
@@ -31,9 +32,10 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [models, setModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
   const [isReady, setIsReady] = useState(false)
-  const [loadingModel, setLoadingModel] = useState<string | null>(null)
-  const [loadedModel, setLoadedModel] = useState<string | null>(null)
+  const [modelBeingLoaded, setModelBeingLoaded] = useState<string | null>(null)
+  const [modelInMemory, setModelInMemory] = useState<string | null>(null)
   const [loadModelOnStartup, setLoadModelOnStartupState] = useState(false)
+  const isModelLoading = modelBeingLoaded !== null
 
   // Bumped whenever a load is cancelled or superseded, so a stale in-flight load
   // can't clobber newer UI state when it finally settles.
@@ -52,18 +54,18 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         if (loadRequestRef.current !== requestId) {
           return
         }
-        setLoadedModel(model)
+        setModelInMemory(model)
       } catch {
         // A cancel bumps the request id and settles its own state, so ignore the
         // resulting rejection instead of surfacing it as a load failure.
         if (loadRequestRef.current !== requestId) {
           return
         }
-        setLoadedModel(null)
+        setModelInMemory(null)
         showAlert(t('models.loadFailed'), 'error')
       } finally {
         if (loadRequestRef.current === requestId) {
-          setLoadingModel(null)
+          setModelBeingLoaded(null)
         }
       }
     },
@@ -88,7 +90,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
 
         if (shouldLoadModelOnStartup && state.selectedModel !== null) {
           const requestId = ++loadRequestRef.current
-          setLoadingModel(state.selectedModel)
+          setModelBeingLoaded(state.selectedModel)
           void loadIntoMemory(state.selectedModel, requestId)
         }
       })
@@ -112,8 +114,8 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
 
       if (state.selectedModel === null) {
         loadRequestRef.current++
-        setLoadingModel(null)
-        setLoadedModel(null)
+        setModelBeingLoaded(null)
+        setModelInMemory(null)
       }
     })
   }, [])
@@ -125,14 +127,14 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
 
   const selectModel = useCallback(
     async (model: string) => {
-      if (loadingModel !== null || model === loadedModel) {
+      if (isModelLoading || model === modelInMemory) {
         return
       }
 
       const requestId = ++loadRequestRef.current
-      const previousModel = loadedModel
-      setLoadingModel(model)
-      setLoadedModel(null)
+      const previousModel = modelInMemory
+      setModelBeingLoaded(model)
+      setModelInMemory(null)
 
       try {
         if (previousModel !== null) {
@@ -148,26 +150,26 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
         if (saved !== null) {
           await loadIntoMemory(saved, requestId)
         } else {
-          setLoadingModel(null)
+          setModelBeingLoaded(null)
         }
       } catch {
         if (loadRequestRef.current !== requestId) {
           return
         }
-        setLoadingModel(null)
-        setLoadedModel(null)
+        setModelBeingLoaded(null)
+        setModelInMemory(null)
         showAlert(t('models.loadFailed'), 'error')
       }
     },
-    [loadingModel, loadedModel, loadIntoMemory, showAlert, t],
+    [isModelLoading, modelInMemory, loadIntoMemory, showAlert, t],
   )
 
   // Serves both ejecting a loaded model and cancelling one that's still loading:
   // the main process aborts whatever is in flight and disposes the model.
   const unloadModel = useCallback(async () => {
     loadRequestRef.current++
-    setLoadingModel(null)
-    setLoadedModel(null)
+    setModelBeingLoaded(null)
+    setModelInMemory(null)
 
     try {
       await window.electronApi.unloadModel()
@@ -183,8 +185,9 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       models,
       selectedModel,
       isReady,
-      loadingModel,
-      loadedModel,
+      isModelLoading,
+      modelBeingLoaded,
+      modelInMemory,
       loadModelOnStartup,
       refreshModels,
       selectModel,
@@ -195,8 +198,9 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
       models,
       selectedModel,
       isReady,
-      loadingModel,
-      loadedModel,
+      isModelLoading,
+      modelBeingLoaded,
+      modelInMemory,
       loadModelOnStartup,
       refreshModels,
       selectModel,
