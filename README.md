@@ -4,6 +4,11 @@ Brane is a desktop app for chatting with large language models locally on your
 computer. Your prompts, responses, chat history, and model files stay on your
 device. Brane does not require a backend service to run your chats.
 
+<p align="center">
+	<img src="screenshots/brane-macos-1.png" alt="Brane new chat screen on macOS" width="49%">
+	<img src="screenshots/brane-macos-2.png" alt="Brane conversation and chat history on macOS" width="49%">
+</p>
+
 ## Table of contents
 
 - [Early development](#early-development)
