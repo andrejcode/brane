@@ -24,6 +24,7 @@ export interface MockElectronApi {
   getChatMessages: ReturnType<typeof vi.fn>
   renameChat: ReturnType<typeof vi.fn>
   deleteChat: ReturnType<typeof vi.fn>
+  deleteAllChats: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
@@ -223,6 +224,10 @@ export function installMockElectronApi(
     },
   )
   const deleteChat = vi.fn((): Promise<void> => Promise.resolve())
+  const deleteAllChats = vi.fn((): Promise<void> => {
+    storedChats = []
+    return Promise.resolve()
+  })
 
   const streamResponse = vi.fn(
     (callback: (event: LlamaStreamEvent) => void): (() => void) => {
@@ -300,6 +305,7 @@ export function installMockElectronApi(
     getChatMessages,
     renameChat,
     deleteChat,
+    deleteAllChats,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
     getSidebarOpen,
@@ -343,6 +349,7 @@ export function installMockElectronApi(
     getChatMessages,
     renameChat,
     deleteChat,
+    deleteAllChats,
     getSendWithModifierEnter,
     setSendWithModifierEnter,
     getSidebarOpen,

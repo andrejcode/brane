@@ -7,6 +7,7 @@ import {
 } from '@shared/types'
 import {
   createChat,
+  deleteAllChats,
   deleteChat,
   listChats,
   listMessages,
@@ -133,5 +134,10 @@ export function registerChatsHandlers() {
     const id = requireChatId(chatId)
     deleteChat(id)
     logger.info(`Chat deleted: ${id}`)
+  })
+
+  ipcMain.handle(IpcChannels.deleteAllChats, () => {
+    deleteAllChats()
+    logger.info('All chats deleted')
   })
 }

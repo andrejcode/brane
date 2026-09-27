@@ -65,6 +65,15 @@ export const en = {
     'Use {shortcut}+Enter to send a message. Enter adds a new line.',
   'general.language': 'Language',
   'general.languageDescription': 'Choose the language used across the app.',
+  'general.chats': 'Chats',
+  'general.deleteAllChats': 'Delete all chats',
+  'general.deleteAllChatsDescription':
+    'Permanently delete every chat and its messages.',
+  'general.deleteAllChatsConfirmTitle': 'Delete all chats?',
+  'general.deleteAllChatsConfirmMessage':
+    'Every chat and message will be permanently deleted. This cannot be undone.',
+  'general.deleteAllChatsFailed':
+    'Failed to delete the chats. Please try again.',
   'general.logs': 'Logs',
   'general.openLogs': 'Open logs',
   'general.openLogsDescription': 'Open the logs folder in your file explorer.',

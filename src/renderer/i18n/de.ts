@@ -76,6 +76,15 @@ export const de: Messages = {
   'general.language': 'Sprache',
   'general.languageDescription':
     'Wähle die Sprache, die in der App verwendet wird.',
+  'general.chats': 'Chats',
+  'general.deleteAllChats': 'Alle Chats löschen',
+  'general.deleteAllChatsDescription':
+    'Alle Chats und ihre Nachrichten dauerhaft löschen.',
+  'general.deleteAllChatsConfirmTitle': 'Alle Chats löschen?',
+  'general.deleteAllChatsConfirmMessage':
+    'Alle Chats und Nachrichten werden endgültig gelöscht. Dies kann nicht rückgängig gemacht werden.',
+  'general.deleteAllChatsFailed':
+    'Die Chats konnten nicht gelöscht werden. Bitte versuche es erneut.',
   'general.logs': 'Protokolle',
   'general.openLogs': 'Protokolle öffnen',
   'general.openLogsDescription': 'Öffne den Protokollordner im Dateimanager.',

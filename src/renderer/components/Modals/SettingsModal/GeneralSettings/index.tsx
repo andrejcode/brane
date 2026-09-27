@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAlert } from '@/contexts/AlertContext'
+import { useChat } from '@/contexts/ChatContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useLocale, useTranslation } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
@@ -17,11 +18,14 @@ const LANGUAGE_OPTIONS = LOCALE_OPTIONS.map((option) => ({
 }))
 
 export function GeneralSettings() {
+  const { deleteAllChats } = useChat()
   const { sendWithModifierEnter, setSendWithModifierEnter } = useChatSettings()
   const { loadModelOnStartup, setLoadModelOnStartup } = useModel()
   const { locale, setLocale } = useLocale()
   const { t } = useTranslation()
   const { showAlert } = useAlert()
+  const [isDeleteChatsConfirmOpen, setIsDeleteChatsConfirmOpen] =
+    useState(false)
   const [isDeleteLogsConfirmOpen, setIsDeleteLogsConfirmOpen] = useState(false)
   const [wereLogsDeleted, markLogsDeleted] = useJustCompleted()
 
@@ -32,6 +36,14 @@ export function GeneralSettings() {
       await window.electronApi.openLogs()
     } catch {
       showAlert(t('general.openLogsFailed'), 'error')
+    }
+  }
+
+  const handleDeleteAllChats = async () => {
+    try {
+      await deleteAllChats()
+    } catch {
+      showAlert(t('general.deleteAllChatsFailed'), 'error')
     }
   }
 
@@ -94,6 +106,26 @@ export function GeneralSettings() {
       </div>
 
       <div className="flex flex-col gap-3">
+        <h4 className="text-lg font-medium">{t('general.chats')}</h4>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <h5>{t('general.deleteAllChats')}</h5>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              {t('general.deleteAllChatsDescription')}
+            </p>
+          </div>
+          <Button
+            variant="danger"
+            className="shrink-0"
+            onClick={() => setIsDeleteChatsConfirmOpen(true)}
+          >
+            {t('general.deleteAllChats')}
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
         <h4 className="text-lg font-medium">{t('general.logs')}</h4>
 
         <div className="flex flex-col gap-5">
@@ -117,15 +149,28 @@ export function GeneralSettings() {
               </p>
             </div>
             <Button
-              variant="outline"
-              className="min-w-24"
+              variant="danger"
+              className="shrink-0"
               onClick={() => setIsDeleteLogsConfirmOpen(true)}
             >
-              {wereLogsDeleted ? t('general.deleted') : t('general.delete')}
+              {wereLogsDeleted ? t('general.deleted') : t('general.deleteLogs')}
             </Button>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isDeleteChatsConfirmOpen}
+        title={t('general.deleteAllChatsConfirmTitle')}
+        message={t('general.deleteAllChatsConfirmMessage')}
+        confirmLabel={t('general.deleteAllChats')}
+        isDestructive
+        onCancel={() => setIsDeleteChatsConfirmOpen(false)}
+        onConfirm={() => {
+          setIsDeleteChatsConfirmOpen(false)
+          void handleDeleteAllChats()
+        }}
+      />
 
       <ConfirmDialog
         isOpen={isDeleteLogsConfirmOpen}

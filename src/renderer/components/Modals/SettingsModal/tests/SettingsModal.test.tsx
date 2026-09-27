@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { AppearanceProvider } from '@/contexts/AppearanceContext'
+import { ChatProvider } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import {
   type ModalName,
@@ -47,8 +48,10 @@ function renderSettings({ open = true } = {}) {
             <AppearanceProvider>
               <ChatSettingsProvider>
                 <ShortcutsProvider>
-                  {open && <OpenOnMount modal="settings" />}
-                  <SettingsModal />
+                  <ChatProvider>
+                    {open && <OpenOnMount modal="settings" />}
+                    <SettingsModal />
+                  </ChatProvider>
                 </ShortcutsProvider>
               </ChatSettingsProvider>
             </AppearanceProvider>

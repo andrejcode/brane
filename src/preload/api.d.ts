@@ -47,6 +47,7 @@ declare global {
     getChatMessages: (chatId: string) => Promise<StoredMessage[]>
     renameChat: (chatId: string, title: string) => Promise<ChatSummary>
     deleteChat: (chatId: string) => Promise<void>
+    deleteAllChats: () => Promise<void>
     getSendWithModifierEnter: () => Promise<boolean>
     setSendWithModifierEnter: (enabled: boolean) => Promise<boolean>
     getSidebarOpen: () => Promise<boolean>

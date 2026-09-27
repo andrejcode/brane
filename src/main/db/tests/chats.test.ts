@@ -6,6 +6,7 @@ import {
 import {
   appendMessage,
   createChat,
+  deleteAllChats,
   deleteChat,
   getChat,
   listChats,
@@ -226,6 +227,21 @@ describe('deleteChat', () => {
 
     expect(getChat(chat.id)).toBeNull()
     expect(listMessages(chat.id)).toEqual([])
+  })
+})
+
+describe('deleteAllChats', () => {
+  it('removes every chat and its messages', () => {
+    const firstChat = createTestChat()
+    const secondChat = createTestChat()
+    appendMessage({ chatId: firstChat.id, role: 'user', content: 'first' })
+    appendMessage({ chatId: secondChat.id, role: 'user', content: 'second' })
+
+    deleteAllChats()
+
+    expect(listChats()).toEqual([])
+    expect(listMessages(firstChat.id)).toEqual([])
+    expect(listMessages(secondChat.id)).toEqual([])
   })
 })
 

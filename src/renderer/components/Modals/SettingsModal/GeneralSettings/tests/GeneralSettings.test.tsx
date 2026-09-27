@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
+import { ChatProvider } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider } from '@/contexts/ModelContext'
 import {
@@ -17,8 +18,10 @@ function renderGeneralSettings(options: MockElectronApiOptions = {}) {
     <AlertProvider>
       <ModelProvider>
         <ChatSettingsProvider>
-          <GeneralSettings />
-          <AppAlert />
+          <ChatProvider>
+            <GeneralSettings />
+            <AppAlert />
+          </ChatProvider>
         </ChatSettingsProvider>
       </ModelProvider>
     </AlertProvider>,
@@ -86,7 +89,7 @@ describe('GeneralSettings logs', () => {
 
     await userEvent
       .setup()
-      .click(screen.getByRole('button', { name: 'Delete' }))
+      .click(screen.getByRole('button', { name: 'Delete logs' }))
 
     expect(screen.getByRole('alertdialog')).toHaveAccessibleName('Delete logs?')
     expect(deleteLogs).not.toHaveBeenCalled()
@@ -96,7 +99,7 @@ describe('GeneralSettings logs', () => {
     const { deleteLogs } = renderGeneralSettings()
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'Delete logs' }))
     const dialog = screen.getByRole('alertdialog')
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
 
@@ -109,7 +112,7 @@ describe('GeneralSettings logs', () => {
     renderGeneralSettings()
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'Delete logs' }))
     const dialog = screen.getByRole('alertdialog')
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
 
@@ -123,7 +126,7 @@ describe('GeneralSettings logs', () => {
     mock.deleteLogs.mockRejectedValueOnce(new Error('locked'))
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'Delete logs' }))
     const dialog = screen.getByRole('alertdialog')
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
 
@@ -150,11 +153,58 @@ describe('GeneralSettings logs', () => {
     const { deleteLogs } = renderGeneralSettings()
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'Delete logs' }))
     const dialog = screen.getByRole('alertdialog')
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
 
     expect(deleteLogs).not.toHaveBeenCalled()
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+})
+
+describe('GeneralSettings chats', () => {
+  it('asks for confirmation before deleting all chats', async () => {
+    const { deleteAllChats } = renderGeneralSettings()
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Delete all chats' }))
+
+    expect(screen.getByRole('alertdialog')).toHaveAccessibleName(
+      'Delete all chats?',
+    )
+    expect(deleteAllChats).not.toHaveBeenCalled()
+  })
+
+  it('deletes all chats once confirmed', async () => {
+    const { deleteAllChats } = renderGeneralSettings()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete all chats' }))
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', {
+        name: 'Delete all chats',
+      }),
+    )
+
+    expect(deleteAllChats).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('surfaces a failed deletion', async () => {
+    const mock = renderGeneralSettings()
+    mock.deleteAllChats.mockRejectedValueOnce(new Error('locked'))
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete all chats' }))
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', {
+        name: 'Delete all chats',
+      }),
+    )
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to delete the chats. Please try again.',
+    )
   })
 })

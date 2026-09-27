@@ -33,6 +33,7 @@ interface ChatContextValue {
   refreshChats: () => Promise<void>
   openChat: (chatId: string) => Promise<void>
   removeChat: (chatId: string) => Promise<void>
+  deleteAllChats: () => Promise<void>
   renameChat: (chatId: string, title: string) => Promise<void>
   ensureActiveChat: (options: EnsureActiveChatOptions) => Promise<string>
   startNewChat: () => void
@@ -181,6 +182,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     [activeChatId, refreshChats, showAlert, startNewChat, t],
   )
 
+  const deleteAllChats = useCallback(async () => {
+    await window.electronApi.deleteAllChats()
+    openRequestRef.current++
+    resetConversation()
+    setActiveChatId(null)
+    setChats([])
+  }, [resetConversation])
+
   const renameChat = useCallback(
     async (chatId: string, title: string) => {
       let previousTitle: string | null | undefined
@@ -269,6 +278,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       refreshChats,
       openChat,
       removeChat,
+      deleteAllChats,
       renameChat,
       ensureActiveChat,
       startNewChat,
@@ -284,6 +294,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       refreshChats,
       openChat,
       removeChat,
+      deleteAllChats,
       renameChat,
       ensureActiveChat,
       startNewChat,

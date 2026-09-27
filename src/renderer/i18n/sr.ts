@@ -68,6 +68,15 @@ export const sr: Messages = {
     'Користи {shortcut}+Enter за слање поруке. Enter додаје нови ред.',
   'general.language': 'Језик',
   'general.languageDescription': 'Изабери језик који се користи у апликацији.',
+  'general.chats': 'Разговори',
+  'general.deleteAllChats': 'Обриши све разговоре',
+  'general.deleteAllChatsDescription':
+    'Трајно обриши све разговоре и њихове поруке.',
+  'general.deleteAllChatsConfirmTitle': 'Обрисати све разговоре?',
+  'general.deleteAllChatsConfirmMessage':
+    'Сви разговори и поруке биће трајно обрисани. Ова радња се не може поништити.',
+  'general.deleteAllChatsFailed':
+    'Брисање разговора није успело. Покушај поново.',
   'general.logs': 'Записи',
   'general.openLogs': 'Отвори записе',
   'general.openLogsDescription':

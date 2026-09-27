@@ -8,6 +8,7 @@ import { registerChatsHandlers } from '../chats'
 
 const {
   createChat,
+  deleteAllChats,
   deleteChat,
   listChats,
   listMessages,
@@ -17,6 +18,7 @@ const {
   getSelectedModel,
 } = vi.hoisted(() => ({
   createChat: vi.fn(),
+  deleteAllChats: vi.fn(),
   deleteChat: vi.fn(),
   listChats: vi.fn(() => []),
   listMessages: vi.fn(() => []),
@@ -30,6 +32,7 @@ vi.mock('electron', () => createElectronMock())
 
 vi.mock('../db/chats', () => ({
   createChat,
+  deleteAllChats,
   deleteChat,
   listChats,
   listMessages,
@@ -202,6 +205,14 @@ describe('delete chat', () => {
     expect(() => getIpcHandler(IpcChannels.deleteChat)({}, null)).toThrow(
       'Chat not found.',
     )
+  })
+})
+
+describe('delete all chats', () => {
+  it('deletes every chat', () => {
+    getIpcHandler(IpcChannels.deleteAllChats)({})
+
+    expect(deleteAllChats).toHaveBeenCalledTimes(1)
   })
 })
 

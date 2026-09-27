@@ -55,6 +55,10 @@ export function deleteChat(id: string) {
   getDatabase().delete(chats).where(eq(chats.id, id)).run()
 }
 
+export function deleteAllChats() {
+  getDatabase().delete(chats).run()
+}
+
 export function listMessages(chatId: string): MessageRow[] {
   return getDatabase()
     .select()

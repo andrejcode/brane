@@ -218,6 +218,9 @@ const electronApi: ElectronApi = {
   deleteChat: async (chatId: string) => {
     await ipcRenderer.invoke(IpcChannels.deleteChat, chatId)
   },
+  deleteAllChats: async () => {
+    await ipcRenderer.invoke(IpcChannels.deleteAllChats)
+  },
   getSendWithModifierEnter: async () => {
     const enabled: unknown = await ipcRenderer.invoke(
       IpcChannels.getSendWithModifierEnter,
