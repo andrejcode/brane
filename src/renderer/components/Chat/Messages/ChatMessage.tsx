@@ -10,18 +10,24 @@ import { AssistantMessage } from './AssistantMessage'
 interface ChatMessageProps {
   message: Message
   showContextUsage: boolean
+  showMessageDates: boolean
   ref?: Ref<HTMLElement> | undefined
 }
 
 export function ChatMessage({
   message,
   showContextUsage,
+  showMessageDates,
   ref,
 }: ChatMessageProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const { copyStatus, copy } = useCopyToClipboard()
   const isUser = message.role === 'user'
   const canCopy = message.content.length > 0
+  const formattedDate = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(message.createdAt)
 
   return (
     <article
@@ -45,7 +51,7 @@ export function ChatMessage({
         <AssistantMessage message={message} />
       )}
 
-      {canCopy && (
+      {(canCopy || showMessageDates) && (
         <div
           className={clsx(
             'flex items-center gap-2 text-xs text-neutral-500',
@@ -53,6 +59,11 @@ export function ChatMessage({
             'group-hover:opacity-100 group-focus-within:opacity-100',
           )}
         >
+          {showMessageDates && (
+            <time dateTime={new Date(message.createdAt).toISOString()}>
+              {formattedDate}
+            </time>
+          )}
           {showContextUsage && !isUser && message.contextUsage && (
             <Tag>
               {t('chat.contextUsed', {
@@ -61,15 +72,17 @@ export function ChatMessage({
               })}
             </Tag>
           )}
-          <CopyButton
-            copyStatus={copyStatus}
-            onClick={() => void copy(message.content)}
-            labels={{
-              copy: t('chat.copy'),
-              copied: t('chat.copied'),
-              error: t('chat.copyFailed'),
-            }}
-          />
+          {canCopy && (
+            <CopyButton
+              copyStatus={copyStatus}
+              onClick={() => void copy(message.content)}
+              labels={{
+                copy: t('chat.copy'),
+                copied: t('chat.copied'),
+                error: t('chat.copyFailed'),
+              }}
+            />
+          )}
         </div>
       )}
     </article>

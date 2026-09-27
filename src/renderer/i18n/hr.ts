@@ -113,6 +113,11 @@ export const hr: Messages = {
     'Prikazuje iskorištenost tokena ispod poruka asistenta.',
   'appearance.contextUsageSaveFailed':
     'Nije moguće spremiti postavku iskorištenosti konteksta. Pokušajte ponovno.',
+  'appearance.messageDates': 'Prikaži datume poruka',
+  'appearance.messageDatesDescription':
+    'Prikaži datum i vrijeme kada se pokazivač zadrži iznad poruke.',
+  'appearance.messageDatesSaveFailed':
+    'Spremanje postavke datuma poruka nije uspjelo. Pokušaj ponovno.',
   'appearance.pointerCursor': 'Pokazivač miša',
   'appearance.pointerCursorDescription':
     'Prikazuje pokazivač miša iznad interaktivnih kontrola.',

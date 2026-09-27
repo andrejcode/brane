@@ -110,7 +110,7 @@ describe('get chat messages', () => {
         finishReason: 'done',
         contextUsed: 1234,
         contextSize: 4096,
-        createdAt: new Date(),
+        createdAt: new Date('2026-01-01T10:00:00Z'),
         updatedAt: new Date(),
       },
     ] as unknown as [])
@@ -120,6 +120,7 @@ describe('get chat messages', () => {
         id: 'message-1',
         role: 'assistant',
         content: 'answer',
+        createdAt: 1767261600000,
         reasoning: 'pondering',
         finishReason: 'done',
         contextUsed: 1234,

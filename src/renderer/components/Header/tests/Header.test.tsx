@@ -38,8 +38,13 @@ function ChatStateProbe() {
     streamingAssistantMessageIdRef.current = 'assistant-1'
     setIsSending(true)
     setMessages([
-      { id: 'user-1', role: 'user', content: 'hi' },
-      { id: 'assistant-1', role: 'assistant', content: 'partial' },
+      { id: 'user-1', role: 'user', content: 'hi', createdAt: 0 },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: 'partial',
+        createdAt: 0,
+      },
     ])
   }, [setIsSending, setMessages, streamingAssistantMessageIdRef])
 

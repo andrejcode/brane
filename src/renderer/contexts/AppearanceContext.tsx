@@ -15,10 +15,12 @@ interface AppearanceContextValue {
   messageFontSize: number
   showPointerCursor: boolean
   showContextUsage: boolean
+  showMessageDates: boolean
   isReady: boolean
   setMessageFontSize: (fontSize: number) => Promise<void>
   setShowPointerCursor: (enabled: boolean) => Promise<void>
   setShowContextUsage: (enabled: boolean) => Promise<void>
+  setShowMessageDates: (enabled: boolean) => Promise<void>
 }
 
 const AppearanceContext = createContext<AppearanceContextValue | null>(null)
@@ -33,6 +35,7 @@ export function AppearanceProvider({
   )
   const [showPointerCursor, setShowPointerCursorState] = useState(false)
   const [showContextUsage, setShowContextUsageState] = useState(true)
+  const [showMessageDates, setShowMessageDatesState] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -44,10 +47,12 @@ export function AppearanceProvider({
           currentMessageFontSize,
           currentShowPointerCursor,
           currentShowContextUsage,
+          currentShowMessageDates,
         ] = await Promise.all([
           window.electronApi.getMessageFontSize(),
           window.electronApi.getShowPointerCursor(),
           window.electronApi.getShowContextUsage(),
+          window.electronApi.getShowMessageDates(),
         ])
 
         if (isMounted) {
@@ -56,6 +61,7 @@ export function AppearanceProvider({
           )
           setShowPointerCursorState(currentShowPointerCursor)
           setShowContextUsageState(currentShowContextUsage)
+          setShowMessageDatesState(currentShowMessageDates)
         }
       } finally {
         if (isMounted) {
@@ -86,6 +92,11 @@ export function AppearanceProvider({
     setShowContextUsageState(saved)
   }, [])
 
+  const setShowMessageDates = useCallback(async (enabled: boolean) => {
+    const saved = await window.electronApi.setShowMessageDates(enabled)
+    setShowMessageDatesState(saved)
+  }, [])
+
   useEffect(() => {
     document.documentElement.style.setProperty(
       '--message-font-size',
@@ -113,19 +124,23 @@ export function AppearanceProvider({
       messageFontSize,
       showPointerCursor,
       showContextUsage,
+      showMessageDates,
       isReady,
       setMessageFontSize,
       setShowPointerCursor,
       setShowContextUsage,
+      setShowMessageDates,
     }),
     [
       messageFontSize,
       showPointerCursor,
       showContextUsage,
+      showMessageDates,
       isReady,
       setMessageFontSize,
       setShowPointerCursor,
       setShowContextUsage,
+      setShowMessageDates,
     ],
   )
 

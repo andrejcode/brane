@@ -131,4 +131,27 @@ describe('registerAppearanceHandlers', () => {
     )
     expect(storeValues.has('showContextUsage')).toBe(false)
   })
+
+  it('defaults an invalid message dates preference to disabled', () => {
+    storeValues.set('showMessageDates', 'yes')
+
+    expect(getHandler(IpcChannels.getShowMessageDates)({})).toBe(false)
+    expect(storeValues.get('showMessageDates')).toBe(false)
+  })
+
+  it('persists the message dates preference', () => {
+    const handler = getHandler(IpcChannels.setShowMessageDates)
+
+    expect(handler({}, true)).toBe(true)
+    expect(storeValues.get('showMessageDates')).toBe(true)
+  })
+
+  it('rejects an invalid message dates preference', () => {
+    const handler = getHandler(IpcChannels.setShowMessageDates)
+
+    expect(() => handler({}, 'yes')).toThrow(
+      'Unable to save the message dates preference.',
+    )
+    expect(storeValues.has('showMessageDates')).toBe(false)
+  })
 })

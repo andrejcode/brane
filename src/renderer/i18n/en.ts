@@ -106,6 +106,11 @@ export const en = {
     'Shows token usage below assistant messages.',
   'appearance.contextUsageSaveFailed':
     'Failed to save the context usage preference. Please try again.',
+  'appearance.messageDates': 'Show message dates',
+  'appearance.messageDatesDescription':
+    'Show the date and time when hovering over a message.',
+  'appearance.messageDatesSaveFailed':
+    'Failed to save the message dates preference. Please try again.',
   'appearance.pointerCursor': 'Pointer cursor',
   'appearance.pointerCursorDescription':
     'Show a pointer cursor when hovering over interactive controls.',

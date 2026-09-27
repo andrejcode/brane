@@ -1,13 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { LocaleProvider } from '@/contexts/LocaleContext'
 import type { Message } from '@/types'
+import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
 import { Messages } from '..'
 
+const createdAt = new Date(2026, 0, 1, 11, 30).getTime()
+
 const conversation: Message[] = [
-  { id: '1', role: 'user', content: 'first user' },
-  { id: '2', role: 'assistant', content: 'first assistant' },
-  { id: '3', role: 'user', content: 'second user' },
-  { id: '4', role: 'assistant', content: 'second assistant' },
+  { id: '1', role: 'user', content: 'first user', createdAt },
+  { id: '2', role: 'assistant', content: 'first assistant', createdAt },
+  { id: '3', role: 'user', content: 'second user', createdAt },
+  { id: '4', role: 'assistant', content: 'second assistant', createdAt },
 ]
 
 describe('Messages', () => {
@@ -48,7 +52,7 @@ describe('Messages', () => {
     const { container } = render(
       <Messages
         activeChatId={null}
-        messages={[{ id: '1', role: 'user', content: 'only' }]}
+        messages={[{ id: '1', role: 'user', content: 'only', createdAt }]}
         bottomInset={0}
       />,
     )
@@ -70,8 +74,8 @@ describe('Messages', () => {
       <Messages
         activeChatId={null}
         messages={[
-          { id: '1', role: 'user', content: 'hello' },
-          { id: '2', role: 'assistant', content: '' },
+          { id: '1', role: 'user', content: 'hello', createdAt },
+          { id: '2', role: 'assistant', content: '', createdAt },
         ]}
         bottomInset={0}
       />,
@@ -84,7 +88,7 @@ describe('Messages', () => {
     render(
       <Messages
         activeChatId={null}
-        messages={[{ id: '1', role: 'assistant', content: '' }]}
+        messages={[{ id: '1', role: 'assistant', content: '', createdAt }]}
         bottomInset={0}
       />,
     )
@@ -104,7 +108,9 @@ describe('Messages', () => {
     render(
       <Messages
         activeChatId={null}
-        messages={[{ id: '1', role: 'assistant', content: 'copy me' }]}
+        messages={[
+          { id: '1', role: 'assistant', content: 'copy me', createdAt },
+        ]}
         bottomInset={0}
       />,
     )
@@ -126,6 +132,7 @@ describe('Messages', () => {
             id: '1',
             role: 'assistant',
             content: 'response',
+            createdAt,
             contextUsage: { used: 1234, size: 4096 },
           },
         ]}
@@ -146,6 +153,7 @@ describe('Messages', () => {
             id: '1',
             role: 'assistant',
             content: 'response',
+            createdAt,
             contextUsage: { used: 1234, size: 4096 },
           },
         ]}
@@ -158,6 +166,44 @@ describe('Messages', () => {
       screen.queryByText('1,234 / 4,096 tokens used'),
     ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
+  })
+
+  it('does not render message dates when the preference is disabled', () => {
+    const { container } = render(
+      <Messages
+        activeChatId={null}
+        messages={[{ id: '1', role: 'user', content: 'hello', createdAt }]}
+        bottomInset={0}
+      />,
+    )
+
+    expect(container.querySelector('time')).not.toBeInTheDocument()
+  })
+
+  it('formats message dates using the selected locale', async () => {
+    installMockElectronApi({ locale: 'de' })
+    const expected = new Intl.DateTimeFormat('de', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(createdAt)
+
+    const { container } = render(
+      <LocaleProvider>
+        <Messages
+          activeChatId={null}
+          messages={[{ id: '1', role: 'user', content: 'hello', createdAt }]}
+          bottomInset={0}
+          showMessageDates
+        />
+      </LocaleProvider>,
+    )
+
+    expect(await screen.findByText(expected)).toBeInTheDocument()
+    expect(container.querySelector('time')).toHaveAttribute(
+      'datetime',
+      new Date(createdAt).toISOString(),
+    )
+    clearMockElectronApi()
   })
 
   it('opens a selected chat already scrolled to the bottom', () => {

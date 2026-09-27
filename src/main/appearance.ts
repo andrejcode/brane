@@ -95,4 +95,21 @@ export function registerAppearanceHandlers() {
     setStoreValue('showContextUsage', value)
     return value
   })
+
+  ipcMain.handle(IpcChannels.getShowMessageDates, () => {
+    const enabled = getStoreValue('showMessageDates') === true
+    setStoreValue('showMessageDates', enabled)
+    return enabled
+  })
+
+  ipcMain.handle(IpcChannels.setShowMessageDates, (_event, value: unknown) => {
+    if (typeof value !== 'boolean') {
+      logger.warn(`Invalid message dates preference received: ${String(value)}`)
+      throw new Error('Unable to save the message dates preference.')
+    }
+
+    logger.info(`Message dates display ${value ? 'enabled' : 'disabled'}`)
+    setStoreValue('showMessageDates', value)
+    return value
+  })
 }

@@ -69,6 +69,7 @@ function toStoredMessages(chatId: string): StoredMessage[] {
     id: message.id,
     role: message.role,
     content: message.content,
+    createdAt: message.createdAt.getTime(),
     reasoning: message.reasoning,
     finishReason: message.finishReason,
     contextUsed: message.contextUsed,

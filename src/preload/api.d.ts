@@ -35,6 +35,8 @@ declare global {
     setShowPointerCursor: (enabled: boolean) => Promise<boolean>
     getShowContextUsage: () => Promise<boolean>
     setShowContextUsage: (enabled: boolean) => Promise<boolean>
+    getShowMessageDates: () => Promise<boolean>
+    setShowMessageDates: (enabled: boolean) => Promise<boolean>
     getLocale: () => Promise<Locale>
     setLocale: (locale: Locale) => Promise<Locale>
     getModelState: () => Promise<ModelState>

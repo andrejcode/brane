@@ -18,6 +18,7 @@ interface MessagesProps {
   bottomInset: number
   messages: Message[]
   showContextUsage?: boolean
+  showMessageDates?: boolean
 }
 
 const headerHeight = 56
@@ -34,6 +35,7 @@ export function Messages({
   bottomInset,
   messages,
   showContextUsage = true,
+  showMessageDates = false,
 }: MessagesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const tailMessagesRef = useRef<HTMLDivElement>(null)
@@ -300,6 +302,7 @@ export function Messages({
       key={message.id}
       message={message}
       showContextUsage={showContextUsage}
+      showMessageDates={showMessageDates}
       ref={message.id === lastUserMessageId ? lastUserMessageRef : undefined}
     />
   )

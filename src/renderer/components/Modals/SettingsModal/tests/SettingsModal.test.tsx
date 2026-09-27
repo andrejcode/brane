@@ -186,6 +186,21 @@ describe('SettingsModal', () => {
     expect(toggle).toBeChecked()
   })
 
+  it('keeps message dates hidden by default and allows enabling them', async () => {
+    const mock = installMockElectronApi()
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('tab', { name: 'Appearance' }))
+    const toggle = screen.getByRole('switch', { name: 'Show message dates' })
+
+    expect(toggle).not.toBeChecked()
+    await user.click(toggle)
+
+    expect(mock.setShowMessageDates).toHaveBeenCalledWith(true)
+    await waitFor(() => expect(toggle).toBeChecked())
+  })
+
   it('keeps pointer cursors disabled by default', async () => {
     renderSettings()
 

@@ -20,6 +20,8 @@ export const IpcChannels = {
   setShowPointerCursor: 'appearance:set-show-pointer-cursor',
   getShowContextUsage: 'appearance:get-show-context-usage',
   setShowContextUsage: 'appearance:set-show-context-usage',
+  getShowMessageDates: 'appearance:get-show-message-dates',
+  setShowMessageDates: 'appearance:set-show-message-dates',
 
   getLocale: 'locale:get',
   setLocale: 'locale:set',
@@ -213,6 +215,7 @@ export interface StoredMessage {
   id: string
   role: MessageRole
   content: string
+  createdAt: number
   reasoning: string | null
   finishReason: FinishReason | null
   contextUsed: number | null

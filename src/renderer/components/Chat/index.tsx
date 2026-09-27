@@ -27,7 +27,7 @@ export function Chat() {
     selectModel,
   } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
-  const { showContextUsage } = useAppearance()
+  const { showContextUsage, showMessageDates } = useAppearance()
   const {
     messages,
     setMessages,
@@ -293,6 +293,7 @@ export function Chat() {
     }
 
     const assistantMessageId = createId()
+    const createdAt = Date.now()
 
     streamingAssistantMessageIdRef.current = assistantMessageId
     setInput('')
@@ -303,11 +304,13 @@ export function Chat() {
         id: createId(),
         role: 'user',
         content: prompt,
+        createdAt,
       },
       {
         id: assistantMessageId,
         role: 'assistant',
         content: '',
+        createdAt,
       },
     ])
 
@@ -341,6 +344,7 @@ export function Chat() {
         messages={messages}
         bottomInset={bottomOverlayInset}
         showContextUsage={showContextUsage}
+        showMessageDates={showMessageDates}
       />
 
       {/* This overlay is outside normal layout, so we measure it above */}

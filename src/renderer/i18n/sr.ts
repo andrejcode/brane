@@ -111,6 +111,11 @@ export const sr: Messages = {
     'Приказује искоришћеност токена испод порука асистента.',
   'appearance.contextUsageSaveFailed':
     'Није могуће сачувати поставку искоришћености контекста. Покушајте поново.',
+  'appearance.messageDates': 'Прикажи датуме порука',
+  'appearance.messageDatesDescription':
+    'Прикажи датум и време када се показивач задржи изнад поруке.',
+  'appearance.messageDatesSaveFailed':
+    'Чување подешавања датума порука није успело. Покушај поново.',
   'appearance.pointerCursor': 'Показивач миша',
   'appearance.pointerCursorDescription':
     'Приказује показивач миша изнад интерактивних контрола.',

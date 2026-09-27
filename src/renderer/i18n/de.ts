@@ -119,6 +119,11 @@ export const de: Messages = {
     'Zeigt die Token-Nutzung unter Assistentennachrichten an.',
   'appearance.contextUsageSaveFailed':
     'Die Einstellung zur Kontextnutzung konnte nicht gespeichert werden. Bitte erneut versuchen.',
+  'appearance.messageDates': 'Nachrichtendaten anzeigen',
+  'appearance.messageDatesDescription':
+    'Zeigt Datum und Uhrzeit beim Bewegen des Mauszeigers über eine Nachricht an.',
+  'appearance.messageDatesSaveFailed':
+    'Die Einstellung für Nachrichtendaten konnte nicht gespeichert werden. Bitte versuche es erneut.',
   'appearance.pointerCursor': 'Zeiger-Cursor',
   'appearance.pointerCursorDescription':
     'Zeigt beim Bewegen über interaktive Steuerelemente einen Zeiger-Cursor an.',

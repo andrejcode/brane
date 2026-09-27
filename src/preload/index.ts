@@ -141,6 +141,19 @@ const electronApi: ElectronApi = {
     )
     return saved !== false
   },
+  getShowMessageDates: async () => {
+    const enabled: unknown = await ipcRenderer.invoke(
+      IpcChannels.getShowMessageDates,
+    )
+    return enabled === true
+  },
+  setShowMessageDates: async (enabled: boolean) => {
+    const saved: unknown = await ipcRenderer.invoke(
+      IpcChannels.setShowMessageDates,
+      enabled,
+    )
+    return saved === true
+  },
   getLocale: async () => {
     const locale: unknown = await ipcRenderer.invoke(IpcChannels.getLocale)
     return locale as Locale

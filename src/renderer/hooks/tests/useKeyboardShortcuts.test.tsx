@@ -58,7 +58,7 @@ function ShortcutsHarness({
 
   useEffect(() => {
     if (withMessages) {
-      setMessages([{ id: 'user-1', role: 'user', content: 'hi' }])
+      setMessages([{ id: 'user-1', role: 'user', content: 'hi', createdAt: 0 }])
     }
     setIsSending(isSending)
   }, [isSending, withMessages, setIsSending, setMessages])

@@ -46,6 +46,7 @@ function toMessage(stored: StoredMessage): Message {
     id: stored.id,
     role: stored.role,
     content: stored.content,
+    createdAt: stored.createdAt,
     ...(stored.reasoning === null ? {} : { reasoning: stored.reasoning }),
     ...(stored.contextUsed === null || stored.contextSize === null
       ? {}
