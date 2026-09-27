@@ -7,6 +7,7 @@ import { AppearanceProvider } from '@/contexts/AppearanceContext'
 import { ChatProvider, useChat } from '@/contexts/ChatContext'
 import { ChatSettingsProvider } from '@/contexts/ChatSettingsContext'
 import { ModelProvider, useModel } from '@/contexts/ModelContext'
+import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import { deriveChatTitle, MAX_CHAT_TITLE_LENGTH } from '@shared/chatTitle'
 import type { ModelState } from '@shared/types'
@@ -147,13 +148,15 @@ function renderChatWithSidebar(options: MockElectronApiOptions = {}) {
       <AppearanceProvider>
         <ModelProvider>
           <ChatSettingsProvider>
-            <SidebarProvider>
-              <ChatProvider>
-                <AppSidebar />
-                <Chat />
-                <AppAlert />
-              </ChatProvider>
-            </SidebarProvider>
+            <ShortcutsProvider>
+              <SidebarProvider>
+                <ChatProvider>
+                  <AppSidebar />
+                  <Chat />
+                  <AppAlert />
+                </ChatProvider>
+              </SidebarProvider>
+            </ShortcutsProvider>
           </ChatSettingsProvider>
         </ModelProvider>
       </AppearanceProvider>

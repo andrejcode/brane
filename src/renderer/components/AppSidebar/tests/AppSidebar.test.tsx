@@ -3,8 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { ChatProvider } from '@/contexts/ChatContext'
+import { ShortcutsProvider } from '@/contexts/ShortcutsContext'
 import { SidebarProvider } from '@/contexts/SidebarContext'
-import type { ChatSummary } from '@shared/types'
+import { DEFAULT_SHORTCUTS, type ChatSummary } from '@shared/types'
 import {
   clearMockElectronApi,
   installMockElectronApi,
@@ -31,12 +32,14 @@ function renderSidebar(options: MockElectronApiOptions = {}) {
 
   return render(
     <AlertProvider>
-      <SidebarProvider>
-        <ChatProvider>
-          <AppSidebar />
-          <AppAlert />
-        </ChatProvider>
-      </SidebarProvider>
+      <ShortcutsProvider>
+        <SidebarProvider>
+          <ChatProvider>
+            <AppSidebar />
+            <AppAlert />
+          </ChatProvider>
+        </SidebarProvider>
+      </ShortcutsProvider>
     </AlertProvider>,
   )
 }
@@ -64,6 +67,22 @@ async function deleteChat(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('AppSidebar', () => {
+  it('shows the customized New chat shortcut on hover', async () => {
+    const user = userEvent.setup()
+    renderSidebar({
+      shortcuts: {
+        ...DEFAULT_SHORTCUTS,
+        newChat: { key: 'j', mod: true, shift: false, alt: true },
+      },
+    })
+
+    await user.hover(await screen.findByRole('button', { name: 'New chat' }))
+
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Ctrl+Alt+J')
+  })
+
   it('reopens at full width when the sidebar was left open', async () => {
     renderSidebar({ isSidebarOpen: true })
 
@@ -88,11 +107,13 @@ describe('AppSidebar', () => {
 
     render(
       <AlertProvider>
-        <SidebarProvider>
-          <ChatProvider>
-            <AppSidebar />
-          </ChatProvider>
-        </SidebarProvider>
+        <ShortcutsProvider>
+          <SidebarProvider>
+            <ChatProvider>
+              <AppSidebar />
+            </ChatProvider>
+          </SidebarProvider>
+        </ShortcutsProvider>
       </AlertProvider>,
     )
 

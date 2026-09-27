@@ -5,7 +5,7 @@ import { useModel } from '@/contexts/ModelContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
-import { Tag } from '@/ui/Tag'
+import { ShortcutTooltip } from '@/ui/ShortcutTooltip'
 import { formatModelName, formatShortcut } from '@/utils'
 
 export function ModelButton() {
@@ -18,19 +18,16 @@ export function ModelButton() {
     ? formatModelName(selectedModel)
     : t('header.selectModel')
   const selectModelShortcut = formatShortcut(shortcuts.toggleModels, isMac)
-  const tooltip = selectedModel ? (
-    <span className="flex items-center gap-2">
-      {t('header.selectModel')}
-      <Tag>{selectModelShortcut}</Tag>
-    </span>
-  ) : (
-    <span>{selectModelShortcut}</span>
-  )
 
   return (
     <GhostButton
       className="flex items-center gap-0.5 px-2"
-      tooltip={tooltip}
+      tooltip={
+        <ShortcutTooltip
+          label={selectedModel ? t('header.selectModel') : null}
+          shortcut={selectModelShortcut}
+        />
+      }
       ariaLabel={t('header.selectModel')}
       onClick={() => openModal('models')}
     >

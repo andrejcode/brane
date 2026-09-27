@@ -173,15 +173,29 @@ describe('Header on non-mac', () => {
     const user = userEvent.setup()
     mock.getShortcuts.mockResolvedValue({
       ...DEFAULT_SHORTCUTS,
+      toggleSettings: { key: 's', mod: true, shift: false, alt: true },
       toggleModels: { key: 'k', mod: true, shift: false, alt: true },
+      toggleSidebar: { key: 'd', mod: true, shift: true, alt: false },
+      newChat: { key: 'j', mod: true, shift: false, alt: false },
     })
     renderHeader()
 
-    await user.hover(screen.getByRole('button', { name: 'Select model' }))
+    const expectedTooltips = [
+      ['Toggle sidebar', 'Ctrl+Shift+D'],
+      ['New chat', 'Ctrl+J'],
+      ['Select model', 'Ctrl+Alt+K'],
+      ['Open settings', 'Ctrl+Alt+S'],
+    ] as const
 
-    expect(
-      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
-    ).toHaveTextContent('Ctrl+Alt+K')
+    for (const [buttonName, tooltipText] of expectedTooltips) {
+      await user.hover(screen.getByRole('button', { name: buttonName }))
+
+      expect(
+        await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+      ).toHaveTextContent(tooltipText)
+
+      await user.unhover(screen.getByRole('button', { name: buttonName }))
+    }
   })
 
   it('stops generation and resets chat UI when New chat is clicked', async () => {

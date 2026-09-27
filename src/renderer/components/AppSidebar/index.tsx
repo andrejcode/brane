@@ -3,18 +3,23 @@ import { SquarePen } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
+import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { useDebouncedQuery } from '@/hooks/useDebouncedQuery'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { ScrollArea } from '@/ui/ScrollArea'
 import { SearchInput } from '@/ui/SearchInput'
+import { ShortcutTooltip } from '@/ui/ShortcutTooltip'
 import { Sidebar } from '@/ui/Sidebar'
+import { formatShortcut } from '@/utils'
 import type { ChatSummary } from '@shared/types'
 import { ChatListItem } from './ChatListItem'
 
 export function AppSidebar() {
+  const isMac = window.electronApi.isMac
   const { t } = useTranslation()
+  const { shortcuts } = useShortcuts()
   const { isSidebarOpen, isReady, setSearchInput } = useSidebar()
   const {
     chats,
@@ -57,6 +62,11 @@ export function AppSidebar() {
       >
         <div className="flex flex-col gap-1 px-2">
           <GhostButton
+            tooltip={
+              <ShortcutTooltip
+                shortcut={formatShortcut(shortcuts.newChat, isMac)}
+              />
+            }
             ariaLabel={t('chat.newChat')}
             className={clsx(
               'flex h-8 w-full items-center gap-2 px-2 text-left',

@@ -9,8 +9,11 @@ import { useEffect, useState } from 'react'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModals } from '@/contexts/ModalContext'
+import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
+import { ShortcutTooltip } from '@/ui/ShortcutTooltip'
+import { formatShortcut } from '@/utils'
 import { ModelButton } from './ModelButton'
 
 // On macOS the title bar is hidden, so we use this header component as a replacement
@@ -19,6 +22,7 @@ export function Header() {
   const isMac = window.electronApi.isMac
   const { openModal } = useModals()
   const { startNewChat } = useChat()
+  const { shortcuts } = useShortcuts()
   const { isSidebarOpen, isReady: isSidebarReady, toggleSidebar } = useSidebar()
   const { t } = useTranslation()
   const [isFullScreen, setIsFullScreen] = useState(false)
@@ -74,7 +78,12 @@ export function Header() {
       >
         <div className="flex items-center gap-3">
           <GhostButton
-            tooltip={t('header.toggleSidebar')}
+            tooltip={
+              <ShortcutTooltip
+                label={t('header.toggleSidebar')}
+                shortcut={formatShortcut(shortcuts.toggleSidebar, isMac)}
+              />
+            }
             ariaLabel={t('header.toggleSidebar')}
             onClick={toggleSidebar}
           >
@@ -93,7 +102,12 @@ export function Header() {
             )}
           >
             <GhostButton
-              tooltip={t('chat.newChat')}
+              tooltip={
+                <ShortcutTooltip
+                  label={t('chat.newChat')}
+                  shortcut={formatShortcut(shortcuts.newChat, isMac)}
+                />
+              }
               ariaLabel={t('chat.newChat')}
               tabIndex={isSidebarOpen ? -1 : undefined}
               onClick={startNewChat}
@@ -107,7 +121,12 @@ export function Header() {
           <ModelButton />
 
           <GhostButton
-            tooltip={t('header.openSettings')}
+            tooltip={
+              <ShortcutTooltip
+                label={t('header.openSettings')}
+                shortcut={formatShortcut(shortcuts.toggleSettings, isMac)}
+              />
+            }
             ariaLabel={t('header.openSettings')}
             onClick={() => openModal('settings')}
           >
