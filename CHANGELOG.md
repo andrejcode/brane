@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+# v0.2.1 - 2026-09-27
+
+This release improves keyboard shortcut discoverability and reliability.
+
+## Added
+
+- Added configured keyboard shortcuts to action tooltips
+- Added numbered shortcut hints for the first nine chats, revealed by holding
+  Cmd/Ctrl
+
+## Updated
+
+- Increased spacing in settings for improved readability
+- Improved model selection and loading feedback in the header
+
+## Fixed
+
+- Disabled main view shortcuts while a modal is open
+- Fixed the model selector tooltip to show the appropriate shortcut
+- Fixed pre-commit linting and formatting
+
 # v0.2.0 - 2026-09-20
 
 These changes are focused on UI/UX improvements.

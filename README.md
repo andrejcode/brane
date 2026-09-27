@@ -83,7 +83,8 @@ the same name is also detected.
 - Markdown, code highlighting, tables, and math in responses
 - Light, dark, and system themes
 - Adjustable message font size
-- Customizable keyboard shortcuts and send behavior
+- Customizable keyboard shortcuts and send behavior, with shortcut hints in action tooltips
+- Numbered shortcuts for opening the first nine chats, revealed by holding Cmd/Ctrl
 - Optional loading of the selected model on startup
 - English, German, Croatian, and Serbian interfaces
 - Local diagnostic logs that you can open or delete from settings
