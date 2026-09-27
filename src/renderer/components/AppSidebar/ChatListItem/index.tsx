@@ -5,6 +5,7 @@ import { useTranslation } from '@/contexts/LocaleContext'
 import { BaseButton } from '@/ui/buttons/BaseButton'
 import { Menu, MenuItem } from '@/ui/Menu'
 import type { MenuHandle } from '@/ui/Menu'
+import { Tag } from '@/ui/Tag'
 import { TooltipTrigger } from '@/ui/Tooltip'
 import type { ChatSummary } from '@shared/types'
 import { ChatModelLine } from './ChatModelLine'
@@ -14,6 +15,7 @@ interface ChatListItemProps {
   chat: ChatSummary
   isActive: boolean
   isRenaming: boolean
+  shortcut: string | null
   onOpen: (chatId: string) => Promise<void>
   onStartRename: () => void
   onStopRename: () => void
@@ -25,6 +27,7 @@ export function ChatListItem({
   chat,
   isActive,
   isRenaming,
+  shortcut,
   onOpen,
   onStartRename,
   onStopRename,
@@ -95,6 +98,18 @@ export function ChatListItem({
             </TooltipTrigger>
             <ChatModelLine chat={chat} modelWarning={modelWarning} />
           </BaseButton>
+
+          {shortcut && (
+            <Tag
+              surface="sidebar"
+              className={clsx(
+                'pointer-events-none absolute top-1/2 right-2 -translate-y-1/2',
+                'group-hover:hidden group-focus-within:hidden',
+              )}
+            >
+              {shortcut}
+            </Tag>
+          )}
 
           <div
             className={clsx(

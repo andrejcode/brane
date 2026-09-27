@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { SquarePen } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useChat } from '@/contexts/ChatContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
@@ -15,6 +15,8 @@ import { Sidebar } from '@/ui/Sidebar'
 import { formatShortcut } from '@/utils'
 import type { ChatSummary } from '@shared/types'
 import { ChatListItem } from './ChatListItem'
+
+const CHAT_SHORTCUT_REVEAL_DELAY = 1000
 
 export function AppSidebar() {
   const isMac = window.electronApi.isMac
@@ -33,12 +35,64 @@ export function AppSidebar() {
   const [chatPendingDeletion, setChatPendingDeletion] =
     useState<ChatSummary | null>(null)
   const [renamingChatId, setRenamingChatId] = useState<string | null>(null)
+  const [isPrimaryModifierPressed, setIsPrimaryModifierPressed] =
+    useState(false)
   const { query, debouncedQuery, normalizedQuery, setQuery } =
     useDebouncedQuery({ resetOnActivate: isSidebarOpen })
   const hasChats = chats.length > 0
   const emptyMessage = isHistoryUnavailable
     ? t('sidebar.historyUnavailable')
     : t('sidebar.noChats')
+
+  useEffect(() => {
+    const primaryModifierKey = isMac ? 'Meta' : 'Control'
+    let isPrimaryModifierHeld = false
+    let revealTimer: ReturnType<typeof setTimeout> | null = null
+
+    const hideChatShortcuts = () => {
+      if (revealTimer !== null) {
+        clearTimeout(revealTimer)
+        revealTimer = null
+      }
+      setIsPrimaryModifierPressed(false)
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === primaryModifierKey) {
+        if (isPrimaryModifierHeld) return
+
+        isPrimaryModifierHeld = true
+        revealTimer = setTimeout(() => {
+          revealTimer = null
+          setIsPrimaryModifierPressed(true)
+        }, CHAT_SHORTCUT_REVEAL_DELAY)
+      } else if (isPrimaryModifierHeld) {
+        hideChatShortcuts()
+      }
+    }
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === primaryModifierKey) {
+        isPrimaryModifierHeld = false
+        hideChatShortcuts()
+      }
+    }
+    const handleBlur = () => {
+      isPrimaryModifierHeld = false
+      hideChatShortcuts()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    window.addEventListener('blur', handleBlur)
+    return () => {
+      if (revealTimer !== null) {
+        clearTimeout(revealTimer)
+      }
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+      window.removeEventListener('blur', handleBlur)
+    }
+  }, [isMac])
 
   const filteredChats = useMemo(() => {
     if (!normalizedQuery) return chats
@@ -117,23 +171,40 @@ export function AppSidebar() {
             tone="sidebar"
           >
             <ul aria-label={t('sidebar.recentChats')} className="space-y-0.5">
-              {filteredChats.map((chat) => (
-                <ChatListItem
-                  key={chat.id}
-                  chat={chat}
-                  isActive={chat.id === activeChatId}
-                  isRenaming={chat.id === renamingChatId}
-                  onOpen={openChat}
-                  onStartRename={() => {
-                    setRenamingChatId(chat.id)
-                  }}
-                  onStopRename={() => {
-                    setRenamingChatId(null)
-                  }}
-                  onRename={renameChat}
-                  onRequestDelete={setChatPendingDeletion}
-                />
-              ))}
+              {filteredChats.map((chat) => {
+                const shortcutIndex = chats.indexOf(chat)
+                const shortcut =
+                  isPrimaryModifierPressed && shortcutIndex < 9
+                    ? formatShortcut(
+                        {
+                          key: String(shortcutIndex + 1),
+                          mod: true,
+                          shift: false,
+                          alt: false,
+                        },
+                        isMac,
+                      )
+                    : null
+
+                return (
+                  <ChatListItem
+                    key={chat.id}
+                    chat={chat}
+                    isActive={chat.id === activeChatId}
+                    isRenaming={chat.id === renamingChatId}
+                    shortcut={shortcut}
+                    onOpen={openChat}
+                    onStartRename={() => {
+                      setRenamingChatId(chat.id)
+                    }}
+                    onStopRename={() => {
+                      setRenamingChatId(null)
+                    }}
+                    onRename={renameChat}
+                    onRequestDelete={setChatPendingDeletion}
+                  />
+                )
+              })}
             </ul>
           </ScrollArea>
         )}

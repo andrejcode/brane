@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppAlert } from '@/components/AppAlert'
 import { AlertProvider } from '@/contexts/AlertContext'
@@ -51,6 +51,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   clearMockElectronApi()
   document.getElementById('modal-root')?.remove()
 })
@@ -81,6 +82,65 @@ describe('AppSidebar', () => {
     expect(
       await screen.findByRole('tooltip', {}, { timeout: 2500 }),
     ).toHaveTextContent('Ctrl+Alt+J')
+  })
+
+  it.each([
+    { isMac: true, modifier: 'Meta', shortcut: '⌘1' },
+    { isMac: false, modifier: 'Control', shortcut: 'Ctrl+1' },
+  ])(
+    'shows recent chat shortcuts after $modifier is held for a second',
+    async ({ isMac, modifier, shortcut }) => {
+      renderSidebar({ isMac, chats: [chatSummary()] })
+
+      await screen.findByText('Untitled chat')
+      vi.useFakeTimers()
+      fireEvent.keyDown(window, { key: modifier })
+
+      await act(() => vi.advanceTimersByTime(999))
+      expect(screen.queryByText(shortcut)).not.toBeInTheDocument()
+
+      await act(() => vi.advanceTimersByTime(1))
+      expect(screen.getByText(shortcut)).toBeInTheDocument()
+
+      fireEvent.keyUp(window, { key: modifier })
+      expect(screen.queryByText(shortcut)).not.toBeInTheDocument()
+    },
+  )
+
+  it('does not reveal chat shortcuts when another shortcut is pressed', async () => {
+    renderSidebar({ chats: [chatSummary()] })
+
+    await screen.findByText('Untitled chat')
+    vi.useFakeTimers()
+    fireEvent.keyDown(window, { key: 'Control' })
+    fireEvent.keyDown(window, { key: 'n', ctrlKey: true })
+    await act(() => vi.advanceTimersByTime(1000))
+
+    expect(screen.queryByText('Ctrl+1')).not.toBeInTheDocument()
+  })
+
+  it('numbers filtered chats by their position in the recent chat shortcuts', async () => {
+    renderSidebar({
+      chats: [
+        chatSummary({ id: 'chat-1', title: 'Sourdough tips' }),
+        chatSummary({ id: 'chat-2', title: 'TypeScript notes' }),
+      ],
+    })
+    const user = userEvent.setup()
+
+    await user.type(
+      await screen.findByRole('textbox', { name: 'Search chats' }),
+      'typescript',
+    )
+    await waitFor(() => {
+      expect(screen.queryByText('Sourdough tips')).not.toBeInTheDocument()
+    })
+    vi.useFakeTimers()
+    fireEvent.keyDown(window, { key: 'Control' })
+    await act(() => vi.advanceTimersByTime(1000))
+
+    expect(screen.getByText('Ctrl+2')).toBeInTheDocument()
+    expect(screen.queryByText('Ctrl+1')).not.toBeInTheDocument()
   })
 
   it('reopens at full width when the sidebar was left open', async () => {
