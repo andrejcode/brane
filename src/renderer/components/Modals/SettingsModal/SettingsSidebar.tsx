@@ -65,7 +65,7 @@ export function SettingsSidebar({
   }
 
   return (
-    <div className="w-1/4 border-r border-neutral-200 dark:border-neutral-500 p-3">
+    <div className="w-1/4 border-r border-neutral-200 p-4 dark:border-neutral-500">
       <h2
         id="settings-title"
         className="text-sm font-bold text-neutral-500 dark:text-neutral-400"
@@ -78,7 +78,7 @@ export function SettingsSidebar({
         aria-orientation="vertical"
         aria-label={t('settings.sections')}
         onKeyDown={handleTabKeyDown}
-        className="flex flex-col gap-1.5 mt-2"
+        className="mt-3 flex flex-col gap-2"
       >
         {TABS.map((tab) => {
           const isActive = tab.id === activeTab

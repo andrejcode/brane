@@ -45,7 +45,7 @@ export function GeneralSettings() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col">
           <h4 id="load-model-on-startup-label">
@@ -93,10 +93,10 @@ export function GeneralSettings() {
         />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <h4 className="text-lg font-medium">{t('general.logs')}</h4>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col">
               <h5>{t('general.openLogs')}</h5>

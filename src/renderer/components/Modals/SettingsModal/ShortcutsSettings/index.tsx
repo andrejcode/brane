@@ -54,8 +54,8 @@ export function ShortcutsSettings() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {SHORTCUT_ACTIONS.map((action) => {
           const labelId = `shortcut-${action}-label`
 

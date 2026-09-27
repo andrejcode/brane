@@ -30,7 +30,7 @@ export function SettingsModal() {
 
         {/* Setting title and close button */}
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="flex shrink-0 items-center justify-between p-3">
+          <div className="flex shrink-0 items-center justify-between px-5 py-4">
             <h3 className="text-xl">{activeLabel}</h3>
             <CloseButton onClick={closeModal} ariaLabel={t('settings.close')} />
           </div>
@@ -40,7 +40,7 @@ export function SettingsModal() {
           {/* Settings content */}
           <ScrollArea
             className="flex-1 rounded-br-2xl"
-            viewportClassName={clsx('rounded-br-2xl p-3', FOCUS_RING_INSET)}
+            viewportClassName={clsx('rounded-br-2xl p-5', FOCUS_RING_INSET)}
             viewportProps={{
               id: `settings-panel-${activeTab}`,
               role: 'tabpanel',
