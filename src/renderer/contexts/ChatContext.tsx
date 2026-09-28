@@ -56,6 +56,9 @@ function toMessage(stored: StoredMessage): Message {
             size: stored.contextSize,
           },
         }),
+    ...(stored.generationMetrics === null
+      ? {}
+      : { generationMetrics: stored.generationMetrics }),
   }
 }
 

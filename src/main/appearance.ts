@@ -79,20 +79,20 @@ export function registerAppearanceHandlers() {
     return value
   })
 
-  ipcMain.handle(IpcChannels.getShowContextUsage, () => {
-    const enabled = getStoreValue('showContextUsage') !== false
-    setStoreValue('showContextUsage', enabled)
+  ipcMain.handle(IpcChannels.getShowStatistics, () => {
+    const enabled = getStoreValue('showStatistics') === true
+    setStoreValue('showStatistics', enabled)
     return enabled
   })
 
-  ipcMain.handle(IpcChannels.setShowContextUsage, (_event, value: unknown) => {
+  ipcMain.handle(IpcChannels.setShowStatistics, (_event, value: unknown) => {
     if (typeof value !== 'boolean') {
-      logger.warn(`Invalid context usage preference received: ${String(value)}`)
-      throw new Error('Unable to save the context usage preference.')
+      logger.warn(`Invalid statistics preference received: ${String(value)}`)
+      throw new Error('Unable to save the statistics preference.')
     }
 
-    logger.info(`Context usage display ${value ? 'enabled' : 'disabled'}`)
-    setStoreValue('showContextUsage', value)
+    logger.info(`Statistics display ${value ? 'enabled' : 'disabled'}`)
+    setStoreValue('showStatistics', value)
     return value
   })
 

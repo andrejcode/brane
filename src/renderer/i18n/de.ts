@@ -45,6 +45,25 @@ export const de: Messages = {
   'chat.copied': 'Kopiert',
   'chat.copyFailed': 'Fehlgeschlagen',
   'chat.contextUsed': '{used} / {size} Tokens verwendet',
+  'chat.contextUsageSummary':
+    '{percentage}% des Kontexts verwendet. {used} / {size} Tokens. {remaining} Tokens verbleiben.',
+  'chat.contextLimitReached':
+    'Kontextlimit erreicht. {used} / {size} Tokens verwendet.',
+  'chat.contextUsageUnavailable':
+    'Die Kontextnutzung ist noch nicht verfügbar.',
+  'chat.notAvailable': 'k. A.',
+  'chat.generatedTokens': 'Generierte Tokens',
+  'chat.tokenCount': '{count} Tokens',
+  'chat.tokensPerSecond': 'Tokens pro Sekunde',
+  'chat.tokenRate': '{rate} Tok./s',
+  'chat.timeToFirstToken': 'Zeit bis zum ersten Token',
+  'chat.stopReason': 'Stoppgrund',
+  'chat.stopReason.abort': 'Gestoppt',
+  'chat.stopReason.maxTokens': 'Tokenlimit',
+  'chat.stopReason.eogToken': 'End-Token',
+  'chat.stopReason.stopGenerationTrigger': 'Stoppsequenz',
+  'chat.stopReason.functionCalls': 'Funktionsaufruf',
+  'chat.stopReason.customStopTrigger': 'Eigener Stopp',
 
   'models.title': 'Modelle',
   'models.search': 'Modelle suchen',
@@ -114,11 +133,11 @@ export const de: Messages = {
   'appearance.increaseFontSize': 'Nachrichtenschrift vergrößern',
   'appearance.decreaseFontSize': 'Nachrichtenschrift verkleinern',
   'appearance.fontSizeDescription': 'Ändert die Schriftgröße der Nachrichten.',
-  'appearance.contextUsage': 'Kontextnutzung anzeigen',
-  'appearance.contextUsageDescription':
-    'Zeigt die Token-Nutzung unter Assistentennachrichten an.',
-  'appearance.contextUsageSaveFailed':
-    'Die Einstellung zur Kontextnutzung konnte nicht gespeichert werden. Bitte erneut versuchen.',
+  'appearance.statistics': 'Statistiken anzeigen',
+  'appearance.statisticsDescription':
+    'Zeigt Generierungsstatistiken und die aktuelle Kontextnutzung an.',
+  'appearance.statisticsSaveFailed':
+    'Die Statistikeinstellung konnte nicht gespeichert werden. Bitte erneut versuchen.',
   'appearance.messageDates': 'Nachrichtendaten anzeigen',
   'appearance.messageDatesDescription':
     'Zeigt Datum und Uhrzeit beim Bewegen des Mauszeigers über eine Nachricht an.',

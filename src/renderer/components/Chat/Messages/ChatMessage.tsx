@@ -5,25 +5,45 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import type { Message } from '@/types'
 import { CopyButton } from '@/ui/buttons/CopyButton'
 import { Tag } from '@/ui/Tag'
+import { TooltipTrigger } from '@/ui/Tooltip'
+import type { LlamaStopReason } from '@shared/types'
 import { AssistantMessage } from './AssistantMessage'
 
 interface ChatMessageProps {
   message: Message
-  showContextUsage: boolean
   showMessageDates: boolean
+  showStatistics: boolean
   ref?: Ref<HTMLElement> | undefined
+}
+
+function formatDuration(milliseconds: number, locale: string) {
+  if (milliseconds < 1000) {
+    return `${Math.round(milliseconds).toLocaleString(locale)} ms`
+  }
+
+  return `${(milliseconds / 1000).toLocaleString(locale, {
+    maximumFractionDigits: 1,
+  })} s`
+}
+
+function getStopReasonLabel(
+  stopReason: LlamaStopReason,
+  t: ReturnType<typeof useTranslation>['t'],
+) {
+  return t(`chat.stopReason.${stopReason}`)
 }
 
 export function ChatMessage({
   message,
-  showContextUsage,
   showMessageDates,
+  showStatistics,
   ref,
 }: ChatMessageProps) {
   const { t, locale } = useTranslation()
   const { copyStatus, copy } = useCopyToClipboard()
   const isUser = message.role === 'user'
   const canCopy = message.content.length > 0
+  const generationMetrics = message.generationMetrics
   const formattedDate = new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -51,10 +71,12 @@ export function ChatMessage({
         <AssistantMessage message={message} />
       )}
 
-      {(canCopy || showMessageDates) && (
+      {(canCopy ||
+        showMessageDates ||
+        (showStatistics && generationMetrics)) && (
         <div
           className={clsx(
-            'flex items-center gap-2 text-xs text-neutral-500',
+            'flex flex-wrap items-center gap-2 text-xs text-neutral-500',
             'opacity-0 transition-opacity duration-200',
             'group-hover:opacity-100 group-focus-within:opacity-100',
           )}
@@ -64,13 +86,34 @@ export function ChatMessage({
               {formattedDate}
             </time>
           )}
-          {showContextUsage && !isUser && message.contextUsage && (
-            <Tag>
-              {t('chat.contextUsed', {
-                used: message.contextUsage.used.toLocaleString(),
-                size: message.contextUsage.size.toLocaleString(),
-              })}
-            </Tag>
+          {showStatistics && !isUser && generationMetrics && (
+            <>
+              <TooltipTrigger tooltip={t('chat.generatedTokens')}>
+                <Tag>
+                  {t('chat.tokenCount', {
+                    count: generationMetrics.tokenCount.toLocaleString(locale),
+                  })}
+                </Tag>
+              </TooltipTrigger>
+              <TooltipTrigger tooltip={t('chat.tokensPerSecond')}>
+                <Tag>
+                  {t('chat.tokenRate', {
+                    rate: generationMetrics.tokensPerSecond.toLocaleString(
+                      locale,
+                      { maximumFractionDigits: 1 },
+                    ),
+                  })}
+                </Tag>
+              </TooltipTrigger>
+              <TooltipTrigger tooltip={t('chat.timeToFirstToken')}>
+                <Tag>
+                  {formatDuration(generationMetrics.timeToFirstTokenMs, locale)}
+                </Tag>
+              </TooltipTrigger>
+              <TooltipTrigger tooltip={t('chat.stopReason')}>
+                <Tag>{getStopReasonLabel(generationMetrics.stopReason, t)}</Tag>
+              </TooltipTrigger>
+            </>
           )}
           {canCopy && (
             <CopyButton

@@ -11,6 +11,7 @@ interface TooltipTriggerProps {
   children: React.ReactNode
   className?: string
   onlyWhenTruncated?: boolean
+  tabIndex?: number
   tooltip: string
 }
 
@@ -118,6 +119,7 @@ export function TooltipTrigger({
   children,
   className,
   onlyWhenTruncated = false,
+  tabIndex,
   tooltip,
 }: TooltipTriggerProps) {
   const triggerRef = useRef<HTMLSpanElement>(null)
@@ -143,6 +145,9 @@ export function TooltipTrigger({
         ref={triggerRef}
         aria-describedby={isTooltipVisible ? tooltipId : undefined}
         className={className}
+        tabIndex={tabIndex}
+        onBlur={hideTooltip}
+        onFocus={showTooltip}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={hideTooltip}
       >

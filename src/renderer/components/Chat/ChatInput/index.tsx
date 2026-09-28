@@ -15,19 +15,24 @@ import type {
 } from 'react'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useIsModalOpen } from '@/contexts/ModalContext'
+import type { ContextUsage } from '@/types'
 import { ChatActionButton } from './ChatActionButton'
 import { isMultilineHeight, resolveTextareaHeight } from './chatInputLayout'
+import { ContextUsageIndicator } from './ContextUsageIndicator'
 
 const MAX_ROWS = 8
 // Right padding (px) of the textarea
 const SINGLE_ROW_PADDING_RIGHT = 48
+const SINGLE_ROW_STATISTICS_PADDING_RIGHT = 104
 const MULTI_ROW_PADDING_RIGHT = 16
 
 interface ChatInputProps {
   activeChatId: string | null
+  contextUsage?: ContextUsage
   input: string
   isModelReady: boolean
   isSending: boolean
+  showStatistics?: boolean
   onStop: () => void
   onSubmit: SubmitEventHandler<HTMLFormElement>
   setInput: Dispatch<SetStateAction<string>>
@@ -37,9 +42,11 @@ interface ChatInputProps {
 
 export function ChatInput({
   activeChatId,
+  contextUsage,
   input,
   isModelReady,
   isSending,
+  showStatistics = false,
   onStop,
   onSubmit,
   setInput,
@@ -50,6 +57,7 @@ export function ChatInput({
   const [isMultiline, setIsMultiline] = useState(false)
   const isModalOpen = useIsModalOpen()
   const { t } = useTranslation()
+  const hasContextUsage = contextUsage !== undefined && contextUsage.size > 0
 
   useEffect(() => {
     if (activeChatId === previousActiveChatIdRef.current) {
@@ -75,13 +83,16 @@ export function ChatInput({
     const startHeight = textarea.style.height
 
     textarea.style.transition = 'none'
-    textarea.style.paddingRight = `${SINGLE_ROW_PADDING_RIGHT}px`
+    const singleRowPaddingRight = showStatistics
+      ? SINGLE_ROW_STATISTICS_PADDING_RIGHT
+      : SINGLE_ROW_PADDING_RIGHT
+    textarea.style.paddingRight = `${singleRowPaddingRight}px`
     textarea.style.height = 'auto'
     const multiline = isMultilineHeight(textarea.scrollHeight, lineHeight)
 
     const targetPaddingRight = multiline
       ? MULTI_ROW_PADDING_RIGHT
-      : SINGLE_ROW_PADDING_RIGHT
+      : singleRowPaddingRight
     textarea.style.paddingRight = `${targetPaddingRight}px`
     textarea.style.height = 'auto'
     const { height: nextHeight, overflowY } = resolveTextareaHeight({
@@ -99,7 +110,7 @@ export function ChatInput({
     textarea.style.overflowY = overflowY
 
     return multiline
-  }, [])
+  }, [showStatistics])
 
   useLayoutEffect(() => {
     // The row count can only be derived by measuring the rendered textarea, so
@@ -203,6 +214,23 @@ export function ChatInput({
           'bg-transparent text-neutral-800 focus:outline-none dark:text-neutral-100',
         )}
       />
+      {showStatistics && (
+        <div className="absolute right-12 bottom-2 flex h-8 items-center gap-2">
+          <ContextUsageIndicator
+            {...(hasContextUsage
+              ? {
+                  percentage: (contextUsage.used / contextUsage.size) * 100,
+                  usedTokens: contextUsage.used,
+                  totalTokens: contextUsage.size,
+                }
+              : {})}
+          />
+          <span
+            aria-hidden="true"
+            className="h-5 w-px bg-neutral-200 dark:bg-neutral-500"
+          />
+        </div>
+      )}
       {isSending ? (
         <ChatActionButton
           type="button"

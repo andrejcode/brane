@@ -146,6 +146,12 @@ describe('appendMessage', () => {
       finishReason: 'stopped',
       contextUsed: 1234,
       contextSize: 4096,
+      generationMetrics: {
+        tokenCount: 42,
+        tokensPerSecond: 12.5,
+        timeToFirstTokenMs: 250,
+        stopReason: 'abort',
+      },
     })
 
     expect(listMessages(chat.id)[0]).toMatchObject({
@@ -155,6 +161,10 @@ describe('appendMessage', () => {
       finishReason: 'stopped',
       contextUsed: 1234,
       contextSize: 4096,
+      generatedTokenCount: 42,
+      tokensPerSecond: 12.5,
+      timeToFirstTokenMs: 250,
+      stopReason: 'abort',
     })
   })
 
@@ -168,6 +178,10 @@ describe('appendMessage', () => {
       finishReason: null,
       contextUsed: null,
       contextSize: null,
+      generatedTokenCount: null,
+      tokensPerSecond: null,
+      timeToFirstTokenMs: null,
+      stopReason: null,
     })
   })
 

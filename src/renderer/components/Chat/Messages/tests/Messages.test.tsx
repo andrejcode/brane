@@ -123,7 +123,7 @@ describe('Messages', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows context usage beside the assistant message copy control', () => {
+  it('shows generation metrics beside the assistant message copy control', async () => {
     render(
       <Messages
         activeChatId={null}
@@ -134,17 +134,35 @@ describe('Messages', () => {
             content: 'response',
             createdAt,
             contextUsage: { used: 1234, size: 4096 },
+            generationMetrics: {
+              tokenCount: 42,
+              tokensPerSecond: 12.34,
+              timeToFirstTokenMs: 250,
+              stopReason: 'eogToken',
+            },
           },
         ]}
         bottomInset={0}
+        showStatistics
       />,
     )
 
-    expect(screen.getByText('1,234 / 4,096 tokens used')).toBeInTheDocument()
+    expect(screen.getByText('42 tokens')).toBeInTheDocument()
+    expect(screen.getByText('12.3 tok/s')).toBeInTheDocument()
+    expect(screen.getByText('250 ms')).toBeInTheDocument()
+    expect(screen.getByText('End token')).toBeInTheDocument()
+    expect(
+      screen.queryByText('1,234 / 4,096 tokens used'),
+    ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
+
+    await userEvent.hover(screen.getByText('250 ms'))
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Time to first token')
   })
 
-  it('hides context usage when the preference is disabled', () => {
+  it('hides retained statistics by default', () => {
     render(
       <Messages
         activeChatId={null}
@@ -155,16 +173,22 @@ describe('Messages', () => {
             content: 'response',
             createdAt,
             contextUsage: { used: 1234, size: 4096 },
+            generationMetrics: {
+              tokenCount: 42,
+              tokensPerSecond: 12.34,
+              timeToFirstTokenMs: 250,
+              stopReason: 'eogToken',
+            },
           },
         ]}
         bottomInset={0}
-        showContextUsage={false}
       />,
     )
 
     expect(
       screen.queryByText('1,234 / 4,096 tokens used'),
     ).not.toBeInTheDocument()
+    expect(screen.queryByText('42 tokens')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
   })
 

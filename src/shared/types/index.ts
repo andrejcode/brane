@@ -18,8 +18,8 @@ export const IpcChannels = {
   setMessageFontSize: 'appearance:set-message-font-size',
   getShowPointerCursor: 'appearance:get-show-pointer-cursor',
   setShowPointerCursor: 'appearance:set-show-pointer-cursor',
-  getShowContextUsage: 'appearance:get-show-context-usage',
-  setShowContextUsage: 'appearance:set-show-context-usage',
+  getShowStatistics: 'appearance:get-show-statistics',
+  setShowStatistics: 'appearance:set-show-statistics',
   getShowMessageDates: 'appearance:get-show-message-dates',
   setShowMessageDates: 'appearance:set-show-message-dates',
 
@@ -220,12 +220,31 @@ export interface StoredMessage {
   finishReason: FinishReason | null
   contextUsed: number | null
   contextSize: number | null
+  generationMetrics: GenerationMetrics | null
 }
 
 // Models emit their output in segments. A `thought` segment is the model's
 // reasoning; its absence means the chunk is part of the user-facing answer.
 // `comment` segments are dropped in the main process and never reach here.
 export type LlamaResponseSegment = 'thought'
+
+export const LLAMA_STOP_REASONS = [
+  'abort',
+  'maxTokens',
+  'eogToken',
+  'stopGenerationTrigger',
+  'functionCalls',
+  'customStopTrigger',
+] as const
+
+export type LlamaStopReason = (typeof LLAMA_STOP_REASONS)[number]
+
+export interface GenerationMetrics {
+  tokenCount: number
+  tokensPerSecond: number
+  timeToFirstTokenMs: number
+  stopReason: LlamaStopReason
+}
 
 export type LlamaStreamEvent =
   | {
@@ -234,11 +253,17 @@ export type LlamaStreamEvent =
       segment?: LlamaResponseSegment
     }
   | {
+      type: 'context'
+      contextUsed: number
+      contextSize: number
+    }
+  | {
       type: 'done'
       response: string
       stopped?: boolean
       contextUsed?: number
       contextSize?: number
+      generationMetrics?: GenerationMetrics
     }
   | {
       type: 'error'

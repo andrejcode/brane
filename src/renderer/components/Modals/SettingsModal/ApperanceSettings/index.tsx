@@ -1,7 +1,7 @@
-import { ContextUsageSettings } from './ContextUsageSettings'
 import { MessageDatesSettings } from './MessageDatesSettings'
 import { MessageFontSizeSettings } from './MessageFontSizeSettings'
 import { PointerCursorSettings } from './PointerCursorSettings'
+import { StatisticsSettings } from './StatisticsSettings'
 import { ThemeSettings } from './ThemeSettings'
 
 export function ApperanceSettings() {
@@ -9,7 +9,7 @@ export function ApperanceSettings() {
     <div className="flex flex-col gap-6">
       <ThemeSettings />
       <MessageFontSizeSettings />
-      <ContextUsageSettings />
+      <StatisticsSettings />
       <MessageDatesSettings />
       <PointerCursorSettings />
     </div>

@@ -11,6 +11,7 @@ import { getErrorMessage } from '@shared/error'
 import {
   IpcChannels,
   type FinishReason,
+  type GenerationMetrics,
   type LlamaResponseSegment,
   type LlamaStreamEvent,
 } from '@shared/types'
@@ -275,14 +276,25 @@ function persistTurn(
   }
 }
 
-function persistAssistantTurn(
-  chatId: string,
-  content: string,
-  reasoning: string,
-  finishReason: FinishReason,
-  contextUsed?: number,
-  contextSize?: number,
-) {
+interface PersistAssistantTurnOptions {
+  chatId: string
+  content: string
+  reasoning: string
+  finishReason: FinishReason
+  contextUsed?: number
+  contextSize?: number
+  generationMetrics?: GenerationMetrics
+}
+
+function persistAssistantTurn({
+  chatId,
+  content,
+  reasoning,
+  finishReason,
+  contextUsed,
+  contextSize,
+  generationMetrics,
+}: PersistAssistantTurnOptions) {
   // Nothing was generated, so there's no turn worth keeping. Matches the
   // renderer dropping its empty placeholder.
   if (content.length === 0 && reasoning.length === 0) {
@@ -297,6 +309,7 @@ function persistAssistantTurn(
     finishReason,
     ...(contextUsed === undefined ? {} : { contextUsed }),
     ...(contextSize === undefined ? {} : { contextSize }),
+    ...(generationMetrics === undefined ? {} : { generationMetrics }),
   })
 }
 
@@ -310,6 +323,8 @@ async function streamPrompt(
 
   const responseChunks: string[] = []
   const thoughtChunks: string[] = []
+  let generatedTokenCount = 0
+  let firstTokenAt: number | undefined
 
   try {
     const session = await getSession(getSelectedModelPath())
@@ -317,9 +332,24 @@ async function streamPrompt(
     primeSession(session, chatId)
     persistTurn(chatId, { chatId, role: 'user', content: prompt })
 
+    const generationStartedAt = performance.now()
     const response = await session.promptWithMeta(prompt, {
       signal: abortController.signal,
       stopOnAbortSignal: true,
+      onToken(tokens) {
+        generatedTokenCount += tokens.length
+        firstTokenAt ??= performance.now()
+        const contextUsed = session.sequence.nextTokenIndex
+        const contextSize = session.sequence.contextSize
+
+        if (Number.isInteger(contextUsed) && Number.isInteger(contextSize)) {
+          sendStreamEvent(sender, {
+            type: 'context',
+            contextUsed,
+            contextSize,
+          })
+        }
+      },
       onResponseChunk(chunk) {
         const classified = classifyResponseChunk(chunk)
 
@@ -350,34 +380,51 @@ async function streamPrompt(
     const contextSize = session.sequence.contextSize
     const hasContextUsage =
       Number.isInteger(contextUsed) && Number.isInteger(contextSize)
+    const generationCompletedAt = performance.now()
+    const timeToFirstTokenMs = Math.max(
+      0,
+      (firstTokenAt ?? generationCompletedAt) - generationStartedAt,
+    )
+    const generationDurationMs = Math.max(
+      1,
+      generationCompletedAt - (firstTokenAt ?? generationCompletedAt),
+    )
+    const generationMetrics = {
+      tokenCount: generatedTokenCount,
+      tokensPerSecond: (generatedTokenCount * 1000) / generationDurationMs,
+      timeToFirstTokenMs,
+      stopReason: response.stopReason,
+    }
     logger.info(
       `Response complete (${responseText.length} chars, context: ${contextUsed}/${contextSize}, stopReason: ${response.stopReason})`,
     )
 
-    persistAssistantTurn(
+    persistAssistantTurn({
       chatId,
-      responseText,
-      thoughtChunks.join(''),
-      stopped ? 'stopped' : 'done',
-      ...(hasContextUsage ? [contextUsed, contextSize] : []),
-    )
+      content: responseText,
+      reasoning: thoughtChunks.join(''),
+      finishReason: stopped ? 'stopped' : 'done',
+      ...(hasContextUsage ? { contextUsed, contextSize } : {}),
+      generationMetrics,
+    })
     sendStreamEvent(sender, {
       type: 'done',
       response: responseText,
       stopped,
       ...(hasContextUsage ? { contextUsed, contextSize } : {}),
+      generationMetrics,
     })
   } catch (error) {
     // Aborting before generation starts streaming rejects instead of
     // resolving with a partial response, so treat it as a normal stop.
     if (abortController.signal.aborted) {
       logger.info('Generation aborted')
-      persistAssistantTurn(
+      persistAssistantTurn({
         chatId,
-        responseChunks.join(''),
-        thoughtChunks.join(''),
-        'stopped',
-      )
+        content: responseChunks.join(''),
+        reasoning: thoughtChunks.join(''),
+        finishReason: 'stopped',
+      })
       sendStreamEvent(sender, {
         type: 'done',
         response: '',
@@ -385,12 +432,12 @@ async function streamPrompt(
       })
     } else {
       logger.error('Generation failed', error)
-      persistAssistantTurn(
+      persistAssistantTurn({
         chatId,
-        responseChunks.join(''),
-        thoughtChunks.join(''),
-        'error',
-      )
+        content: responseChunks.join(''),
+        reasoning: thoughtChunks.join(''),
+        finishReason: 'error',
+      })
       sendStreamEvent(sender, {
         type: 'error',
         message: 'The model failed to generate a response. Please try again.',

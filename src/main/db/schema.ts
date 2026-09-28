@@ -3,12 +3,13 @@ import {
   check,
   index,
   integer,
+  real,
   sqliteTable,
   text,
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core'
 // Type-only so drizzle-kit can read this schema without resolving path aliases.
-import type { FinishReason, MessageRole } from '@shared/types'
+import type { FinishReason, LlamaStopReason, MessageRole } from '@shared/types'
 
 const createdAt = () =>
   integer('created_at', { mode: 'timestamp_ms' })
@@ -56,6 +57,10 @@ export const messages = sqliteTable(
     finishReason: text('finish_reason').$type<FinishReason>(),
     contextUsed: integer('context_used'),
     contextSize: integer('context_size'),
+    generatedTokenCount: integer('generated_token_count'),
+    tokensPerSecond: real('tokens_per_second'),
+    timeToFirstTokenMs: real('time_to_first_token_ms'),
+    stopReason: text('stop_reason').$type<LlamaStopReason>(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -66,7 +71,7 @@ export const messages = sqliteTable(
     ),
     check(
       'messages_assistant_only_fields',
-      sql`${table.role} = 'assistant' or (${table.reasoning} is null and ${table.finishReason} is null and ${table.contextUsed} is null and ${table.contextSize} is null)`,
+      sql`${table.role} = 'assistant' or (${table.reasoning} is null and ${table.finishReason} is null and ${table.contextUsed} is null and ${table.contextSize} is null and ${table.generatedTokenCount} is null and ${table.tokensPerSecond} is null and ${table.timeToFirstTokenMs} is null and ${table.stopReason} is null)`,
     ),
   ],
 )

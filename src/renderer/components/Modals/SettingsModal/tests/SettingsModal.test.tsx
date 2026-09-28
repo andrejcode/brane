@@ -155,35 +155,35 @@ describe('SettingsModal', () => {
     expect(mock.setMessageFontSize).toHaveBeenLastCalledWith(19)
   })
 
-  it('shows context usage by default and allows disabling it', async () => {
+  it('keeps statistics hidden by default and allows enabling them', async () => {
     const mock = installMockElectronApi()
     const user = userEvent.setup()
     renderSettings()
 
     await user.click(screen.getByRole('tab', { name: 'Appearance' }))
-    const toggle = screen.getByRole('switch', { name: 'Show context usage' })
+    const toggle = screen.getByRole('switch', { name: 'Show statistics' })
 
-    expect(toggle).toBeChecked()
+    expect(toggle).not.toBeChecked()
     await user.click(toggle)
 
-    expect(mock.setShowContextUsage).toHaveBeenCalledWith(false)
-    await waitFor(() => expect(toggle).not.toBeChecked())
+    expect(mock.setShowStatistics).toHaveBeenCalledWith(true)
+    await waitFor(() => expect(toggle).toBeChecked())
   })
 
-  it('reports a context usage preference that could not be saved', async () => {
+  it('reports a statistics preference that could not be saved', async () => {
     const mock = installMockElectronApi()
-    mock.setShowContextUsage.mockRejectedValueOnce(new Error('read-only store'))
+    mock.setShowStatistics.mockRejectedValueOnce(new Error('read-only store'))
     const user = userEvent.setup()
     renderSettings()
 
     await user.click(screen.getByRole('tab', { name: 'Appearance' }))
-    const toggle = screen.getByRole('switch', { name: 'Show context usage' })
+    const toggle = screen.getByRole('switch', { name: 'Show statistics' })
     await user.click(toggle)
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Failed to save the context usage preference. Please try again.',
+      'Failed to save the statistics preference. Please try again.',
     )
-    expect(toggle).toBeChecked()
+    expect(toggle).not.toBeChecked()
   })
 
   it('keeps message dates hidden by default and allows enabling them', async () => {

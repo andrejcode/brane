@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import { desc, eq } from 'drizzle-orm'
-import type { FinishReason, MessageRole } from '@shared/types'
+import type {
+  FinishReason,
+  GenerationMetrics,
+  MessageRole,
+} from '@shared/types'
 import { chats, messages, type ChatRow, type MessageRow } from './schema'
 import { getDatabase } from './index'
 
@@ -77,6 +81,7 @@ interface AppendMessageInput {
   finishReason?: FinishReason | null
   contextUsed?: number | null
   contextSize?: number | null
+  generationMetrics?: GenerationMetrics | null
 }
 
 // The position lookup and insert share a transaction so two turns can't land on
@@ -90,6 +95,7 @@ export function appendMessage({
   finishReason = null,
   contextUsed = null,
   contextSize = null,
+  generationMetrics = null,
 }: AppendMessageInput): MessageRow {
   return getDatabase().transaction((tx) => {
     const lastMessage = tx
@@ -111,6 +117,10 @@ export function appendMessage({
         finishReason,
         contextUsed,
         contextSize,
+        generatedTokenCount: generationMetrics?.tokenCount ?? null,
+        tokensPerSecond: generationMetrics?.tokensPerSecond ?? null,
+        timeToFirstTokenMs: generationMetrics?.timeToFirstTokenMs ?? null,
+        stopReason: generationMetrics?.stopReason ?? null,
         position: (lastMessage?.position ?? -1) + 1,
       })
       .returning()

@@ -37,6 +37,24 @@ export const en = {
   'chat.copied': 'Copied',
   'chat.copyFailed': 'Failed',
   'chat.contextUsed': '{used} / {size} tokens used',
+  'chat.contextUsageSummary':
+    '{percentage}% context used. {used} / {size} tokens. {remaining} tokens remaining.',
+  'chat.contextLimitReached':
+    'Context limit reached. {used} / {size} tokens used.',
+  'chat.contextUsageUnavailable': 'Context usage is not available yet.',
+  'chat.notAvailable': 'N/A',
+  'chat.generatedTokens': 'Generated tokens',
+  'chat.tokenCount': '{count} tokens',
+  'chat.tokensPerSecond': 'Tokens per second',
+  'chat.tokenRate': '{rate} tok/s',
+  'chat.timeToFirstToken': 'Time to first token',
+  'chat.stopReason': 'Stop reason',
+  'chat.stopReason.abort': 'Stopped',
+  'chat.stopReason.maxTokens': 'Max tokens',
+  'chat.stopReason.eogToken': 'End token',
+  'chat.stopReason.stopGenerationTrigger': 'Stop sequence',
+  'chat.stopReason.functionCalls': 'Function call',
+  'chat.stopReason.customStopTrigger': 'Custom stop',
 
   'models.title': 'Models',
   'models.search': 'Search models',
@@ -101,11 +119,11 @@ export const en = {
   'appearance.increaseFontSize': 'Increase message font size',
   'appearance.decreaseFontSize': 'Decrease message font size',
   'appearance.fontSizeDescription': 'Changes the font size of messages.',
-  'appearance.contextUsage': 'Show context usage',
-  'appearance.contextUsageDescription':
-    'Shows token usage below assistant messages.',
-  'appearance.contextUsageSaveFailed':
-    'Failed to save the context usage preference. Please try again.',
+  'appearance.statistics': 'Show statistics',
+  'appearance.statisticsDescription':
+    'Shows generation statistics and current context usage.',
+  'appearance.statisticsSaveFailed':
+    'Failed to save the statistics preference. Please try again.',
   'appearance.messageDates': 'Show message dates',
   'appearance.messageDatesDescription':
     'Show the date and time when hovering over a message.',

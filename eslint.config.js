@@ -8,6 +8,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 const tsconfigRootDir = import.meta.dirname
+const rendererFiles = ['src/renderer/**/*.{ts,tsx}']
 const tsProjects = [
   './tsconfig.main.json',
   './tsconfig.preload.json',
@@ -58,9 +59,23 @@ export default defineConfig(
   tseslint.configs.recommendedTypeChecked,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.electron,
-  reactPlugin.configs.flat.recommended,
-  reactPlugin.configs.flat['jsx-runtime'],
-  reactHooks.configs.flat['recommended-latest'],
+  {
+    ...reactPlugin.configs.flat.recommended,
+    files: rendererFiles,
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
+  {
+    ...reactPlugin.configs.flat['jsx-runtime'],
+    files: rendererFiles,
+  },
+  {
+    ...reactHooks.configs.flat['recommended-latest'],
+    files: rendererFiles,
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [importPlugin.flatConfigs.typescript],
@@ -72,9 +87,6 @@ export default defineConfig(
       },
     },
     settings: {
-      react: {
-        version: 'detect',
-      },
       'import/resolver': createImportResolver(),
     },
     rules: {

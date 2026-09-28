@@ -119,13 +119,64 @@ describe('llama send-prompt handler', () => {
     const { event, send } = createEvent()
     await sendPrompt(event, 'hi')
 
-    expect(getStreamEvents(send)).toContainEqual({
+    const doneEvent = getStreamEvents(send).find(
+      (streamEvent) => streamEvent.type === 'done',
+    )
+    expect(doneEvent).toMatchObject({
       type: 'done',
       response: 'hello',
       stopped: false,
       contextUsed: 1234,
       contextSize: 4096,
+      generationMetrics: {
+        tokenCount: 0,
+        stopReason: 'eogToken',
+      },
     })
+  })
+
+  it('reports generated tokens and timing metrics', async () => {
+    sequence.nextTokenIndex = 2048
+    sequence.contextSize = 4096
+    const now = vi.spyOn(performance, 'now')
+    now
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(350)
+      .mockReturnValueOnce(600)
+      .mockReturnValueOnce(1100)
+    appendMessage.mockImplementationOnce(() => {
+      performance.now()
+    })
+    promptWithMeta.mockImplementationOnce(
+      (_prompt: string, options: { onToken: (tokens: number[]) => void }) => {
+        options.onToken([1, 2])
+        options.onToken([3, 4, 5])
+        return Promise.resolve({
+          responseText: 'hello',
+          stopReason: 'eogToken',
+        })
+      },
+    )
+
+    const { event, send } = createEvent()
+    await sendPrompt(event, 'hi')
+
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'context',
+      contextUsed: 2048,
+      contextSize: 4096,
+    })
+    expect(getStreamEvents(send)).toContainEqual(
+      expect.objectContaining({
+        generationMetrics: {
+          tokenCount: 5,
+          tokensPerSecond: 10,
+          timeToFirstTokenMs: 250,
+          stopReason: 'eogToken',
+        },
+      }),
+    )
+    now.mockRestore()
   })
 
   it('marks a mid-stream abort as a stop instead of an error', async () => {
@@ -137,10 +188,14 @@ describe('llama send-prompt handler', () => {
     const { event, send } = createEvent()
     await sendPrompt(event, 'hi')
 
-    expect(getStreamEvents(send)).toContainEqual({
+    const doneEvent = getStreamEvents(send).find(
+      (streamEvent) => streamEvent.type === 'done',
+    )
+    expect(doneEvent).toMatchObject({
       type: 'done',
       response: 'partial',
       stopped: true,
+      generationMetrics: { stopReason: 'abort' },
     })
   })
 
@@ -221,11 +276,13 @@ describe('llama send-prompt handler', () => {
     await first
 
     expect(promptWithMeta).toHaveBeenCalledTimes(2)
-    expect(getStreamEvents(send)).toContainEqual({
-      type: 'done',
-      response: 'second answer',
-      stopped: false,
-    })
+    expect(getStreamEvents(send)).toContainEqual(
+      expect.objectContaining({
+        type: 'done',
+        response: 'second answer',
+        stopped: false,
+      }),
+    )
   })
 
   it('stores the prompt and the finished answer', async () => {
@@ -242,13 +299,16 @@ describe('llama send-prompt handler', () => {
       role: 'user',
       content: 'hi',
     })
-    expect(appendMessage).toHaveBeenNthCalledWith(2, {
-      chatId: CHAT_ID,
-      role: 'assistant',
-      content: 'hello',
-      reasoning: null,
-      finishReason: 'done',
-    })
+    expect(appendMessage).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        chatId: CHAT_ID,
+        role: 'assistant',
+        content: 'hello',
+        reasoning: null,
+        finishReason: 'done',
+      }),
+    )
   })
 
   it('stores a stopped answer with whatever streamed', async () => {
@@ -326,11 +386,13 @@ describe('llama send-prompt handler', () => {
     const { event, send } = createEvent()
     await sendPrompt(event, 'hi')
 
-    expect(getStreamEvents(send)).toContainEqual({
-      type: 'done',
-      response: 'hello',
-      stopped: false,
-    })
+    expect(getStreamEvents(send)).toContainEqual(
+      expect.objectContaining({
+        type: 'done',
+        response: 'hello',
+        stopped: false,
+      }),
+    )
   })
 
   it('seeds the session with a stored conversation, leaving thoughts out', async () => {
@@ -439,7 +501,11 @@ describe('llama send-prompt handler', () => {
       { type: 'chunk', text: 'reasoning', segment: 'thought' },
       { type: 'chunk', text: 'Hello' },
       { type: 'chunk', text: ' world' },
-      { type: 'done', response: 'Hello world', stopped: false },
+      expect.objectContaining({
+        type: 'done',
+        response: 'Hello world',
+        stopped: false,
+      }),
     ])
   })
 })
@@ -477,11 +543,13 @@ describe('llama load/unload handlers', () => {
     await sendPrompt(event, 'hello')
 
     expect(loadModelMock).toHaveBeenCalledTimes(1)
-    expect(getStreamEvents(send)).toContainEqual({
-      type: 'done',
-      response: 'hi',
-      stopped: false,
-    })
+    expect(getStreamEvents(send)).toContainEqual(
+      expect.objectContaining({
+        type: 'done',
+        response: 'hi',
+        stopped: false,
+      }),
+    )
   })
 
   it('unloads without throwing when no generation is in flight', async () => {
@@ -517,11 +585,13 @@ describe('llama load/unload handlers', () => {
     await getIpcHandler(IpcChannels.llamaUnloadModel)()
     await prompt
 
-    expect(getStreamEvents(send)).toContainEqual({
-      type: 'done',
-      response: 'partial',
-      stopped: true,
-    })
+    expect(getStreamEvents(send)).toContainEqual(
+      expect.objectContaining({
+        type: 'done',
+        response: 'partial',
+        stopped: true,
+      }),
+    )
     expect(dispose).toHaveBeenCalled()
   })
 

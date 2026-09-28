@@ -12,6 +12,7 @@ import { useChat } from '@/contexts/ChatContext'
 import { useChatSettings } from '@/contexts/ChatSettingsContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { useModel } from '@/contexts/ModelContext'
+import type { ContextUsage } from '@/types'
 import { createId } from '@/utils'
 import { deriveChatTitle } from '@shared/chatTitle'
 import { ChatInput } from './ChatInput'
@@ -27,7 +28,7 @@ export function Chat() {
     selectModel,
   } = useModel()
   const { sendWithModifierEnter } = useChatSettings()
-  const { showContextUsage, showMessageDates } = useAppearance()
+  const { showMessageDates, showStatistics } = useAppearance()
   const {
     messages,
     setMessages,
@@ -43,6 +44,10 @@ export function Chat() {
   } = useChat()
   const { t } = useTranslation()
   const [input, setInput] = useState('')
+  const contextUsage = messages.reduce<ContextUsage | undefined>(
+    (latest, message) => message.contextUsage ?? latest,
+    undefined,
+  )
   // A chat being opened is about to have messages, so it must not flash the
   // centered greeting on its way in.
   const isEmpty = messages.length === 0 && !isLoadingChat
@@ -73,6 +78,24 @@ export function Chat() {
 
       // New chat clears this ref while an abort may still emit late events.
       if (activeMessageId === null) {
+        return
+      }
+
+      if (event.type === 'context') {
+        setMessages((currentMessages) =>
+          currentMessages.map((message) =>
+            message.id === activeMessageId
+              ? {
+                  ...message,
+                  contextUsage: {
+                    used: event.contextUsed,
+                    size: event.contextSize,
+                  },
+                }
+              : message,
+          ),
+        )
+
         return
       }
 
@@ -146,6 +169,9 @@ export function Chat() {
                         size: event.contextSize,
                       },
                     }),
+                ...(event.generationMetrics === undefined
+                  ? {}
+                  : { generationMetrics: event.generationMetrics }),
               },
             ]
           }),
@@ -343,8 +369,8 @@ export function Chat() {
         activeChatId={activeChatId}
         messages={messages}
         bottomInset={bottomOverlayInset}
-        showContextUsage={showContextUsage}
         showMessageDates={showMessageDates}
+        showStatistics={showStatistics}
       />
 
       {/* This overlay is outside normal layout, so we measure it above */}
@@ -390,12 +416,14 @@ export function Chat() {
               ) : (
                 <ChatInput
                   activeChatId={activeChatId}
+                  {...(contextUsage ? { contextUsage } : {})}
                   input={input}
                   isModelReady={isModelReady}
                   isSending={isSending}
                   onStop={handleStop}
                   onSubmit={handleSubmit}
                   setInput={setInput}
+                  showStatistics={showStatistics}
                   sendWithModifierEnter={sendWithModifierEnter}
                 />
               )}

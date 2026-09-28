@@ -74,6 +74,18 @@ function toStoredMessages(chatId: string): StoredMessage[] {
     finishReason: message.finishReason,
     contextUsed: message.contextUsed,
     contextSize: message.contextSize,
+    generationMetrics:
+      message.generatedTokenCount === null ||
+      message.tokensPerSecond === null ||
+      message.timeToFirstTokenMs === null ||
+      message.stopReason === null
+        ? null
+        : {
+            tokenCount: message.generatedTokenCount,
+            tokensPerSecond: message.tokensPerSecond,
+            timeToFirstTokenMs: message.timeToFirstTokenMs,
+            stopReason: message.stopReason,
+          },
   }))
 }
 

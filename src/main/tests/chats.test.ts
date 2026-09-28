@@ -110,6 +110,10 @@ describe('get chat messages', () => {
         finishReason: 'done',
         contextUsed: 1234,
         contextSize: 4096,
+        generatedTokenCount: 42,
+        tokensPerSecond: 12.5,
+        timeToFirstTokenMs: 250,
+        stopReason: 'eogToken',
         createdAt: new Date('2026-01-01T10:00:00Z'),
         updatedAt: new Date(),
       },
@@ -125,6 +129,12 @@ describe('get chat messages', () => {
         finishReason: 'done',
         contextUsed: 1234,
         contextSize: 4096,
+        generationMetrics: {
+          tokenCount: 42,
+          tokensPerSecond: 12.5,
+          timeToFirstTokenMs: 250,
+          stopReason: 'eogToken',
+        },
       },
     ])
   })

@@ -433,6 +433,7 @@ describe('Chat resuming a stored chat', () => {
           finishReason: null,
           contextUsed: null,
           contextSize: null,
+          generationMetrics: null,
         },
       ],
     })
@@ -520,6 +521,7 @@ describe('Chat when another model is selected', () => {
             finishReason: null,
             contextUsed: null,
             contextSize: null,
+            generationMetrics: null,
           },
         ],
       },
@@ -588,6 +590,7 @@ describe('Chat with a model that was deleted', () => {
           finishReason: null,
           contextUsed: null,
           contextSize: null,
+          generationMetrics: null,
         },
       ],
     })
@@ -673,6 +676,7 @@ describe('Chat with a model that was deleted', () => {
           finishReason: null,
           contextUsed: null,
           contextSize: null,
+          generationMetrics: null,
         },
       ],
     })
@@ -691,6 +695,48 @@ describe('Chat with a model that was deleted', () => {
 })
 
 describe('Chat streaming', () => {
+  it('shows live context usage when statistics are enabled', async () => {
+    clearMockElectronApi()
+    mock = installMockElectronApi({
+      models: ['test-model.gguf'],
+      selectedModel: 'test-model.gguf',
+      showStatistics: true,
+    })
+    renderChat()
+
+    expect(await screen.findByText('N/A')).toBeInTheDocument()
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({
+        type: 'context',
+        contextUsed: 2048,
+        contextSize: 4096,
+      })
+    })
+
+    expect(await screen.findByText('50%')).toBeInTheDocument()
+    expect(screen.queryByText('N/A')).not.toBeInTheDocument()
+    expect(screen.getByRole('img')).toHaveAccessibleName(
+      '50% context used. 2,048 / 4,096 tokens. 2,048 tokens remaining.',
+    )
+  })
+
+  it('keeps live context usage hidden when statistics are disabled', async () => {
+    renderChat()
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({
+        type: 'context',
+        contextUsed: 2048,
+        contextSize: 4096,
+      })
+    })
+
+    expect(screen.queryByText('50%')).not.toBeInTheDocument()
+  })
+
   it('appends streamed chunks to the assistant message', async () => {
     renderChat()
     await submitPrompt('hi')

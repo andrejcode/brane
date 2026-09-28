@@ -14,12 +14,12 @@ import {
 interface AppearanceContextValue {
   messageFontSize: number
   showPointerCursor: boolean
-  showContextUsage: boolean
+  showStatistics: boolean
   showMessageDates: boolean
   isReady: boolean
   setMessageFontSize: (fontSize: number) => Promise<void>
   setShowPointerCursor: (enabled: boolean) => Promise<void>
-  setShowContextUsage: (enabled: boolean) => Promise<void>
+  setShowStatistics: (enabled: boolean) => Promise<void>
   setShowMessageDates: (enabled: boolean) => Promise<void>
 }
 
@@ -34,7 +34,7 @@ export function AppearanceProvider({
     DEFAULT_MESSAGE_FONT_SIZE,
   )
   const [showPointerCursor, setShowPointerCursorState] = useState(false)
-  const [showContextUsage, setShowContextUsageState] = useState(true)
+  const [showStatistics, setShowStatisticsState] = useState(false)
   const [showMessageDates, setShowMessageDatesState] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
@@ -46,12 +46,12 @@ export function AppearanceProvider({
         const [
           currentMessageFontSize,
           currentShowPointerCursor,
-          currentShowContextUsage,
+          currentShowStatistics,
           currentShowMessageDates,
         ] = await Promise.all([
           window.electronApi.getMessageFontSize(),
           window.electronApi.getShowPointerCursor(),
-          window.electronApi.getShowContextUsage(),
+          window.electronApi.getShowStatistics(),
           window.electronApi.getShowMessageDates(),
         ])
 
@@ -60,7 +60,7 @@ export function AppearanceProvider({
             normalizeMessageFontSize(currentMessageFontSize),
           )
           setShowPointerCursorState(currentShowPointerCursor)
-          setShowContextUsageState(currentShowContextUsage)
+          setShowStatisticsState(currentShowStatistics)
           setShowMessageDatesState(currentShowMessageDates)
         }
       } finally {
@@ -87,9 +87,9 @@ export function AppearanceProvider({
     setShowPointerCursorState(saved)
   }, [])
 
-  const setShowContextUsage = useCallback(async (enabled: boolean) => {
-    const saved = await window.electronApi.setShowContextUsage(enabled)
-    setShowContextUsageState(saved)
+  const setShowStatistics = useCallback(async (enabled: boolean) => {
+    const saved = await window.electronApi.setShowStatistics(enabled)
+    setShowStatisticsState(saved)
   }, [])
 
   const setShowMessageDates = useCallback(async (enabled: boolean) => {
@@ -123,23 +123,23 @@ export function AppearanceProvider({
     () => ({
       messageFontSize,
       showPointerCursor,
-      showContextUsage,
+      showStatistics,
       showMessageDates,
       isReady,
       setMessageFontSize,
       setShowPointerCursor,
-      setShowContextUsage,
+      setShowStatistics,
       setShowMessageDates,
     }),
     [
       messageFontSize,
       showPointerCursor,
-      showContextUsage,
+      showStatistics,
       showMessageDates,
       isReady,
       setMessageFontSize,
       setShowPointerCursor,
-      setShowContextUsage,
+      setShowStatistics,
       setShowMessageDates,
     ],
   )

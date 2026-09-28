@@ -37,8 +37,8 @@ export interface MockElectronApi {
   setMessageFontSize: ReturnType<typeof vi.fn>
   getShowPointerCursor: ReturnType<typeof vi.fn>
   setShowPointerCursor: ReturnType<typeof vi.fn>
-  getShowContextUsage: ReturnType<typeof vi.fn>
-  setShowContextUsage: ReturnType<typeof vi.fn>
+  getShowStatistics: ReturnType<typeof vi.fn>
+  setShowStatistics: ReturnType<typeof vi.fn>
   getShowMessageDates: ReturnType<typeof vi.fn>
   setShowMessageDates: ReturnType<typeof vi.fn>
   getLocale: ReturnType<typeof vi.fn>
@@ -72,7 +72,7 @@ export interface MockElectronApiOptions {
   theme?: Theme
   messageFontSize?: number
   showPointerCursor?: boolean
-  showContextUsage?: boolean
+  showStatistics?: boolean
   showMessageDates?: boolean
   locale?: Locale
   models?: string[]
@@ -97,7 +97,7 @@ export function installMockElectronApi(
     theme = 'system',
     messageFontSize = DEFAULT_MESSAGE_FONT_SIZE,
     showPointerCursor = false,
-    showContextUsage = true,
+    showStatistics = false,
     showMessageDates = false,
     locale = 'en',
     models = [],
@@ -149,10 +149,10 @@ export function installMockElectronApi(
   const setShowPointerCursor = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
-  const getShowContextUsage = vi.fn(
-    (): Promise<boolean> => Promise.resolve(showContextUsage),
+  const getShowStatistics = vi.fn(
+    (): Promise<boolean> => Promise.resolve(showStatistics),
   )
-  const setShowContextUsage = vi.fn(
+  const setShowStatistics = vi.fn(
     (enabled: boolean): Promise<boolean> => Promise.resolve(enabled),
   )
   const getShowMessageDates = vi.fn(
@@ -301,8 +301,8 @@ export function installMockElectronApi(
     setMessageFontSize,
     getShowPointerCursor,
     setShowPointerCursor,
-    getShowContextUsage,
-    setShowContextUsage,
+    getShowStatistics,
+    setShowStatistics,
     getShowMessageDates,
     setShowMessageDates,
     getLocale,
@@ -348,8 +348,8 @@ export function installMockElectronApi(
     setMessageFontSize,
     getShowPointerCursor,
     setShowPointerCursor,
-    getShowContextUsage,
-    setShowContextUsage,
+    getShowStatistics,
+    setShowStatistics,
     getShowMessageDates,
     setShowMessageDates,
     getLocale,

@@ -128,18 +128,18 @@ const electronApi: ElectronApi = {
     )
     return saved === true
   },
-  getShowContextUsage: async () => {
+  getShowStatistics: async () => {
     const enabled: unknown = await ipcRenderer.invoke(
-      IpcChannels.getShowContextUsage,
+      IpcChannels.getShowStatistics,
     )
-    return enabled !== false
+    return enabled === true
   },
-  setShowContextUsage: async (enabled: boolean) => {
+  setShowStatistics: async (enabled: boolean) => {
     const saved: unknown = await ipcRenderer.invoke(
-      IpcChannels.setShowContextUsage,
+      IpcChannels.setShowStatistics,
       enabled,
     )
-    return saved !== false
+    return saved === true
   },
   getShowMessageDates: async () => {
     const enabled: unknown = await ipcRenderer.invoke(

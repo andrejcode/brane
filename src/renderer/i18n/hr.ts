@@ -42,6 +42,24 @@ export const hr: Messages = {
   'chat.copied': 'Kopirano',
   'chat.copyFailed': 'Neuspješno',
   'chat.contextUsed': 'Iskorišteno {used} / {size} tokena',
+  'chat.contextUsageSummary':
+    'Iskorišteno {percentage}% konteksta. {used} / {size} tokena. Preostalo je {remaining} tokena.',
+  'chat.contextLimitReached':
+    'Dosegnuto je ograničenje konteksta. Iskorišteno je {used} / {size} tokena.',
+  'chat.contextUsageUnavailable': 'Iskorištenost konteksta još nije dostupna.',
+  'chat.notAvailable': 'N/D',
+  'chat.generatedTokens': 'Generirani tokeni',
+  'chat.tokenCount': '{count} tokena',
+  'chat.tokensPerSecond': 'Tokeni u sekundi',
+  'chat.tokenRate': '{rate} tok/s',
+  'chat.timeToFirstToken': 'Vrijeme do prvog tokena',
+  'chat.stopReason': 'Razlog zaustavljanja',
+  'chat.stopReason.abort': 'Zaustavljeno',
+  'chat.stopReason.maxTokens': 'Maks. tokena',
+  'chat.stopReason.eogToken': 'Završni token',
+  'chat.stopReason.stopGenerationTrigger': 'Zaustavni niz',
+  'chat.stopReason.functionCalls': 'Poziv funkcije',
+  'chat.stopReason.customStopTrigger': 'Prilagođeni prekid',
 
   'models.title': 'Modeli',
   'models.search': 'Pretraži modele',
@@ -108,11 +126,11 @@ export const hr: Messages = {
   'appearance.increaseFontSize': 'Povećaj veličinu teksta poruka',
   'appearance.decreaseFontSize': 'Smanji veličinu teksta poruka',
   'appearance.fontSizeDescription': 'Mijenja veličinu teksta poruka.',
-  'appearance.contextUsage': 'Prikaži iskorištenost konteksta',
-  'appearance.contextUsageDescription':
-    'Prikazuje iskorištenost tokena ispod poruka asistenta.',
-  'appearance.contextUsageSaveFailed':
-    'Nije moguće spremiti postavku iskorištenosti konteksta. Pokušajte ponovno.',
+  'appearance.statistics': 'Prikaži statistiku',
+  'appearance.statisticsDescription':
+    'Prikazuje statistiku generiranja i trenutačnu iskorištenost konteksta.',
+  'appearance.statisticsSaveFailed':
+    'Nije moguće spremiti postavku statistike. Pokušajte ponovno.',
   'appearance.messageDates': 'Prikaži datume poruka',
   'appearance.messageDatesDescription':
     'Prikaži datum i vrijeme kada se pokazivač zadrži iznad poruke.',

@@ -109,27 +109,27 @@ describe('registerAppearanceHandlers', () => {
     expect(storeValues.has('showPointerCursor')).toBe(false)
   })
 
-  it('defaults an invalid context usage preference to enabled', () => {
-    storeValues.set('showContextUsage', 'yes')
+  it('defaults an invalid statistics preference to disabled', () => {
+    storeValues.set('showStatistics', 'yes')
 
-    expect(getHandler(IpcChannels.getShowContextUsage)({})).toBe(true)
-    expect(storeValues.get('showContextUsage')).toBe(true)
+    expect(getHandler(IpcChannels.getShowStatistics)({})).toBe(false)
+    expect(storeValues.get('showStatistics')).toBe(false)
   })
 
-  it('persists the context usage preference', () => {
-    const handler = getHandler(IpcChannels.setShowContextUsage)
+  it('persists the statistics preference', () => {
+    const handler = getHandler(IpcChannels.setShowStatistics)
 
-    expect(handler({}, false)).toBe(false)
-    expect(storeValues.get('showContextUsage')).toBe(false)
+    expect(handler({}, true)).toBe(true)
+    expect(storeValues.get('showStatistics')).toBe(true)
   })
 
-  it('rejects an invalid context usage preference', () => {
-    const handler = getHandler(IpcChannels.setShowContextUsage)
+  it('rejects an invalid statistics preference', () => {
+    const handler = getHandler(IpcChannels.setShowStatistics)
 
     expect(() => handler({}, 'no')).toThrow(
-      'Unable to save the context usage preference.',
+      'Unable to save the statistics preference.',
     )
-    expect(storeValues.has('showContextUsage')).toBe(false)
+    expect(storeValues.has('showStatistics')).toBe(false)
   })
 
   it('defaults an invalid message dates preference to disabled', () => {
