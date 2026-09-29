@@ -38,7 +38,8 @@ export const hr: Messages = {
   'chat.readOnlyModelMissing':
     'Ovaj razgovor može se samo čitati jer njegov model više nije dostupan.',
   'chat.thinking': 'Razmišlja',
-  'chat.copy': 'Kopiraj',
+  'chat.copyResponse': 'Kopiraj odgovor',
+  'chat.copyCode': 'Kopiraj kod',
   'chat.copied': 'Kopirano',
   'chat.copyFailed': 'Neuspješno',
   'chat.contextUsed': 'Iskorišteno {used} / {size} tokena',

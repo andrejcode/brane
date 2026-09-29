@@ -46,11 +46,10 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
           {language}
         </span>
         <CopyButton
-          showLabel
           copyStatus={copyStatus}
           onClick={() => void copy(codeText)}
           labels={{
-            copy: t('chat.copy'),
+            copy: t('chat.copyCode'),
             copied: t('chat.copied'),
             error: t('chat.copyFailed'),
           }}

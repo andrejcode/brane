@@ -94,7 +94,7 @@ describe('Messages', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: 'Copy' }),
+      screen.queryByRole('button', { name: 'Copy response' }),
     ).not.toBeInTheDocument()
   })
 
@@ -115,7 +115,14 @@ describe('Messages', () => {
       />,
     )
 
-    await userEvent.click(screen.getByRole('button', { name: 'Copy' }))
+    const copyButton = screen.getByRole('button', { name: 'Copy response' })
+
+    await userEvent.hover(copyButton)
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Copy response')
+
+    await userEvent.click(copyButton)
 
     expect(writeText).toHaveBeenCalledWith('copy me')
     expect(
@@ -154,7 +161,9 @@ describe('Messages', () => {
     expect(
       screen.queryByText('1,234 / 4,096 tokens used'),
     ).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Copy response' }),
+    ).toBeInTheDocument()
 
     await userEvent.hover(screen.getByText('250 ms'))
     expect(
@@ -189,7 +198,9 @@ describe('Messages', () => {
       screen.queryByText('1,234 / 4,096 tokens used'),
     ).not.toBeInTheDocument()
     expect(screen.queryByText('42 tokens')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Copy response' }),
+    ).toBeInTheDocument()
   })
 
   it('does not render message dates when the preference is disabled', () => {

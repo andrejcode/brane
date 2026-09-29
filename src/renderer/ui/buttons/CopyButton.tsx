@@ -43,6 +43,7 @@ export function CopyButton({
       type="button"
       onClick={onClick}
       ariaLabel={label}
+      tooltip={label}
       className={clsx(
         'rounded-md p-1 text-xs text-neutral-500 transition-colors duration-200',
         'hover:bg-neutral-200 hover:text-neutral-700',

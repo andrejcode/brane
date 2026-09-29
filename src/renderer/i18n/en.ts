@@ -33,7 +33,8 @@ export const en = {
   'chat.readOnlyModelMissing':
     'This chat can only be read, because its model is no longer available.',
   'chat.thinking': 'Thinking',
-  'chat.copy': 'Copy',
+  'chat.copyResponse': 'Copy response',
+  'chat.copyCode': 'Copy code',
   'chat.copied': 'Copied',
   'chat.copyFailed': 'Failed',
   'chat.contextUsed': '{used} / {size} tokens used',

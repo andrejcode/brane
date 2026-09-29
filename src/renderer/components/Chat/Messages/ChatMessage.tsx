@@ -120,7 +120,7 @@ export function ChatMessage({
               copyStatus={copyStatus}
               onClick={() => void copy(message.content)}
               labels={{
-                copy: t('chat.copy'),
+                copy: t('chat.copyResponse'),
                 copied: t('chat.copied'),
                 error: t('chat.copyFailed'),
               }}

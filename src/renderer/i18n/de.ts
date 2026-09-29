@@ -41,7 +41,8 @@ export const de: Messages = {
   'chat.readOnlyModelMissing':
     'Dieser Chat kann nur gelesen werden, weil sein Modell nicht mehr verfügbar ist.',
   'chat.thinking': 'Denkt nach',
-  'chat.copy': 'Kopieren',
+  'chat.copyResponse': 'Antwort kopieren',
+  'chat.copyCode': 'Code kopieren',
   'chat.copied': 'Kopiert',
   'chat.copyFailed': 'Fehlgeschlagen',
   'chat.contextUsed': '{used} / {size} Tokens verwendet',

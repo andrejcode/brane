@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MarkdownRenderer } from '..'
 
 vi.mock('@/hooks/useColorScheme', () => ({
@@ -21,12 +22,20 @@ describe('MarkdownRenderer', () => {
     expect(link).toHaveAttribute('href', 'https://example.com')
   })
 
-  it('renders fenced code blocks with a language label', () => {
+  it('renders fenced code blocks with an icon-only copy control', async () => {
     const { container } = render(
       <MarkdownRenderer content={'```javascript\nconst x = 1;\n```'} />,
     )
 
     expect(screen.getByText('javascript')).toBeInTheDocument()
+    const copyButton = screen.getByRole('button', { name: 'Copy code' })
+    expect(screen.queryByText('Copy code')).not.toBeInTheDocument()
+
+    await userEvent.hover(copyButton)
+    expect(
+      await screen.findByRole('tooltip', {}, { timeout: 2500 }),
+    ).toHaveTextContent('Copy code')
+
     expect(container.textContent).toContain('const x = 1;')
   })
 
