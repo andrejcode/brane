@@ -52,8 +52,8 @@ export function Select<T extends string>({
         }}
         onBlur={() => setShowFocusRing(false)}
         className={clsx(
-          'w-full appearance-none rounded border py-1 pr-9 pl-3',
-          'border-neutral-300 bg-neutral-50 dark:border-neutral-500 dark:bg-neutral-700',
+          'w-full appearance-none rounded-lg border py-1 pr-9 pl-3',
+          'border-neutral-300 bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700',
           'focus:outline-none disabled:opacity-50',
           showFocusRing && FOCUS_RING_INSET_ACTIVE,
         )}
