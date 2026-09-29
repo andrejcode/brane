@@ -71,8 +71,8 @@ export function NumberStepper({
   return (
     <div
       className={clsx(
-        'flex h-9 items-stretch overflow-hidden rounded-md border',
-        'border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-800',
+        'flex h-9 items-stretch overflow-hidden rounded-lg border',
+        'border-neutral-300 bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-700',
         disabled && 'opacity-50',
         className,
       )}
@@ -100,7 +100,10 @@ export function NumberStepper({
               event.currentTarget.blur()
             }
           }}
-          className="w-8 [appearance:textfield] bg-transparent text-right text-sm tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none"
+          className={clsx(
+            'w-8 [appearance:textfield] bg-transparent text-right text-sm tabular-nums outline-none',
+            '[&::-webkit-inner-spin-button]:appearance-none',
+          )}
         />
         {suffix && (
           <span className="ml-1 text-sm text-neutral-500 dark:text-neutral-400">

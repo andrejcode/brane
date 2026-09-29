@@ -1,4 +1,6 @@
+import { clsx } from 'clsx'
 import { useTranslation } from '@/contexts/LocaleContext'
+import { FOCUS_RING } from '@/ui/styles/focusRing'
 import { TooltipTrigger } from '@/ui/Tooltip'
 
 interface ContextUsageIndicatorProps {
@@ -40,7 +42,11 @@ export function ContextUsageIndicator({
         })
 
   return (
-    <TooltipTrigger className="inline-flex" tabIndex={0} tooltip={summary}>
+    <TooltipTrigger
+      className={clsx('inline-flex rounded-full', FOCUS_RING)}
+      tabIndex={0}
+      tooltip={summary}
+    >
       <span
         role="img"
         aria-label={summary}

@@ -28,7 +28,11 @@ export function SearchInput({
   return (
     <label
       role="search"
-      className={clsx('group flex min-w-0 items-center gap-2', className)}
+      className={clsx(
+        'group flex min-w-0 items-center gap-2',
+        disabled && 'opacity-50',
+        className,
+      )}
     >
       <Search
         size={18}
