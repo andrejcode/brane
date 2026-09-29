@@ -17,6 +17,7 @@ declare global {
     onFullScreenChange: (
       callback: (isFullScreen: boolean) => void,
     ) => () => void
+    openExternal: (url: string) => Promise<void>
     sendPrompt: (prompt: string, chatId: string) => Promise<void>
     stopGeneration: () => Promise<void>
     loadModel: (model: string) => Promise<void>

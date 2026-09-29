@@ -37,6 +37,10 @@ export const en = {
   'chat.copyCode': 'Copy code',
   'chat.copied': 'Copied',
   'chat.copyFailed': 'Failed',
+  'chat.openExternalLinkTitle': 'Open external link?',
+  'chat.openExternalLinkMessage': 'Open {url} in your default web browser?',
+  'chat.openExternalLinkConfirm': 'Open link',
+  'chat.openExternalLinkFailed': 'Failed to open the link. Please try again.',
   'chat.contextUsed': '{used} / {size} tokens used',
   'chat.contextUsageSummary':
     '{percentage}% context used. {used} / {size} tokens. {remaining} tokens remaining.',

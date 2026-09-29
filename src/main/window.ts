@@ -81,6 +81,13 @@ export function createWindow() {
 
   registerContextMenu(mainWindow)
 
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url !== mainWindow.webContents.getURL()) {
+      event.preventDefault()
+    }
+  })
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+
   if (windowState.isMaximized) {
     mainWindow.maximize()
     mainWindow.hide()

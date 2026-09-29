@@ -45,6 +45,11 @@ export const de: Messages = {
   'chat.copyCode': 'Code kopieren',
   'chat.copied': 'Kopiert',
   'chat.copyFailed': 'Fehlgeschlagen',
+  'chat.openExternalLinkTitle': 'Externen Link öffnen?',
+  'chat.openExternalLinkMessage': '{url} im Standardbrowser öffnen?',
+  'chat.openExternalLinkConfirm': 'Link öffnen',
+  'chat.openExternalLinkFailed':
+    'Der Link konnte nicht geöffnet werden. Bitte versuche es erneut.',
   'chat.contextUsed': '{used} / {size} Tokens verwendet',
   'chat.contextUsageSummary':
     '{percentage}% des Kontexts verwendet. {used} / {size} Tokens. {remaining} Tokens verbleiben.',

@@ -42,6 +42,11 @@ export const hr: Messages = {
   'chat.copyCode': 'Kopiraj kod',
   'chat.copied': 'Kopirano',
   'chat.copyFailed': 'Neuspješno',
+  'chat.openExternalLinkTitle': 'Otvoriti vanjsku poveznicu?',
+  'chat.openExternalLinkMessage': 'Otvoriti {url} u zadanom web-pregledniku?',
+  'chat.openExternalLinkConfirm': 'Otvori poveznicu',
+  'chat.openExternalLinkFailed':
+    'Otvaranje poveznice nije uspjelo. Pokušaj ponovno.',
   'chat.contextUsed': 'Iskorišteno {used} / {size} tokena',
   'chat.contextUsageSummary':
     'Iskorišteno {percentage}% konteksta. {used} / {size} tokena. Preostalo je {remaining} tokena.',

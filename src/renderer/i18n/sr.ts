@@ -40,6 +40,11 @@ export const sr: Messages = {
   'chat.copyCode': 'Копирај код',
   'chat.copied': 'Копирано',
   'chat.copyFailed': 'Неуспешно',
+  'chat.openExternalLinkTitle': 'Отворити спољну везу?',
+  'chat.openExternalLinkMessage':
+    'Отворити {url} у подразумеваном веб-прегледачу?',
+  'chat.openExternalLinkConfirm': 'Отвори везу',
+  'chat.openExternalLinkFailed': 'Отварање везе није успело. Покушај поново.',
   'chat.contextUsed': 'Искоришћено {used} / {size} токена',
   'chat.contextUsageSummary':
     'Искоришћено {percentage}% контекста. {used} / {size} токена. Преостало је {remaining} токена.',

@@ -11,14 +11,18 @@ export const nativeThemeState = {
   themeSource: 'system' as string,
 }
 
+export const shellOpenExternal = vi.fn((): Promise<void> => Promise.resolve())
+
 interface CreateElectronMockOptions {
   includeApp?: boolean
   includeNativeTheme?: boolean
+  includeShell?: boolean
 }
 
 export function createElectronMock({
   includeApp = false,
   includeNativeTheme = false,
+  includeShell = false,
 }: CreateElectronMockOptions = {}) {
   return {
     ipcMain: {
@@ -46,6 +50,13 @@ export function createElectronMock({
           },
         }
       : {}),
+    ...(includeShell
+      ? {
+          shell: {
+            openExternal: shellOpenExternal,
+          },
+        }
+      : {}),
   }
 }
 
@@ -64,4 +75,6 @@ export function resetElectronMock() {
   appLocales.preferred = []
   appLocales.current = 'en-US'
   nativeThemeState.themeSource = 'system'
+  shellOpenExternal.mockReset()
+  shellOpenExternal.mockResolvedValue()
 }

@@ -6,6 +6,7 @@ import { registerApplicationMenu } from './applicationMenu'
 import { registerChatsHandlers } from './chats'
 import { registerChatSettingsHandlers } from './chatSettings'
 import { closeDatabase, initializeDatabase } from './db'
+import { registerExternalLinkHandlers } from './externalLinks'
 import { registerLlamaHandlers, unloadLlamaModel } from './llama'
 import { initializeLocale, registerLocaleHandlers } from './locale'
 import { cleanupOldLogs, logger } from './logger'
@@ -86,6 +87,7 @@ void app.whenReady().then(() => {
   registerSidebarHandlers()
   registerShortcutsHandlers()
   registerLogsHandlers()
+  registerExternalLinkHandlers()
   registerLlamaHandlers()
   registerModelHandlers({
     onSelectedModelChange: () => {

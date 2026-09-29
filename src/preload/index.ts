@@ -48,6 +48,9 @@ const electronApi: ElectronApi = {
       ipcRenderer.removeListener(IpcChannels.windowFullscreenChanged, listener)
     }
   },
+  openExternal: async (url: string) => {
+    await ipcRenderer.invoke(IpcChannels.openExternal, url)
+  },
   sendPrompt: async (prompt: string, chatId: string) => {
     await ipcRenderer.invoke(IpcChannels.llamaSendPrompt, prompt, chatId)
   },

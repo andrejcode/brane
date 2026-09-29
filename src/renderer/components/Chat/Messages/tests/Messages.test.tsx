@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { render as testingRender, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AlertProvider } from '@/contexts/AlertContext'
 import { LocaleProvider } from '@/contexts/LocaleContext'
 import type { Message } from '@/types'
 import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
@@ -13,6 +14,17 @@ const conversation: Message[] = [
   { id: '3', role: 'user', content: 'second user', createdAt },
   { id: '4', role: 'assistant', content: 'second assistant', createdAt },
 ]
+
+function render(component: React.ReactNode) {
+  const result = testingRender(<AlertProvider>{component}</AlertProvider>)
+
+  return {
+    ...result,
+    rerender: (nextComponent: React.ReactNode) => {
+      result.rerender(<AlertProvider>{nextComponent}</AlertProvider>)
+    },
+  }
+}
 
 describe('Messages', () => {
   it('renders every message in order', () => {

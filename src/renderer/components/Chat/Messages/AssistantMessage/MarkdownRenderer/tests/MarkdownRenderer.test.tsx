@@ -1,10 +1,27 @@
-import { render, screen } from '@testing-library/react'
+import { render as testingRender, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AlertProvider } from '@/contexts/AlertContext'
+import { clearMockElectronApi, installMockElectronApi } from '@test/electronApi'
 import { MarkdownRenderer } from '..'
 
 vi.mock('@/hooks/useColorScheme', () => ({
   useColorScheme: vi.fn(() => false),
 }))
+
+beforeEach(() => {
+  const modalRoot = document.createElement('div')
+  modalRoot.id = 'modal-root'
+  document.body.appendChild(modalRoot)
+})
+
+afterEach(() => {
+  document.getElementById('modal-root')?.remove()
+  clearMockElectronApi()
+})
+
+function render(component: React.ReactNode) {
+  return testingRender(<AlertProvider>{component}</AlertProvider>)
+}
 
 describe('MarkdownRenderer', () => {
   it('renders headings and paragraphs', () => {
@@ -71,12 +88,21 @@ describe('MarkdownRenderer', () => {
     )
   })
 
-  it('renders links with their href', () => {
+  it('asks before opening links in the external browser', async () => {
+    const { openExternal } = installMockElectronApi()
+    const user = userEvent.setup()
     render(<MarkdownRenderer content="[Link text](https://example.com)" />)
 
-    const link = screen.getByText('Link text')
-    expect(link.tagName).toBe('A')
-    expect(link).toHaveAttribute('href', 'https://example.com')
+    await user.click(screen.getByRole('link', { name: 'Link text' }))
+
+    expect(screen.getByRole('alertdialog')).toHaveAccessibleName(
+      'Open external link?',
+    )
+    expect(openExternal).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('button', { name: 'Open link' }))
+
+    expect(openExternal).toHaveBeenCalledWith('https://example.com')
   })
 
   it('renders GFM literal autolinks', () => {

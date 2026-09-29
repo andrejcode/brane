@@ -26,6 +26,7 @@ export interface MockElectronApi {
   deleteChat: ReturnType<typeof vi.fn>
   deleteAllChats: ReturnType<typeof vi.fn>
   getIsFullScreen: ReturnType<typeof vi.fn>
+  openExternal: ReturnType<typeof vi.fn>
   streamResponse: ReturnType<typeof vi.fn>
   onFullScreenChange: ReturnType<typeof vi.fn>
   notifyAppReady: ReturnType<typeof vi.fn>
@@ -131,6 +132,7 @@ export function installMockElectronApi(
     (): Promise<boolean> => Promise.resolve(isFullScreen),
   )
   const notifyAppReady = vi.fn()
+  const openExternal = vi.fn((): Promise<void> => Promise.resolve())
   const updateApplicationMenu = vi.fn((state: ApplicationMenuState) => {
     void state
     return Promise.resolve()
@@ -287,6 +289,7 @@ export function installMockElectronApi(
     isMac,
     getIsFullScreen,
     onFullScreenChange,
+    openExternal,
     sendPrompt,
     stopGeneration,
     loadModel,
@@ -337,6 +340,7 @@ export function installMockElectronApi(
     loadModel,
     unloadModel,
     getIsFullScreen,
+    openExternal,
     streamResponse,
     onFullScreenChange,
     notifyAppReady,

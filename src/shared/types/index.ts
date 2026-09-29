@@ -7,6 +7,7 @@ export const IpcChannels = {
 
   windowFullscreenChanged: 'window:fullscreen-changed',
   windowIsFullScreen: 'window:is-full-screen',
+  openExternal: 'window:open-external',
 
   appReady: 'app:ready',
   applicationMenuUpdate: 'application-menu:update',
