@@ -1,0 +1,75 @@
+name: Bug report
+description: Report a reproducible problem with Brane
+title: '[Bug]: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Brane. Please search existing issues before submitting a new report.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest set of steps that reliably causes the problem.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Brane version
+      placeholder: e.g. 0.2.1
+    validations:
+      required: true
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 26.0, Windows 11, or Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: If the problem involves a model, provide its filename and quantization.
+      placeholder: e.g. model-name-Q4_K_M.gguf
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: |
+        Optional. Open the logs folder from Settings > General > Logs and attach a relevant file or paste a short excerpt. Brane does not intentionally log chat content, but logs can contain local file paths and error details. GitHub issues are public, so remove anything you do not want to share.
+      placeholder: Drag a reviewed log file here or paste a relevant excerpt.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add screenshots or anything else that may help explain the problem.
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I have reviewed any attached logs or screenshots and removed information I do not want to share publicly.
+          required: true

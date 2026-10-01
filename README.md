@@ -16,6 +16,7 @@ device. Brane does not require a backend service to run your chats.
 - [What you need](#what-you-need)
 - [Add a model](#add-a-model)
 - [Features](#features)
+- [Report a problem or request a feature](#report-a-problem-or-request-a-feature)
 - [Privacy and model responsibility](#privacy-and-model-responsibility)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -30,11 +31,8 @@ Because of this early development stage, Brane is not currently planned for a
 public release. You can still build and run the app from source by following
 the [development setup instructions](CONTRIBUTING.md#development-setup).
 
-Please report problems to the developer. Include what you were doing, what you
-expected to happen, what happened instead, and your operating system. Brane keeps
-local diagnostic logs to help investigate errors. You can open the logs folder
-from **Settings > General > Logs** and share the relevant log files with your report.
-Review logs before sharing them and remove any information you consider sensitive.
+Please report problems through the
+[GitHub bug report form](https://github.com/andrejcode/brane/issues/new?template=bug_report.yml).
 
 ## Build from source
 
@@ -117,6 +115,23 @@ the same name is also detected.
 - Optional loading of the selected model on startup
 - English, German, Croatian, and Serbian interfaces
 - Local diagnostic logs that you can open or delete from settings
+
+## Report a problem or request a feature
+
+Use the [bug report form](https://github.com/andrejcode/brane/issues/new?template=bug_report.yml)
+for unexpected behavior and the
+[feature request form](https://github.com/andrejcode/brane/issues/new?template=feature_request.yml)
+for improvements or new capabilities. Search
+[existing issues](https://github.com/andrejcode/brane/issues) first to avoid
+duplicates.
+
+Include clear reproduction steps, what you expected, what happened instead,
+your Brane version, and your operating system in bug reports. Brane keeps local
+diagnostic logs to help investigate errors. You can open the logs folder from
+**Settings > General > Logs** and attach a relevant log file or excerpt to the
+report. Brane does not intentionally log chat content, but logs can contain
+local file paths and error details. GitHub issues are public, so review logs and
+remove anything you do not want to share.
 
 ## Privacy and model responsibility
 
