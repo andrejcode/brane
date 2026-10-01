@@ -827,6 +827,20 @@ describe('Chat streaming', () => {
       screen.queryByRole('status', { name: 'Loading' }),
     ).not.toBeInTheDocument()
   })
+
+  it('warns when a generated turn cannot be stored', async () => {
+    renderChat()
+    await submitPrompt('hi')
+
+    act(() => {
+      mock.emitStream({ type: 'history-unavailable' })
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      "Chat history is unavailable, so this conversation won't be saved.",
+    )
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument()
+  })
 })
 
 describe('Chat without a selected model', () => {

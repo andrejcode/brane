@@ -1,22 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { IpcChannels } from '@shared/types'
-import { initializeTheme, registerAppearanceHandlers } from './appearance'
-import { registerApplicationMenu } from './applicationMenu'
-import { registerChatsHandlers } from './chats'
-import { registerChatSettingsHandlers } from './chatSettings'
+import { initializeTheme } from './appearance'
 import { closeDatabase, initializeDatabase } from './db'
-import { registerExternalLinkHandlers } from './externalLinks'
-import { registerLlamaHandlers, unloadLlamaModel } from './llama'
-import { initializeLocale, registerLocaleHandlers } from './locale'
+import { registerIpcHandlers } from './ipc'
+import { unloadLlamaModel } from './llama'
+import { initializeLocale } from './locale'
 import { cleanupOldLogs, logger } from './logger'
-import { registerLogsHandlers } from './logs'
-import {
-  reconcileModelState,
-  registerModelHandlers,
-  watchModels,
-} from './model'
-import { registerShortcutsHandlers } from './shortcuts'
-import { registerSidebarHandlers } from './sidebar'
+import { reconcileModelState, watchModels } from './model'
 import { createWindow } from './window'
 
 process.on('uncaughtException', (error) => {
@@ -68,28 +58,7 @@ void app.whenReady().then(() => {
 
   initializeTheme()
   initializeLocale()
-
-  ipcMain.handle(IpcChannels.windowIsFullScreen, (event) => {
-    return BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false
-  })
-
-  registerAppearanceHandlers()
-  registerApplicationMenu()
-  registerLocaleHandlers()
-  registerChatSettingsHandlers()
-  registerChatsHandlers()
-  registerSidebarHandlers()
-  registerShortcutsHandlers()
-  registerLogsHandlers()
-  registerExternalLinkHandlers()
-  registerLlamaHandlers()
-  registerModelHandlers({
-    onSelectedModelChange: () => {
-      void unloadLlamaModel().catch((error: unknown) => {
-        logger.error('Failed to reset the llama session', error)
-      })
-    },
-  })
+  registerIpcHandlers()
 
   stopWatchingModels = watchModels(() => {
     void handleModelsChanged().catch((error: unknown) => {

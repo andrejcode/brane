@@ -99,13 +99,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         if (isMounted) {
           setIsHistoryUnavailable(true)
+          showAlert(t('sidebar.historyUnavailable'), 'error')
         }
       })
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [showAlert, t])
 
   // A model appearing or disappearing changes whether stored chats can still be
   // continued, which the list reports per chat.

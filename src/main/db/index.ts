@@ -27,10 +27,12 @@ export function initializeDatabase() {
     return database
   }
 
+  let connection: BetterSqlite3.Database | undefined
+
   try {
     fs.mkdirSync(baseDir, { recursive: true })
 
-    const connection = new BetterSqlite3(databasePath)
+    connection = new BetterSqlite3(databasePath)
     // SQLite defaults both of these off, and message deletes rely on cascades.
     connection.pragma('journal_mode = WAL')
     connection.pragma('foreign_keys = ON')
@@ -44,6 +46,7 @@ export function initializeDatabase() {
 
     return instance
   } catch (error) {
+    connection?.close()
     logger.error('Failed to open the database', error)
     throw new Error(`Failed to open database: ${getErrorMessage(error)}`)
   }

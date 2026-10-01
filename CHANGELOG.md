@@ -24,6 +24,8 @@ social media.
 ### Fixed
 
 - Prevented links from opening in an external browser without confirmation
+- Added visible warnings when chat history cannot be opened or saved while
+  allowing the current conversation to continue
 
 ## Development changes
 
@@ -43,11 +45,15 @@ social media.
 - Preserved Electron fuse hardening in the new packaging configuration
 - Updated screenshots and expanded Markdown renderer coverage
 - Updated React, KaTeX, Lucide, Drizzle ORM, and related build dependencies
+- Centralized main-process IPC registration outside the application lifecycle
+  entry point
 
 ### Fixed
 
 - Prevented locally built macOS applications from exiting with an invalid code
   signature after Electron fuse configuration
+- Closed partially initialized SQLite connections after database startup
+  failures
 
 # v0.2.1 - 2026-09-27
 

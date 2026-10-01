@@ -242,15 +242,17 @@ function toChatHistory(chatId: string): ChatHistoryItem[] {
 // previous one's.
 function primeSession(session: LlamaChatSession, chatId: string) {
   if (primedChatId === chatId) {
-    return
+    return true
   }
 
   let history: ChatHistoryItem[] = []
+  let historyAvailable = true
 
   try {
     history = toChatHistory(chatId)
   } catch (error) {
     logger.error(`Failed to read history for chat ${chatId}`, error)
+    historyAvailable = false
   }
 
   if (history.length === 0) {
@@ -261,6 +263,7 @@ function primeSession(session: LlamaChatSession, chatId: string) {
   }
 
   primedChatId = chatId
+  return historyAvailable
 }
 
 // Persistence is best-effort: a chat that can't be written down is still worth
@@ -271,8 +274,10 @@ function persistTurn(
 ) {
   try {
     appendMessage(message)
+    return true
   } catch (error) {
     logger.error(`Failed to store a message for chat ${chatId}`, error)
+    return false
   }
 }
 
@@ -298,10 +303,10 @@ function persistAssistantTurn({
   // Nothing was generated, so there's no turn worth keeping. Matches the
   // renderer dropping its empty placeholder.
   if (content.length === 0 && reasoning.length === 0) {
-    return
+    return true
   }
 
-  persistTurn(chatId, {
+  return persistTurn(chatId, {
     chatId,
     role: 'assistant',
     content,
@@ -325,12 +330,26 @@ async function streamPrompt(
   const thoughtChunks: string[] = []
   let generatedTokenCount = 0
   let firstTokenAt: number | undefined
+  let reportedHistoryUnavailable = false
+
+  const reportHistoryUnavailable = () => {
+    if (reportedHistoryUnavailable) {
+      return
+    }
+
+    reportedHistoryUnavailable = true
+    sendStreamEvent(sender, { type: 'history-unavailable' })
+  }
 
   try {
     const session = await getSession(getSelectedModelPath())
 
-    primeSession(session, chatId)
-    persistTurn(chatId, { chatId, role: 'user', content: prompt })
+    if (!primeSession(session, chatId)) {
+      reportHistoryUnavailable()
+    }
+    if (!persistTurn(chatId, { chatId, role: 'user', content: prompt })) {
+      reportHistoryUnavailable()
+    }
 
     const generationStartedAt = performance.now()
     const response = await session.promptWithMeta(prompt, {
@@ -399,14 +418,18 @@ async function streamPrompt(
       `Response complete (${responseText.length} chars, context: ${contextUsed}/${contextSize}, stopReason: ${response.stopReason})`,
     )
 
-    persistAssistantTurn({
-      chatId,
-      content: responseText,
-      reasoning: thoughtChunks.join(''),
-      finishReason: stopped ? 'stopped' : 'done',
-      ...(hasContextUsage ? { contextUsed, contextSize } : {}),
-      generationMetrics,
-    })
+    if (
+      !persistAssistantTurn({
+        chatId,
+        content: responseText,
+        reasoning: thoughtChunks.join(''),
+        finishReason: stopped ? 'stopped' : 'done',
+        ...(hasContextUsage ? { contextUsed, contextSize } : {}),
+        generationMetrics,
+      })
+    ) {
+      reportHistoryUnavailable()
+    }
     sendStreamEvent(sender, {
       type: 'done',
       response: responseText,
@@ -419,12 +442,16 @@ async function streamPrompt(
     // resolving with a partial response, so treat it as a normal stop.
     if (abortController.signal.aborted) {
       logger.info('Generation aborted')
-      persistAssistantTurn({
-        chatId,
-        content: responseChunks.join(''),
-        reasoning: thoughtChunks.join(''),
-        finishReason: 'stopped',
-      })
+      if (
+        !persistAssistantTurn({
+          chatId,
+          content: responseChunks.join(''),
+          reasoning: thoughtChunks.join(''),
+          finishReason: 'stopped',
+        })
+      ) {
+        reportHistoryUnavailable()
+      }
       sendStreamEvent(sender, {
         type: 'done',
         response: '',
@@ -432,12 +459,16 @@ async function streamPrompt(
       })
     } else {
       logger.error('Generation failed', error)
-      persistAssistantTurn({
-        chatId,
-        content: responseChunks.join(''),
-        reasoning: thoughtChunks.join(''),
-        finishReason: 'error',
-      })
+      if (
+        !persistAssistantTurn({
+          chatId,
+          content: responseChunks.join(''),
+          reasoning: thoughtChunks.join(''),
+          finishReason: 'error',
+        })
+      ) {
+        reportHistoryUnavailable()
+      }
       sendStreamEvent(sender, {
         type: 'error',
         message: 'The model failed to generate a response. Please try again.',

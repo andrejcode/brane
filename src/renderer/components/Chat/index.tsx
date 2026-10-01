@@ -81,6 +81,11 @@ export function Chat() {
         return
       }
 
+      if (event.type === 'history-unavailable') {
+        showAlert(t('chat.historyUnavailable'), 'error')
+        return
+      }
+
       if (event.type === 'context') {
         setMessages((currentMessages) =>
           currentMessages.map((message) =>
@@ -207,6 +212,7 @@ export function Chat() {
     setMessages,
     showAlert,
     streamingAssistantMessageIdRef,
+    t,
   ])
 
   useEffect(() => {

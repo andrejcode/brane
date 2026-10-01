@@ -171,15 +171,17 @@ describe('AppSidebar', () => {
           <SidebarProvider>
             <ChatProvider>
               <AppSidebar />
+              <AppAlert />
             </ChatProvider>
           </SidebarProvider>
         </ShortcutsProvider>
       </AlertProvider>,
     )
 
-    expect(
-      await screen.findByText('Chat history is unavailable.'),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Chat history is unavailable.',
+    )
+    expect(screen.getAllByText('Chat history is unavailable.')).toHaveLength(2)
   })
 
   // Chats without a stored title still fall back to "Untitled chat".

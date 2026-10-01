@@ -97,6 +97,10 @@ removed, the chat remains readable, but you cannot continue it until the same
 model is available again. Replacing a model file with a different file under
 the same name is also detected.
 
+If Brane cannot open or write to its chat database, it displays a warning and
+continues the conversation without saving affected messages. Database details
+are written to the local diagnostic logs under **Settings > General > Logs**.
+
 ## Features
 
 - Local, streamed conversations with GGUF models

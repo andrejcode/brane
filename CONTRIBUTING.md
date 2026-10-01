@@ -103,7 +103,14 @@ Chats and messages are stored locally in SQLite through Drizzle ORM. A chat
 records the model filename and file size used when it was created. This allows
 Brane to identify missing or replaced models and make affected chats read-only.
 Stored chat history is used to prime the model session when a conversation is
-reopened.
+reopened. Persistence is best-effort during inference: database read or write
+failures are logged and streamed to the renderer as a history-unavailable event
+so generation can continue with a visible warning.
+
+Feature modules expose their own `register<Feature>Handlers()` functions, and
+`src/main/ipc.ts` registers them during application startup. Keep lifecycle
+policy such as degraded database startup and macOS activation retries in
+`src/main/index.ts`.
 
 ### Settings and application state
 

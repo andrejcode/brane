@@ -259,6 +259,9 @@ export type LlamaStreamEvent =
       contextSize: number
     }
   | {
+      type: 'history-unavailable'
+    }
+  | {
       type: 'done'
       response: string
       stopped?: boolean

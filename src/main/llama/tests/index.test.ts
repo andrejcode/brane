@@ -386,6 +386,9 @@ describe('llama send-prompt handler', () => {
     const { event, send } = createEvent()
     await sendPrompt(event, 'hi')
 
+    expect(getStreamEvents(send)).toContainEqual({
+      type: 'history-unavailable',
+    })
     expect(getStreamEvents(send)).toContainEqual(
       expect.objectContaining({
         type: 'done',
