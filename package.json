@@ -1,7 +1,7 @@
 {
   "name": "brane-chat",
   "productName": "Brane",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A private space for conversations with language models running locally on your computer",
   "private": true,
   "keywords": [],

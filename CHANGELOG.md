@@ -5,7 +5,7 @@ release separates user-facing release notes from internal development changes
 so the user changes can also be published in the app, on the website, or on
 social media.
 
-# Unreleased
+# v0.3.0 - 2026-10-02
 
 ## User changes
 
