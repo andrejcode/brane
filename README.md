@@ -12,6 +12,7 @@ device. Brane does not require a backend service to run your chats.
 ## Table of contents
 
 - [Early development](#early-development)
+- [Build from source](#build-from-source)
 - [What you need](#what-you-need)
 - [Add a model](#add-a-model)
 - [Features](#features)
@@ -34,6 +35,27 @@ expected to happen, what happened instead, and your operating system. Brane keep
 local diagnostic logs to help investigate errors. You can open the logs folder
 from **Settings > General > Logs** and share the relevant log files with your report.
 Review logs before sharing them and remove any information you consider sensitive.
+
+## Build from source
+
+You need Node.js 22, npm, and Git.
+
+```sh
+git clone https://github.com/andrejcode/brane.git
+cd brane
+npm install
+npm run build:mac
+```
+
+Distributable packages are written to `dist`. On macOS, open the generated DMG
+and drag Brane to **Applications**. Builds created locally without an Apple
+Developer ID are ad-hoc signed but not notarized, and are intended for personal
+use.
+
+Use `npm run build:win` on Windows or `npm run build:linux` on Linux. To run
+Brane directly in development mode instead, use `npm run dev`. After building,
+use `npm start` to preview the production bundles. See the [contribution
+guide](CONTRIBUTING.md) for the complete development workflow.
 
 ## What you need
 
@@ -84,8 +106,10 @@ the same name is also detected.
 - Rename and delete conversations
 - Stop generation at any time
 - Display of supported model reasoning segments
-- Optional context token usage display for assistant responses
+- Optional message dates and generation statistics, including context usage,
+  token speed, and stop reasons
 - Markdown, code highlighting, tables, and math in responses
+- Confirmation before opening links in an external browser
 - Light, dark, and system themes
 - Adjustable message font size
 - Customizable keyboard shortcuts and send behavior, with shortcut hints in action tooltips

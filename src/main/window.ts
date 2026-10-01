@@ -71,7 +71,7 @@ export function createWindow() {
       ? DARK_BACKGROUND
       : LIGHT_BACKGROUND,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       backgroundThrottling: false,
       contextIsolation: true,
       nodeIntegration: false,
@@ -189,12 +189,12 @@ export function createWindow() {
     saveWindowState(mainWindow)
   })
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    void mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+  const rendererUrl = process.env['ELECTRON_RENDERER_URL']
+
+  if (rendererUrl) {
+    void mainWindow.loadURL(rendererUrl)
   } else {
-    void mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    )
+    void mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
   if (shouldOpenDevTools) {

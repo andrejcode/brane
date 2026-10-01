@@ -73,7 +73,12 @@ Brane is an Electron desktop chat app that runs local GGUF models on-device with
 ## Commands
 
 - Use Node.js 22 and install dependencies with `npm install`.
-- Run the app with `npm start`.
+- Run the app with `npm run dev`.
+- Build production bundles with `npm run build`.
+- Preview existing production bundles with `npm start`.
+- Build an unpacked application with `npm run build:unpack`.
+- Build platform artifacts with `npm run build:mac`, `npm run build:win`, or
+  `npm run build:linux`.
 - Run tests with `npm test`; use `npm run test:watch` while developing.
 - Run linting with `npm run lint`; apply fixes with `npm run lint:fix`.
 - Run type checking with `npm run typecheck`, or use the layer-specific

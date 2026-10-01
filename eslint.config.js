@@ -49,7 +49,6 @@ function createProjectConfig(files, project, scopedGlobals) {
 
 export default defineConfig(
   globalIgnores([
-    '.vite/**',
     'node_modules/**',
     'out/**',
     '*.tsbuildinfo',
@@ -117,7 +116,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['*.config.js', '*.config.ts', 'forge.env.d.ts'],
+    files: ['*.config.js', '*.config.ts'],
     languageOptions: {
       globals: {
         ...globals.node,

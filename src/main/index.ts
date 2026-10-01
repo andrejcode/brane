@@ -1,5 +1,4 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import started from 'electron-squirrel-startup'
 import { IpcChannels } from '@shared/types'
 import { initializeTheme, registerAppearanceHandlers } from './appearance'
 import { registerApplicationMenu } from './applicationMenu'
@@ -19,11 +18,6 @@ import {
 import { registerShortcutsHandlers } from './shortcuts'
 import { registerSidebarHandlers } from './sidebar'
 import { createWindow } from './window'
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling
-if (started) {
-  app.quit()
-}
 
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught exception in main process', error)

@@ -18,18 +18,24 @@ You need Node.js 22, npm, and Git.
 
 ```sh
 npm install
-npm start
+npm run dev
 ```
 
-`npm start` launches Brane in development mode.
+`npm run dev` launches Brane in development mode. Installation automatically
+rebuilds native application dependencies for the installed Electron version.
 
 Useful commands:
 
 ```sh
-npm run package          # Build a platform-specific copy of Brane without creating an installer
-npm run make             # Create distributable packages or installers for your current platform
+npm run build            # Create production main, preload, and renderer bundles
+npm start                # Preview the existing production bundles
+npm run build:unpack     # Build an unpacked application for the current platform
+npm run build:mac        # Create macOS DMG and ZIP artifacts
+npm run build:win        # Create a Windows NSIS installer
+npm run build:linux      # Create Linux AppImage, DEB, and RPM artifacts
 npm test                 # Run the Vitest suite
 npm run test:watch       # Run tests while developing
+npm run test:e2e         # Build and run the Electron end-to-end suite
 npm run lint             # Check ESLint rules
 npm run lint:fix         # Apply available ESLint fixes
 npm run typecheck        # Type-check every process
@@ -39,7 +45,28 @@ npm run trinity          # Run lint, type-checking, and tests
 
 Run `npm run trinity` before submitting a contribution.
 
-Build output is written to the `out` directory.
+Electron Vite writes compiled application code to `out`. Electron Builder writes
+unpacked applications and distributable artifacts to `dist`. On macOS,
+`npm run build:mac` creates both a DMG and a ZIP. Local macOS builds use ad-hoc
+signing so fuse-modified Electron binaries remain valid without a Developer ID.
+Hardened runtime is disabled for these builds because ad-hoc signatures have no
+Developer Team ID, causing macOS library validation to reject Electron's
+pre-signed frameworks. Public releases should instead use Developer ID signing,
+enable hardened runtime, and be notarized by Apple.
+
+### Packaging
+
+`electron.vite.config.ts` defines the main, preload, and renderer builds.
+`electron-builder.yml` defines application packaging, platform targets, icons,
+extra resources, ASAR behavior, and Electron fuses.
+
+Only `better-sqlite3` and `node-llama-cpp` are runtime dependencies. Electron
+Vite leaves them external to the main-process bundle, and Electron Builder
+includes their production dependency trees and rebuilds native modules for the
+target Electron version. Native addons and the adjacent `node-llama-cpp`
+runtime libraries are unpacked from ASAR so Electron can load them from disk.
+Other application libraries are build dependencies and are bundled into the
+main process or renderer output.
 
 ## Architecture
 
