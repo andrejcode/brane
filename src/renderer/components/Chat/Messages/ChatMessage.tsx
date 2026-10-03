@@ -55,7 +55,9 @@ export function ChatMessage({
       style={{ fontSize: 'var(--message-font-size, 16px)' }}
       className={clsx(
         'group flex flex-col gap-1',
-        isUser ? 'items-end self-end' : 'items-start self-start',
+        isUser
+          ? 'max-w-full items-end self-end'
+          : 'w-full min-w-0 items-start self-start',
       )}
     >
       {isUser ? (

@@ -36,7 +36,7 @@ interface ScrollAreaProps {
 }
 
 const thumbToneClasses: Record<ScrollAreaTone, string> = {
-  content: 'bg-neutral-500/70 dark:bg-neutral-600/70',
+  content: 'bg-[var(--scrollbar-content-thumb)]',
   sidebar: 'bg-neutral-400/70 dark:bg-neutral-700/80',
 }
 

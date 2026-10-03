@@ -40,7 +40,7 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
   const codeText = extractText(children).replace(/\n$/, '')
 
   return (
-    <div className="w-full overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
+    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
       <div className="flex items-center justify-between bg-neutral-200 px-3 py-1 dark:bg-neutral-700">
         <span className="font-mono text-xs text-neutral-600 dark:text-neutral-300">
           {language}
@@ -58,12 +58,15 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
 
       <SyntaxHighlighter
         PreTag="div"
+        className="code-scrollbar"
         language={language}
         style={isDark ? oneDark : oneLight}
         customStyle={{
           margin: 0,
           background: 'transparent',
           borderRadius: 0,
+          maxWidth: '100%',
+          overflowX: 'auto',
         }}
         codeTagProps={{ style: { fontFamily: 'var(--font-mono)' } }}
       >

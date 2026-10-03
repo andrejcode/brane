@@ -7,6 +7,14 @@
   --animate-wipe: wipe 2s linear infinite;
 }
 
+:root {
+  --scrollbar-content-thumb: rgb(115 115 115 / 70%);
+}
+
+.dark {
+  --scrollbar-content-thumb: rgb(82 82 82 / 70%);
+}
+
 @font-face {
   font-family: 'Inter';
   font-weight: 400;
@@ -65,8 +73,6 @@
 
 body {
   font-family: var(--font-sans);
-  /* Match native apps: UI chrome isn't selectable by default. Content that
-     should be selectable (message text, code) opts back in with select-text. */
   user-select: none;
 }
 
@@ -74,9 +80,24 @@ body {
   cursor: pointer;
 }
 
-/* Sweeps a bright band across clipped text to signal the model is thinking.
-   Pair with a symmetric gradient and bg-[length:200%_100%] so the loop is
-   seamless. */
+.code-scrollbar {
+  scrollbar-color: var(--scrollbar-content-thumb) transparent;
+  scrollbar-width: thin;
+}
+
+.code-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.code-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.code-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--scrollbar-content-thumb);
+}
+
 @keyframes wipe {
   from {
     background-position: 200% center;

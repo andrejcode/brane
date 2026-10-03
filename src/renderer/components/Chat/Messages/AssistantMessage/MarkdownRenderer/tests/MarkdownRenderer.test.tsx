@@ -152,6 +152,10 @@ describe('MarkdownRenderer', () => {
       await screen.findByRole('button', { name: 'Copied' }),
     ).toBeInTheDocument()
     expect(container.textContent).toContain('const x = 1;')
+    expect(container.querySelector('.code-scrollbar')).toHaveStyle({
+      maxWidth: '100%',
+      overflowX: 'auto',
+    })
   })
 
   it('renders unlabeled fenced code without syntax controls', () => {

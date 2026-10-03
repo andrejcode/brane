@@ -14,7 +14,7 @@ export function AssistantMessage({ message }: AssistantMessageProps) {
   const isAwaitingResponse = reasoning.length === 0 && !hasContent
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex w-full min-w-0 flex-col gap-2">
       {reasoning.length > 0 && (
         <ReasoningSection
           reasoning={reasoning}
