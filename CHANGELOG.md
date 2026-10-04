@@ -5,9 +5,7 @@ release separates user-facing release notes from internal development changes
 so the user changes can also be published in the app, on the website, or on
 social media.
 
-# Unreleased
-
-## User changes
+# v0.3.1 - 2026-10-04
 
 ### Fixed
 
@@ -136,8 +134,6 @@ These changes are focused on UI/UX improvements.
 - Stopped renderer console messages from being persisted to app logs
 
 # v0.1.0 - 2026-09-08
-
-## User changes
 
 ### Added
 
