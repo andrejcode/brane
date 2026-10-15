@@ -27,6 +27,7 @@ export function GeneralSettings() {
   const [isDeleteChatsConfirmOpen, setIsDeleteChatsConfirmOpen] =
     useState(false)
   const [isDeleteLogsConfirmOpen, setIsDeleteLogsConfirmOpen] = useState(false)
+  const [wereChatsDeleted, markChatsDeleted] = useJustCompleted()
   const [wereLogsDeleted, markLogsDeleted] = useJustCompleted()
 
   const sendShortcut = window.electronApi.isMac ? '⌘' : 'Ctrl'
@@ -42,6 +43,7 @@ export function GeneralSettings() {
   const handleDeleteAllChats = async () => {
     try {
       await deleteAllChats()
+      markChatsDeleted()
     } catch {
       showAlert(t('general.deleteAllChatsFailed'), 'error')
     }
@@ -120,7 +122,9 @@ export function GeneralSettings() {
             className="shrink-0"
             onClick={() => setIsDeleteChatsConfirmOpen(true)}
           >
-            {t('general.deleteAllChats')}
+            {wereChatsDeleted
+              ? t('general.deleted')
+              : t('general.deleteAllChats')}
           </Button>
         </div>
       </div>

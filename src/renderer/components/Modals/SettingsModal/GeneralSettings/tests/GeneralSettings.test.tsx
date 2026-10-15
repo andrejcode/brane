@@ -191,7 +191,23 @@ describe('GeneralSettings chats', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
 
-  it('surfaces a failed deletion', async () => {
+  it('confirms the deletion on the button itself', async () => {
+    renderGeneralSettings()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete all chats' }))
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', {
+        name: 'Delete all chats',
+      }),
+    )
+
+    expect(
+      await screen.findByRole('button', { name: 'Deleted' }),
+    ).toBeInTheDocument()
+  })
+
+  it('surfaces a failed deletion without claiming it worked', async () => {
     const mock = renderGeneralSettings()
     mock.deleteAllChats.mockRejectedValueOnce(new Error('locked'))
     const user = userEvent.setup()
@@ -206,5 +222,8 @@ describe('GeneralSettings chats', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Failed to delete the chats. Please try again.',
     )
+    expect(
+      screen.queryByRole('button', { name: 'Deleted' }),
+    ).not.toBeInTheDocument()
   })
 })
