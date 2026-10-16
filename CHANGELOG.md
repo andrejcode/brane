@@ -5,6 +5,21 @@ release separates user-facing release notes from internal development changes
 so the user changes can also be published in the app, on the website, or on
 social media.
 
+# v0.3.2 - 2026-10-16
+
+## User changes
+
+### Updated
+
+- Updated the Delete all chats button to show when deletion has completed
+
+## Development changes
+
+### Updated
+
+- Isolated development database and logs inside the project while continuing to
+  share models from `~/.brane`, and moved end-to-end test data to temporary storage
+
 # v0.3.1 - 2026-10-04
 
 ### Fixed
