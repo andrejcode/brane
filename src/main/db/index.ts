@@ -6,7 +6,7 @@ import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { getErrorMessage } from '@shared/error'
 import { logger } from '../logger'
-import { baseDir, databasePath } from '../paths'
+import { databasePath, dataDir } from '../paths'
 import * as schema from './schema'
 
 export type BraneDatabase = BetterSQLite3Database<typeof schema>
@@ -30,7 +30,7 @@ export function initializeDatabase() {
   let connection: BetterSqlite3.Database | undefined
 
   try {
-    fs.mkdirSync(baseDir, { recursive: true })
+    fs.mkdirSync(dataDir, { recursive: true })
 
     connection = new BetterSqlite3(databasePath)
     // SQLite defaults both of these off, and message deletes rely on cascades.

@@ -26,6 +26,7 @@ export interface E2eWorkspace {
   rootDir: string
   homeDir: string
   userDataDir: string
+  dataDir: string
   braneDir: string
   modelsDir: string
   databasePath: string
@@ -35,19 +36,22 @@ export function createE2eWorkspace(name: string): E2eWorkspace {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), `brane-${name}-`))
   const homeDir = path.join(rootDir, 'home')
   const userDataDir = path.join(rootDir, 'user-data')
+  const dataDir = path.join(rootDir, 'data')
   const braneDir = path.join(homeDir, '.brane')
   const modelsDir = path.join(braneDir, 'models')
 
   fs.mkdirSync(modelsDir, { recursive: true })
   fs.mkdirSync(userDataDir, { recursive: true })
+  fs.mkdirSync(dataDir, { recursive: true })
 
   return {
     rootDir,
     homeDir,
     userDataDir,
+    dataDir,
     braneDir,
     modelsDir,
-    databasePath: path.join(braneDir, 'brane.db'),
+    databasePath: path.join(dataDir, 'brane.db'),
   }
 }
 
@@ -61,6 +65,7 @@ export function launchBrane(workspace: E2eWorkspace) {
     args: [APP_DIRECTORY, `--user-data-dir=${workspace.userDataDir}`],
     env: {
       ...process.env,
+      BRANE_DATA_DIR: workspace.dataDir,
       BRANE_E2E: '1',
       HOME: workspace.homeDir,
       USERPROFILE: workspace.homeDir,

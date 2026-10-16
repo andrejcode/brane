@@ -25,19 +25,21 @@ export function createElectronMock({
   includeShell = false,
 }: CreateElectronMockOptions = {}) {
   return {
+    app: {
+      getAppPath: () => process.cwd(),
+      isPackaged: false,
+      ...(includeApp
+        ? {
+            getPreferredSystemLanguages: () => appLocales.preferred,
+            getLocale: () => appLocales.current,
+          }
+        : {}),
+    },
     ipcMain: {
       handle: (channel: string, handler: IpcHandler) => {
         ipcHandlers.set(channel, handler)
       },
     },
-    ...(includeApp
-      ? {
-          app: {
-            getPreferredSystemLanguages: () => appLocales.preferred,
-            getLocale: () => appLocales.current,
-          },
-        }
-      : {}),
     ...(includeNativeTheme
       ? {
           nativeTheme: {
