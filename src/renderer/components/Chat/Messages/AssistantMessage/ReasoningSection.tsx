@@ -18,28 +18,32 @@ export function ReasoningSection({
 
   return (
     <div className="flex flex-col">
-      <ChevronToggleButton
-        buttonText={t('chat.thinking')}
-        isExpanded={isExpanded}
-        onToggle={() => setIsExpanded((expanded) => !expanded)}
-        ariaControls={contentId}
-        textClassName={clsx(
-          !isThinking && 'text-neutral-600 dark:text-neutral-400',
-          // While streaming, sweep a bright band across the label as a live
-          // "thinking" cue. The band brightens toward each theme's foreground.
-          isThinking && [
-            'bg-clip-text text-transparent',
-            'bg-gradient-to-r from-neutral-400 via-neutral-800 to-neutral-400',
-            'dark:from-neutral-500 dark:via-neutral-100 dark:to-neutral-500',
-            'bg-[length:200%_100%]',
-            'will-change-[background-position]',
-            'animate-wipe',
-          ],
-        )}
-      />
+      <div data-copy-exclude>
+        <ChevronToggleButton
+          buttonText={t('chat.thinking')}
+          isExpanded={isExpanded}
+          onToggle={() => setIsExpanded((expanded) => !expanded)}
+          ariaControls={contentId}
+          textClassName={clsx(
+            !isThinking && 'text-neutral-600 dark:text-neutral-400',
+            // While streaming, sweep a bright band across the label as a live
+            // "thinking" cue. The band brightens toward each theme's foreground.
+            isThinking && [
+              'bg-clip-text text-transparent',
+              'bg-gradient-to-r from-neutral-400 via-neutral-800 to-neutral-400',
+              'dark:from-neutral-500 dark:via-neutral-100 dark:to-neutral-500',
+              'bg-[length:200%_100%]',
+              'will-change-[background-position]',
+              'animate-wipe',
+            ],
+          )}
+        />
+      </div>
 
       <div
         id={contentId}
+        aria-hidden={!isExpanded}
+        {...(!isExpanded && { 'data-copy-exclude': true })}
         className={clsx(
           'grid transition-all duration-200 ease-out',
           isExpanded

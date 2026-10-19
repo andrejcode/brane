@@ -9,6 +9,7 @@ import {
 import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
 import type { Message } from '@/types'
 import { ScrollArea } from '@/ui/ScrollArea'
+import { writeSemanticSelection } from './AssistantMessage/MarkdownRenderer/semanticCopy'
 import { ChatMessage } from './ChatMessage'
 import { computeTailBottomInset } from './messagesLayout'
 import { ScrollToBottomButton } from './ScrollToBottomButton'
@@ -29,6 +30,21 @@ const scrollToBottomThreshold = 24
 // Content grows a frame before the tail spacer shrinks to match, so require the
 // reading to hold before flipping the button, absorbing that transient spike.
 const scrollToBottomStabilizeDelay = 160
+
+function handleCopy(event: React.ClipboardEvent<HTMLDivElement>) {
+  if (
+    event.defaultPrevented ||
+    !writeSemanticSelection(
+      event.currentTarget,
+      event.currentTarget.ownerDocument.getSelection(),
+      event.clipboardData,
+    )
+  ) {
+    return
+  }
+
+  event.preventDefault()
+}
 
 export function Messages({
   activeChatId,
@@ -319,6 +335,7 @@ export function Messages({
         onScroll={handleScroll}
       >
         <div
+          onCopy={handleCopy}
           className="mx-auto flex w-full max-w-4xl flex-col gap-3 px-8 pt-14"
           style={{ paddingBottom: contentBottomInset }}
         >

@@ -11,6 +11,7 @@ import { useAlert } from '@/contexts/AlertContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { CodeBlock } from './CodeBlock'
+import { writeSemanticSelection } from './semanticCopy'
 
 interface MarkdownRendererProps {
   content: string
@@ -30,6 +31,20 @@ const baseMarkdownComponents: Components = {
   pre({ children }) {
     return <pre className="w-full min-w-full">{children}</pre>
   },
+}
+
+function handleCopy(event: React.ClipboardEvent<HTMLDivElement>) {
+  if (
+    !writeSemanticSelection(
+      event.currentTarget,
+      event.currentTarget.ownerDocument.getSelection(),
+      event.clipboardData,
+    )
+  ) {
+    return
+  }
+
+  event.preventDefault()
 }
 
 export function MarkdownRenderer({
@@ -76,6 +91,7 @@ export function MarkdownRenderer({
   return (
     <>
       <div
+        onCopy={handleCopy}
         className={clsx(
           'prose dark:prose-invert w-full min-w-0 max-w-full [font-size:inherit] select-text',
           // Tailwind Typography wraps inline code in decorative backticks; drop them.

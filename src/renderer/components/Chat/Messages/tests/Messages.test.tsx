@@ -1,4 +1,8 @@
-import { render as testingRender, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render as testingRender,
+  screen,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AlertProvider } from '@/contexts/AlertContext'
 import { LocaleProvider } from '@/contexts/LocaleContext'
@@ -140,6 +144,104 @@ describe('Messages', () => {
     expect(
       await screen.findByRole('button', { name: 'Copied' }),
     ).toBeInTheDocument()
+  })
+
+  it('copies a selection spanning user and assistant messages semantically', () => {
+    const formula = '\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}'
+    const { container } = render(
+      <Messages
+        activeChatId={null}
+        messages={[
+          {
+            id: '1',
+            role: 'user',
+            content: 'Show the quadratic formula',
+            createdAt,
+          },
+          {
+            id: '2',
+            role: 'assistant',
+            content: `The formula is $${formula}$`,
+            generationMetrics: {
+              tokenCount: 42,
+              tokensPerSecond: 12.5,
+              timeToFirstTokenMs: 250,
+              stopReason: 'eogToken',
+            },
+            createdAt,
+          },
+        ]}
+        bottomInset={0}
+        showMessageDates
+        showStatistics
+      />,
+    )
+    const userText = screen.getByText('Show the quadratic formula').firstChild
+    const visualMathText = container.querySelector('.katex-html')?.firstChild
+    const userMessage = screen.getByText('Show the quadratic formula')
+    expect(userText).not.toBeNull()
+    expect(visualMathText).not.toBeNull()
+    const selection = document.getSelection()
+    const range = document.createRange()
+    range.setStart(userText!, 0)
+    range.setEnd(visualMathText!, 1)
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+    const setData = vi.fn()
+
+    fireEvent.copy(userMessage, { clipboardData: { setData } })
+
+    expect(setData).toHaveBeenCalledOnce()
+    expect(setData).toHaveBeenCalledWith(
+      'text/plain',
+      `Show the quadratic formula\n\nThe formula is $${formula}$`,
+    )
+  })
+
+  it('copies reasoning only when it is expanded and selected', async () => {
+    const { container } = render(
+      <Messages
+        activeChatId={null}
+        messages={[
+          {
+            id: '1',
+            role: 'user',
+            content: 'Question',
+            createdAt,
+          },
+          {
+            id: '2',
+            role: 'assistant',
+            content: 'Answer',
+            reasoning: 'Private chain of thought',
+            createdAt,
+          },
+        ]}
+        bottomInset={0}
+      />,
+    )
+    const messageList = container.querySelector('.pt-14')
+    expect(messageList).not.toBeNull()
+    const setData = vi.fn()
+    const copyConversation = () => {
+      const selection = document.getSelection()
+      const range = document.createRange()
+      range.selectNodeContents(messageList!)
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+      fireEvent.copy(messageList!, { clipboardData: { setData } })
+    }
+
+    copyConversation()
+    expect(setData).toHaveBeenLastCalledWith('text/plain', 'Question\n\nAnswer')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Thinking' }))
+    copyConversation()
+    expect(setData).toHaveBeenLastCalledWith(
+      'text/plain',
+      'Question\n\nPrivate chain of thought\n\nAnswer',
+    )
+    expect(setData).toHaveBeenCalledTimes(2)
   })
 
   it('shows generation metrics beside the assistant message copy control', async () => {
