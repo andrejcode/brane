@@ -26,7 +26,7 @@ export function ChevronToggleButton({
       ariaExpanded={isExpanded}
       ariaControls={ariaControls}
       className={clsx(
-        'flex items-center gap-1 self-start rounded-md text-sm',
+        'flex items-center gap-1 self-start rounded-md pr-1 text-sm',
         className,
       )}
     >
