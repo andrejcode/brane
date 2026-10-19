@@ -58,7 +58,7 @@
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.3",
-    "electron": "^41.2.0",
+    "electron": "^41.10.7",
     "electron-builder": "^26.15.3",
     "electron-store": "^11.0.2",
     "electron-vite": "^5.0.0",
@@ -93,6 +93,6 @@
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
-    "node-llama-cpp": "^3.20.0"
+    "node-llama-cpp": "^3.22.2"
   }
 }
