@@ -16,8 +16,11 @@ import type { ContextUsage } from '@/types'
 import { createId } from '@/utils'
 import { deriveChatTitle } from '@shared/chatTitle'
 import { ChatInput } from './ChatInput'
+import { computeBottomOverlayInset } from './chatLayout'
 import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
+
+const COMPOSER_CLEARANCE = 12
 
 export function Chat() {
   const { showAlert } = useAlert()
@@ -63,13 +66,17 @@ export function Chat() {
       return
     }
 
-    const bottomEdge = window.innerHeight
     const overlayTop = bottomOverlay.getBoundingClientRect().top
     const fadeTop = bottomFadeRef.current?.getBoundingClientRect().top
-    // Include the fade because it visually covers messages above the input
-    const visualTop = Math.min(overlayTop, fadeTop ?? overlayTop)
 
-    setBottomOverlayInset(bottomEdge - visualTop)
+    setBottomOverlayInset(
+      computeBottomOverlayInset({
+        bottomEdge: window.innerHeight,
+        clearance: COMPOSER_CLEARANCE,
+        ...(fadeTop === undefined ? {} : { fadeTop }),
+        overlayTop,
+      }),
+    )
   }, [])
 
   useEffect(() => {

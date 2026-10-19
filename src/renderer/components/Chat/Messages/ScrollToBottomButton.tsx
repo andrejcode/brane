@@ -9,10 +9,6 @@ interface ScrollToBottomButtonProps {
   onClick: () => void
 }
 
-// Nudge the button down so it hugs the top of the docked composer instead of
-// floating out in the message area.
-const bottomGap = 4
-
 export function ScrollToBottomButton({
   bottomInset,
   isVisible,
@@ -27,7 +23,7 @@ export function ScrollToBottomButton({
         'transition-opacity duration-200 ease-out',
         isVisible ? 'opacity-100' : 'opacity-0',
       )}
-      style={{ bottom: bottomInset + bottomGap }}
+      style={{ bottom: bottomInset }}
     >
       <BaseButton
         type="button"

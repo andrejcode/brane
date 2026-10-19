@@ -22,14 +22,14 @@ interface MessagesProps {
   showStatistics?: boolean
 }
 
-const headerHeight = 56
+const CHAT_CONTENT_TOP_INSET = 56
 // Give short final turns enough scroll room to sit alone below the header
-const messageTailCount = 2
+const MESSAGE_TAIL_COUNT = 2
 // Slack before the exact bottom so the button hides once effectively there
-const scrollToBottomThreshold = 24
+const SCROLL_TO_BOTTOM_THRESHOLD = 24
 // Content grows a frame before the tail spacer shrinks to match, so require the
 // reading to hold before flipping the button, absorbing that transient spike.
-const scrollToBottomStabilizeDelay = 160
+const SCROLL_TO_BOTTOM_STABILIZE_DELAY = 160
 
 function handleCopy(event: React.ClipboardEvent<HTMLDivElement>) {
   if (
@@ -67,7 +67,7 @@ export function Messages({
   const [isAwayFromBottom, setIsAwayFromBottom] = useState(false)
   const [tailBottomInset, setTailBottomInset] = useState(0)
   const contentBottomInset = Math.max(bottomInset, tailBottomInset)
-  const tailStartIndex = Math.max(messages.length - messageTailCount, 0)
+  const tailStartIndex = Math.max(messages.length - MESSAGE_TAIL_COUNT, 0)
   const earlierMessages = messages.slice(0, tailStartIndex)
   const tailMessages = messages.slice(tailStartIndex)
 
@@ -108,7 +108,7 @@ export function Messages({
 
     const settledTailBottomInset = computeTailBottomInset({
       clientHeight: scrollContainer.clientHeight,
-      headerHeight,
+      headerHeight: CHAT_CONTENT_TOP_INSET,
       tailHeight: tailMessagesElement.getBoundingClientRect().height,
     })
 
@@ -141,7 +141,7 @@ export function Messages({
       awayFromBottomStabilizeTimeoutRef.current = null
       awayFromBottomRef.current = targetAway
       setIsAwayFromBottom(targetAway)
-    }, scrollToBottomStabilizeDelay)
+    }, SCROLL_TO_BOTTOM_STABILIZE_DELAY)
   }, [])
 
   const updateAwayFromBottom = useCallback(() => {
@@ -154,8 +154,8 @@ export function Messages({
     const maxScrollTop =
       scrollContainer.scrollHeight - scrollContainer.clientHeight
     stabilizeAwayFromBottom(
-      maxScrollTop > scrollToBottomThreshold &&
-        maxScrollTop - scrollContainer.scrollTop > scrollToBottomThreshold,
+      maxScrollTop > SCROLL_TO_BOTTOM_THRESHOLD &&
+        maxScrollTop - scrollContainer.scrollTop > SCROLL_TO_BOTTOM_THRESHOLD,
     )
   }, [stabilizeAwayFromBottom])
 
@@ -171,7 +171,7 @@ export function Messages({
     setTailBottomInset(
       computeTailBottomInset({
         clientHeight: scrollContainer.clientHeight,
-        headerHeight,
+        headerHeight: CHAT_CONTENT_TOP_INSET,
         tailHeight: tailMessagesElement.getBoundingClientRect().height,
       }),
     )
@@ -248,7 +248,7 @@ export function Messages({
       scrollContainer.scrollTo({
         top:
           scrollContainer.scrollTop +
-          (messageRect.top - containerRect.top - headerHeight),
+          (messageRect.top - containerRect.top - CHAT_CONTENT_TOP_INSET),
         behavior: 'smooth',
       })
     }
@@ -330,7 +330,7 @@ export function Messages({
         viewportRef={scrollContainerRef}
         viewportProps={{ tabIndex: -1 }}
         viewportClassName="outline-none"
-        headerInset={headerHeight}
+        headerInset={CHAT_CONTENT_TOP_INSET}
         bottomInset={bottomInset}
         onScroll={handleScroll}
       >
