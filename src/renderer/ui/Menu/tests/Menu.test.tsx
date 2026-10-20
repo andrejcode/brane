@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Menu, MenuItem } from '../Menu'
+import { Menu, MenuItem } from '..'
 
 function renderMenu({
   onRename = vi.fn(),

@@ -1,25 +1,19 @@
 import { clsx } from 'clsx'
 import { Ellipsis } from 'lucide-react'
 import {
-  createContext,
-  use,
   useCallback,
   useEffect,
   useId,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
 import type { Ref } from 'react'
 import { createPortal } from 'react-dom'
-import { GhostButton } from './buttons/GhostButton'
-
-interface MenuContextValue {
-  close: () => void
-}
-
-const MenuContext = createContext<MenuContextValue | null>(null)
+import { GhostButton } from '@/ui/buttons/GhostButton'
+import { MenuContext } from './MenuContext'
 
 interface MenuProps {
   ref?: Ref<MenuHandle>
@@ -38,12 +32,6 @@ interface MenuPosition {
 export interface MenuHandle {
   open: () => void
   openAt: (position: MenuPosition) => void
-}
-
-interface MenuItemProps {
-  children: React.ReactNode
-  onSelect: () => void
-  isDestructive?: boolean
 }
 
 const MENU_GAP = 4
@@ -101,6 +89,8 @@ export function Menu({
   const close = useCallback(() => {
     setAnchor(null)
   }, [])
+
+  const contextValue = useMemo(() => ({ close }), [close])
 
   const open = useCallback(() => {
     setAnchor({ type: 'trigger' })
@@ -219,7 +209,7 @@ export function Menu({
       </GhostButton>
       {isOpen
         ? createPortal(
-            <MenuContext value={{ close }}>
+            <MenuContext value={contextValue}>
               <div
                 ref={(node) => {
                   menuRef.current = node
@@ -257,35 +247,5 @@ export function Menu({
           )
         : null}
     </>
-  )
-}
-
-export function MenuItem({
-  children,
-  onSelect,
-  isDestructive = false,
-}: MenuItemProps) {
-  const menu = use(MenuContext)
-
-  if (!menu) {
-    throw new Error('MenuItem must be used within a Menu')
-  }
-
-  return (
-    <GhostButton
-      role="menuitem"
-      className={clsx(
-        'grid w-full grid-cols-[1rem_1fr] items-center gap-2 px-2 py-1.5 text-left text-sm whitespace-nowrap',
-        isDestructive
-          ? 'text-red-500 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-400/15'
-          : 'text-neutral-800 dark:text-neutral-100',
-      )}
-      onClick={() => {
-        menu.close()
-        onSelect()
-      }}
-    >
-      {children}
-    </GhostButton>
   )
 }
