@@ -80,6 +80,10 @@ body {
   cursor: pointer;
 }
 
+[data-modal-overlay]:has(~ [data-modal-overlay]) > [data-modal-backdrop] {
+  display: none;
+}
+
 .code-scrollbar {
   scrollbar-color: var(--scrollbar-content-thumb) transparent;
   scrollbar-width: thin;

@@ -91,10 +91,14 @@ export function Modal({
 
   return createPortal(
     <div
+      data-modal-overlay
       className="fixed inset-0 z-40 m-4 flex items-center justify-center"
       onClick={onClose}
     >
-      <div className="fixed inset-0 bg-neutral-900/50 dark:bg-neutral-900/80" />
+      <div
+        data-modal-backdrop
+        className="fixed inset-0 bg-neutral-900/50 dark:bg-neutral-900/80"
+      />
 
       <div
         ref={panelRef}
