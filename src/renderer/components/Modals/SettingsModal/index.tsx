@@ -24,6 +24,7 @@ export function SettingsModal() {
       isOpen={activeModal === 'settings'}
       onClose={closeModal}
       ariaLabelledBy="settings-title"
+      className="h-4/5 w-full max-w-4xl"
     >
       <div className="flex min-h-0 flex-1">
         <SettingsSidebar activeTab={activeTab} onTabChange={setActiveTab} />
