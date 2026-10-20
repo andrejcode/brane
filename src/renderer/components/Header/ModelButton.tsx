@@ -5,7 +5,7 @@ import { useModel } from '@/contexts/ModelContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
 import { LoadingSpinner } from '@/ui/LoadingSpinner'
-import { ShortcutTooltip } from '@/ui/ShortcutTooltip'
+import { ShortcutTooltip } from '@/ui/Tooltip'
 import { formatModelName, formatShortcut } from '@/utils'
 
 export function ModelButton() {

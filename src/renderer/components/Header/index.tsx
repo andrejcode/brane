@@ -12,7 +12,7 @@ import { useModals } from '@/contexts/ModalContext'
 import { useShortcuts } from '@/contexts/ShortcutsContext'
 import { useSidebar } from '@/contexts/SidebarContext'
 import { GhostButton } from '@/ui/buttons/GhostButton'
-import { ShortcutTooltip } from '@/ui/ShortcutTooltip'
+import { ShortcutTooltip } from '@/ui/Tooltip'
 import { formatShortcut } from '@/utils'
 import { ModelButton } from './ModelButton'
 
