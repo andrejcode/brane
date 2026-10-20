@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
+import { useResizeObserver } from '@/hooks/useResizeObserver'
 import type { Message } from '@/types'
 import { ScrollArea } from '@/ui/ScrollArea'
 import { writeSemanticSelection } from './AssistantMessage/MarkdownRenderer/semanticCopy'
@@ -267,6 +268,21 @@ export function Messages({
     }
   }, [lastUserMessageId])
 
+  const getResizeTargets = useCallback(
+    () => [scrollContainerRef.current, tailMessagesRef.current],
+    [],
+  )
+
+  const handleResize = useCallback(() => {
+    scheduleTailSpacerUpdate()
+    updateAwayFromBottom()
+  }, [scheduleTailSpacerUpdate, updateAwayFromBottom])
+
+  useResizeObserver({
+    getTargets: getResizeTargets,
+    onResize: handleResize,
+  })
+
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current
     const tailMessagesElement = tailMessagesRef.current
@@ -275,17 +291,7 @@ export function Messages({
       return
     }
 
-    const resizeObserver = new ResizeObserver(() => {
-      scheduleTailSpacerUpdate()
-      updateAwayFromBottom()
-    })
-    resizeObserver.observe(scrollContainer)
-    resizeObserver.observe(tailMessagesElement)
     scheduleTailSpacerUpdate()
-
-    return () => {
-      resizeObserver.disconnect()
-    }
   }, [scheduleTailSpacerUpdate, updateAwayFromBottom])
 
   useEffect(() => {

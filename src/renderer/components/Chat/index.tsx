@@ -16,11 +16,9 @@ import type { ContextUsage } from '@/types'
 import { createId } from '@/utils'
 import { deriveChatTitle } from '@shared/chatTitle'
 import { ChatInput } from './ChatInput'
-import { computeBottomOverlayInset } from './chatLayout'
 import { IntroMessage } from './IntroMessage'
 import { Messages } from './Messages'
-
-const COMPOSER_CLEARANCE = 12
+import { useBottomOverlayInset } from './useBottomOverlayInset'
 
 export function Chat() {
   const { showAlert } = useAlert()
@@ -55,29 +53,8 @@ export function Chat() {
   // centered greeting on its way in.
   const isEmpty = messages.length === 0 && !isLoadingChat
   // The composer floats over messages, so messages need matching bottom padding
-  const [bottomOverlayInset, setBottomOverlayInset] = useState(0)
-  const bottomOverlayRef = useRef<HTMLDivElement>(null)
-  const bottomFadeRef = useRef<HTMLDivElement>(null)
-
-  const updateBottomOverlayInset = useCallback(() => {
-    const bottomOverlay = bottomOverlayRef.current
-
-    if (!bottomOverlay) {
-      return
-    }
-
-    const overlayTop = bottomOverlay.getBoundingClientRect().top
-    const fadeTop = bottomFadeRef.current?.getBoundingClientRect().top
-
-    setBottomOverlayInset(
-      computeBottomOverlayInset({
-        bottomEdge: window.innerHeight,
-        clearance: COMPOSER_CLEARANCE,
-        ...(fadeTop === undefined ? {} : { fadeTop }),
-        overlayTop,
-      }),
-    )
-  }, [])
+  const { bottomOverlayRef, bottomFadeRef, bottomOverlayInset } =
+    useBottomOverlayInset({ isEmpty })
 
   useEffect(() => {
     const unsubscribe = window.electronApi.streamResponse((event) => {
@@ -221,49 +198,6 @@ export function Chat() {
     streamingAssistantMessageIdRef,
     t,
   ])
-
-  useEffect(() => {
-    const bottomOverlay = bottomOverlayRef.current
-
-    if (!bottomOverlay) {
-      return
-    }
-
-    const resizeObserver = new ResizeObserver(updateBottomOverlayInset)
-    const animationFrame = requestAnimationFrame(updateBottomOverlayInset)
-
-    resizeObserver.observe(bottomOverlay)
-
-    if (bottomFadeRef.current) {
-      resizeObserver.observe(bottomFadeRef.current)
-    }
-
-    return () => {
-      cancelAnimationFrame(animationFrame)
-      resizeObserver.disconnect()
-    }
-  }, [updateBottomOverlayInset])
-
-  // While the composer slides from center to the bottom, its measured position
-  // changes every frame, so keep the message inset in sync for the transition.
-  useEffect(() => {
-    if (isEmpty) {
-      return
-    }
-
-    const start = performance.now()
-    let animationFrame = requestAnimationFrame(function tick() {
-      updateBottomOverlayInset()
-
-      if (performance.now() - start < 600) {
-        animationFrame = requestAnimationFrame(tick)
-      }
-    })
-
-    return () => {
-      cancelAnimationFrame(animationFrame)
-    }
-  }, [isEmpty, updateBottomOverlayInset])
 
   const handleStop = useCallback(() => {
     void window.electronApi.stopGeneration()

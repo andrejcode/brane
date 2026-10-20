@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
+import { useResizeObserver } from '@/hooks/useResizeObserver'
 import { clamp, computeScrollbarMetrics } from './scrollAreaLayout'
 
 const MINIMUM_THUMB_HEIGHT = 20
@@ -127,6 +128,17 @@ export function ScrollArea({
 
   const scheduleUpdate = useAnimationFrameScheduler(update)
 
+  const getResizeTargets = useCallback(() => {
+    const scrollContainer = internalViewportRef.current
+
+    return [scrollContainer, scrollContainer?.firstElementChild]
+  }, [])
+
+  useResizeObserver({
+    getTargets: getResizeTargets,
+    onResize: scheduleUpdate,
+  })
+
   useEffect(() => {
     const scrollContainer = internalViewportRef.current
 
@@ -134,23 +146,16 @@ export function ScrollArea({
       return
     }
 
-    const resizeObserver = new ResizeObserver(scheduleUpdate)
     const mutationObserver = new MutationObserver(scheduleUpdate)
-    resizeObserver.observe(scrollContainer)
     mutationObserver.observe(scrollContainer, {
       childList: true,
       subtree: true,
       characterData: true,
     })
 
-    if (scrollContainer.firstElementChild) {
-      resizeObserver.observe(scrollContainer.firstElementChild)
-    }
-
     scheduleUpdate()
 
     return () => {
-      resizeObserver.disconnect()
       mutationObserver.disconnect()
     }
   }, [scheduleUpdate])
