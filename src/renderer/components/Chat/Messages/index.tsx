@@ -10,7 +10,7 @@ import { useAnimationFrameScheduler } from '@/hooks/useAnimationFrameScheduler'
 import { useResizeObserver } from '@/hooks/useResizeObserver'
 import type { Message } from '@/types'
 import { ScrollArea } from '@/ui/ScrollArea'
-import { writeSemanticSelection } from './AssistantMessage/MarkdownRenderer/semanticCopy'
+import { writeMathSelection } from './AssistantMessage/MarkdownRenderer/mathCopy'
 import { ChatMessage } from './ChatMessage'
 import { computeTailBottomInset } from './messagesLayout'
 import { ScrollToBottomButton } from './ScrollToBottomButton'
@@ -35,7 +35,7 @@ const SCROLL_TO_BOTTOM_STABILIZE_DELAY = 160
 function handleCopy(event: React.ClipboardEvent<HTMLDivElement>) {
   if (
     event.defaultPrevented ||
-    !writeSemanticSelection(
+    !writeMathSelection(
       event.currentTarget,
       event.currentTarget.ownerDocument.getSelection(),
       event.clipboardData,

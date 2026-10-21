@@ -40,14 +40,8 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
   const codeText = extractText(children).replace(/\n$/, '')
 
   return (
-    <div
-      data-copy-code
-      className="w-full min-w-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700"
-    >
-      <div
-        data-copy-exclude
-        className="flex items-center justify-between bg-neutral-200 px-3 py-1 select-none dark:bg-neutral-700"
-      >
+    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
+      <div className="flex items-center justify-between bg-neutral-200 px-3 py-1 select-none dark:bg-neutral-700">
         <span className="font-mono text-xs text-neutral-600 dark:text-neutral-300">
           {language}
         </span>

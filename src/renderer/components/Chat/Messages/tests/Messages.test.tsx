@@ -146,7 +146,7 @@ describe('Messages', () => {
     ).toBeInTheDocument()
   })
 
-  it('copies a selection spanning user and assistant messages semantically', () => {
+  it('copies math when the selection spans user and assistant messages', () => {
     const formula = '\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}'
     const { container } = render(
       <Messages
@@ -162,18 +162,10 @@ describe('Messages', () => {
             id: '2',
             role: 'assistant',
             content: `The formula is $${formula}$`,
-            generationMetrics: {
-              tokenCount: 42,
-              tokensPerSecond: 12.5,
-              timeToFirstTokenMs: 250,
-              stopReason: 'eogToken',
-            },
             createdAt,
           },
         ]}
         bottomInset={0}
-        showMessageDates
-        showStatistics
       />,
     )
     const userText = screen.getByText('Show the quadratic formula').firstChild
@@ -194,54 +186,65 @@ describe('Messages', () => {
     expect(setData).toHaveBeenCalledOnce()
     expect(setData).toHaveBeenCalledWith(
       'text/plain',
-      `Show the quadratic formula\n\nThe formula is $${formula}$`,
+      `Show the quadratic formulaThe formula is $${formula}$`,
     )
   })
 
-  it('copies reasoning only when it is expanded and selected', async () => {
-    const { container } = render(
+  it('includes thinking text in selections only while expanded', async () => {
+    const reasoning = 'Hidden thinking text'
+    render(
       <Messages
         activeChatId={null}
         messages={[
           {
             id: '1',
-            role: 'user',
-            content: 'Question',
-            createdAt,
-          },
-          {
-            id: '2',
             role: 'assistant',
-            content: 'Answer',
-            reasoning: 'Private chain of thought',
+            content: 'Answer $x^2$',
+            reasoning,
             createdAt,
           },
         ]}
         bottomInset={0}
       />,
     )
-    const messageList = container.querySelector('.pt-14')
-    expect(messageList).not.toBeNull()
+    const article = screen.getByRole('article')
+    const toggle = screen.getByRole('button', { name: 'Thinking' })
     const setData = vi.fn()
-    const copyConversation = () => {
-      const selection = document.getSelection()
+    const copyMessage = () => {
       const range = document.createRange()
-      range.selectNodeContents(messageList!)
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-      fireEvent.copy(messageList!, { clipboardData: { setData } })
+      range.selectNodeContents(article)
+      const selection = document.getSelection()!
+      selection.removeAllRanges()
+      selection.addRange(range)
+      fireEvent.copy(article, { clipboardData: { setData } })
     }
 
-    copyConversation()
-    expect(setData).toHaveBeenLastCalledWith('text/plain', 'Question\n\nAnswer')
-
-    await userEvent.click(screen.getByRole('button', { name: 'Thinking' }))
-    copyConversation()
+    expect(article).not.toHaveTextContent(reasoning)
+    copyMessage()
     expect(setData).toHaveBeenLastCalledWith(
       'text/plain',
-      'Question\n\nPrivate chain of thought\n\nAnswer',
+      expect.not.stringContaining(reasoning),
     )
-    expect(setData).toHaveBeenCalledTimes(2)
+    expect(setData).toHaveBeenLastCalledWith(
+      'text/plain',
+      expect.stringContaining('$x^2$'),
+    )
+
+    await userEvent.click(toggle)
+    expect(article).toHaveTextContent(reasoning)
+    copyMessage()
+    expect(setData).toHaveBeenLastCalledWith(
+      'text/plain',
+      expect.stringContaining(reasoning),
+    )
+
+    await userEvent.click(toggle)
+    expect(article).not.toHaveTextContent(reasoning)
+    copyMessage()
+    expect(setData).toHaveBeenLastCalledWith(
+      'text/plain',
+      expect.not.stringContaining(reasoning),
+    )
   })
 
   it('shows generation metrics beside the assistant message copy control', async () => {

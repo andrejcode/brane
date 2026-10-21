@@ -89,7 +89,6 @@ interface SeedChatOptions {
   modelFile?: string
   userMessage?: string
   assistantMessage?: string
-  assistantReasoning?: string
 }
 
 export function seedChat(
@@ -100,7 +99,6 @@ export function seedChat(
     modelFile = 'fixture-model.gguf',
     userMessage = 'Fixture user message',
     assistantMessage = 'Fixture assistant response',
-    assistantReasoning,
   }: SeedChatOptions,
 ) {
   const modelPath = path.join(workspace.modelsDir, modelFile)
@@ -152,7 +150,7 @@ export function seedChat(
       'assistant',
       1,
       assistantMessage,
-      assistantReasoning ?? null,
+      null,
       'stop',
       12,
       2048,

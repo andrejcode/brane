@@ -232,74 +232,18 @@ describe('MarkdownRenderer', () => {
     )
   })
 
-  it('copies formatted prose and lists as readable plain text', () => {
-    render(
-      <MarkdownRenderer
-        content={
-          '# Title\n\nThis is **bold**, *italic*, [linked](https://example.com), and `inline code`.\n\n- First item\n- Second item'
-        }
-      />,
-    )
-    const root = screen.getByRole('heading', { name: 'Title' }).parentElement
-    expect(root).not.toBeNull()
-    selectContents(root!)
+  it('leaves ordinary text selection copying to the browser', () => {
+    render(<MarkdownRenderer content="Ordinary text" />)
+    const root = screen.getByText('Ordinary text').parentElement!
+    selectContents(root)
 
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith(
-      'text/plain',
-      'Title\n\nThis is bold, italic, linked, and inline code.\n\n- First item\n- Second item',
-    )
+    expect(copySelection(root)).not.toHaveBeenCalled()
   })
 
-  it('copies code without fences, language labels, or controls', () => {
-    render(
-      <MarkdownRenderer
-        content={
-          '# Example\n\n```typescript\nconst answer: number = 42\n```\n\nDone.'
-        }
-      />,
-    )
-    const root = screen.getByRole('heading', { name: 'Example' }).parentElement
-    expect(root).not.toBeNull()
-    selectContents(root!)
-
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith(
-      'text/plain',
-      'Example\n\nconst answer: number = 42\n\nDone.',
-    )
-  })
-
-  it('preserves indentation and internal blank lines in copied code', () => {
-    const { container } = render(
-      <MarkdownRenderer
-        content={'```typescript\n  const answer = 42\n\n  return answer\n```'}
-      />,
-    )
-    const code = container.querySelector('[data-copy-code] code')
-    const root = container.firstElementChild
-    expect(code).not.toBeNull()
-    expect(root).toBeInstanceOf(HTMLElement)
-    selectContents(code!)
-
-    const setData = copySelection(root as HTMLElement)
-
-    expect(setData).toHaveBeenCalledWith(
-      'text/plain',
-      '  const answer = 42\n\n  return answer',
-    )
-  })
-
-  it('copies inline and display math as canonical TeX', () => {
+  it('copies multiple inline formulas with surrounding selected prose', () => {
     const formula = 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}'
-    render(
-      <MarkdownRenderer
-        content={`# Math\n\nInline $E = mc^2$.\n\n$$\n${formula}\n$$`}
-      />,
-    )
-    const root = screen.getByRole('heading', { name: 'Math' }).parentElement
+    render(<MarkdownRenderer content={`Inline $E = mc^2$ and $${formula}$.`} />)
+    const root = screen.getByText(/Inline/).parentElement
     expect(root).not.toBeNull()
     selectContents(root!)
 
@@ -307,7 +251,21 @@ describe('MarkdownRenderer', () => {
 
     expect(setData).toHaveBeenCalledWith(
       'text/plain',
-      `Math\n\nInline $E = mc^2$.\n\n$$\n${formula}\n$$`,
+      `Inline $E = mc^2$ and $${formula}$.`,
+    )
+  })
+
+  it('copies display math once as its original TeX', () => {
+    const formula = '\\frac{a}{b}'
+    const { container } = render(
+      <MarkdownRenderer content={`$$\n${formula}\n$$`} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    selectContents(root)
+
+    expect(copySelection(root)).toHaveBeenCalledWith(
+      'text/plain',
+      `$$\n${formula}\n$$`,
     )
   })
 
@@ -327,91 +285,18 @@ describe('MarkdownRenderer', () => {
     expect(setData).toHaveBeenCalledWith('text/plain', `$${formula}$`)
   })
 
-  it('copies GFM structures with meaningful plain-text separators', () => {
-    render(
-      <MarkdownRenderer
-        content={
-          '5. Fifth\n   - Nested\n6. Sixth\n\n- [x] Complete\n- [ ] Pending\n\n| Name | Value |\n| --- | --- |\n| Alpha | 1 |\n\n![Model diagram](https://example.com/model.png)  \nNext line'
-        }
-      />,
+  it('preserves whitespace in canonical inline TeX', () => {
+    const formula = '\\text{two  spaces}'
+    const { container } = render(
+      <MarkdownRenderer content={`Before $${formula}$ after`} />,
     )
-    const root = screen.getByText('Fifth').closest('ol')?.parentElement
-    expect(root).not.toBeNull()
-    selectContents(root!)
+    const root = container.firstElementChild as HTMLElement
+    selectContents(root)
 
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith(
+    expect(copySelection(root)).toHaveBeenCalledWith(
       'text/plain',
-      '5. Fifth\n  - Nested\n6. Sixth\n\n- [x] Complete\n- [ ] Pending\n\nName\tValue\nAlpha\t1\n\nModel diagram\nNext line',
+      `Before $${formula}$ after`,
     )
-  })
-
-  it('preserves original numbering for a middle range of list items', () => {
-    render(
-      <MarkdownRenderer
-        content={'1. One\n2. Two\n3. Three\n4. Four\n5. Five'}
-      />,
-    )
-    const firstItemText = screen.getByText('Three').firstChild
-    const lastItemText = screen.getByText('Four').firstChild
-    const root = screen.getByText('One').closest('ol')?.parentElement
-    expect(firstItemText).not.toBeNull()
-    expect(lastItemText).not.toBeNull()
-    expect(root).not.toBeNull()
-    selectRange(
-      firstItemText!,
-      0,
-      lastItemText!,
-      lastItemText!.textContent?.length ?? 0,
-    )
-
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith('text/plain', '3. Three\n4. Four')
-  })
-
-  it('preserves a task marker when only its item text is selected', () => {
-    render(<MarkdownRenderer content={'- [x] Complete\n- [ ] Pending'} />)
-    const item = screen.getByText('Pending').closest('li')
-    const itemText = Array.from(item?.childNodes ?? []).find(
-      (node) =>
-        node.nodeType === Node.TEXT_NODE &&
-        node.textContent?.includes('Pending'),
-    )
-    const root = item?.closest('ul')?.parentElement
-    expect(itemText).not.toBeNull()
-    expect(root).not.toBeNull()
-    const start = itemText!.textContent?.indexOf('Pending') ?? 0
-    selectRange(itemText!, start, itemText!, start + 'Pending'.length)
-
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith('text/plain', '- [ ] Pending')
-  })
-
-  it('preserves cell separators for a partial table row selection', () => {
-    render(
-      <MarkdownRenderer
-        content={'| Name | Value |\n| --- | --- |\n| Alpha | 1 |'}
-      />,
-    )
-    const firstCellText = screen.getByRole('cell', { name: 'Alpha' }).firstChild
-    const lastCellText = screen.getByRole('cell', { name: '1' }).firstChild
-    const root = screen.getByRole('table').parentElement
-    expect(firstCellText).not.toBeNull()
-    expect(lastCellText).not.toBeNull()
-    expect(root).not.toBeNull()
-    selectRange(
-      firstCellText!,
-      0,
-      lastCellText!,
-      lastCellText!.textContent?.length ?? 0,
-    )
-
-    const setData = copySelection(root!)
-
-    expect(setData).toHaveBeenCalledWith('text/plain', 'Alpha\t1')
   })
 
   it('keeps an intersected formula atomic when selection starts in prose', () => {
@@ -447,7 +332,7 @@ describe('MarkdownRenderer', () => {
   })
 
   it('copies only the selected portion of ordinary formatted text', () => {
-    render(<MarkdownRenderer content="Alpha **Beta Gamma** Omega" />)
+    render(<MarkdownRenderer content="Alpha **Beta Gamma** Omega $x^2$" />)
     const selectedText = screen.getByText('Beta Gamma').firstChild
     const root = screen.getByText(/Alpha/).parentElement
     expect(selectedText).not.toBeNull()
@@ -461,7 +346,7 @@ describe('MarkdownRenderer', () => {
 
     const setData = copySelection(root!)
 
-    expect(setData).toHaveBeenCalledWith('text/plain', 'Beta')
+    expect(setData).not.toHaveBeenCalled()
   })
 
   it('leaves copy events outside the rendered response untouched', () => {
@@ -485,24 +370,18 @@ describe('MarkdownRenderer', () => {
     expect(screen.getByText('Raw emphasis').tagName).toBe('STRONG')
   })
 
-  it('prevents raw HTML from spoofing semantic-copy markers', () => {
+  it('prevents raw HTML from spoofing KaTeX elements', () => {
     const { container } = render(
-      <MarkdownRenderer
-        content={
-          '<span data-copy-exclude>First</span> <span data-copy-code><code>second</code></span> <span class="katex">third</span>'
-        }
-      />,
+      <MarkdownRenderer content={'<span class="katex">Not a formula</span>'} />,
     )
-    const root = screen.getByText('First').parentElement
+    const root = screen.getByText('Not a formula').parentElement
     expect(root).not.toBeNull()
-    expect(container.querySelector('[data-copy-exclude]')).toBeNull()
-    expect(container.querySelector('[data-copy-code]')).toBeNull()
     expect(container.querySelector('.katex')).toBeNull()
     selectContents(root!)
 
     const setData = copySelection(root!)
 
-    expect(setData).toHaveBeenCalledWith('text/plain', 'First second third')
+    expect(setData).not.toHaveBeenCalled()
   })
 
   it('sanitizes dangerous HTML and URLs', () => {

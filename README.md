@@ -16,6 +16,7 @@ device. Brane does not require a backend service to run your chats.
 - [What you need](#what-you-need)
 - [Add a model](#add-a-model)
 - [Features](#features)
+  - [Copying selected text](#copying-selected-text)
 - [Report a problem or request a feature](#report-a-problem-or-request-a-feature)
 - [Privacy and model responsibility](#privacy-and-model-responsibility)
 - [Acknowledgments](#acknowledgments)
@@ -111,6 +112,7 @@ are written to the local diagnostic logs under **Settings > General > Logs**.
 - Optional message dates and generation statistics, including context usage,
   token speed, and stop reasons
 - Markdown, code highlighting, tables, and math in responses
+- Copy rendered math selections as their original TeX expressions
 - Confirmation before opening links in an external browser
 - Light, dark, and system themes
 - Adjustable message font size
@@ -119,6 +121,15 @@ are written to the local diagnostic logs under **Settings > General > Logs**.
 - Optional loading of the selected model on startup
 - English, German, Croatian, and Serbian interfaces
 - Local diagnostic logs that you can open or delete from settings
+
+### Copying selected text
+
+Selections without math use the browser's native copy behavior. Rendered KaTeX
+is the exception: its rendered structure can introduce unwanted line breaks when
+copied, making selections containing math difficult to reuse. Brane replaces
+each selected formula with its original TeX expression while keeping the
+surrounding selected text. Selecting part of a formula copies the complete
+expression.
 
 ## Report a problem or request a feature
 

@@ -11,7 +11,7 @@ import { useAlert } from '@/contexts/AlertContext'
 import { useTranslation } from '@/contexts/LocaleContext'
 import { ConfirmDialog } from '@/ui/ConfirmDialog'
 import { CodeBlock } from './CodeBlock'
-import { writeSemanticSelection } from './semanticCopy'
+import { writeMathSelection } from './mathCopy'
 
 interface MarkdownRendererProps {
   content: string
@@ -35,7 +35,7 @@ const baseMarkdownComponents: Components = {
 
 function handleCopy(event: React.ClipboardEvent<HTMLDivElement>) {
   if (
-    !writeSemanticSelection(
+    !writeMathSelection(
       event.currentTarget,
       event.currentTarget.ownerDocument.getSelection(),
       event.clipboardData,

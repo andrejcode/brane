@@ -77,7 +77,6 @@ export function ChatMessage({
         showMessageDates ||
         (showStatistics && generationMetrics)) && (
         <div
-          data-copy-exclude
           className={clsx(
             'flex flex-wrap items-center gap-2 text-xs text-neutral-500',
             'opacity-0 transition-opacity duration-200',
