@@ -5,6 +5,44 @@ release separates user-facing release notes from internal development changes
 so the user changes can also be published in the app, on the website, or on
 social media.
 
+# v0.3.3 - 2026-10-22
+
+## User changes
+
+### Added
+
+- Added copying of selected rendered math as TeX expressions, including
+  selections containing surrounding text
+
+### Updated
+
+- Increased the settings window size
+- Improved sidebar toggle alignment and header spacing
+- Balanced focus spacing around the reasoning toggle
+
+### Fixed
+
+- Fixed formula spacing and compressed fractions in rendered math
+- Excluded code block language labels and copy controls from text selections
+- Excluded collapsed reasoning from copied text and the accessibility tree
+- Preserved spacing above the expanded message input for message controls and
+  the scroll-to-bottom button
+- Prevented confirmation dialogs opened over settings from doubling the
+  background dimming
+
+## Development changes
+
+### Updated
+
+- Updated Electron to 41.10.7 and node-llama-cpp to 3.22.2 for security and
+  runtime fixes
+- Aligned KaTeX renderer and stylesheet versions
+- Organized scroll area, tooltip, and menu components into dedicated folders,
+  splitting tooltip and menu logic into smaller components and shared helpers
+- Shared resize observer logic and extracted message input measurement and
+  bottom inset calculations into dedicated helpers
+- Expanded component and end-to-end regression coverage
+
 # v0.3.2 - 2026-10-16
 
 ## User changes
