@@ -121,10 +121,16 @@ describe('Header on non-mac', () => {
     expect(mock.getIsFullScreen).not.toHaveBeenCalled()
   })
 
-  it('uses the compact left margin', () => {
+  it('aligns the toggle icon with sidebar actions using symmetric header margins', () => {
     const { container } = renderHeader()
 
-    expect(container.querySelector('.z-10')?.className).toContain('ml-4')
+    expect(container.querySelector('.z-10')).toHaveClass('ml-3', 'mr-3')
+    expect(screen.getByRole('button', { name: 'Toggle sidebar' })).toHaveClass(
+      'p-1',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Toggle sidebar' }),
+    ).not.toHaveClass('px-2')
   })
 
   it('remembers the sidebar state when it is toggled', async () => {
@@ -370,7 +376,13 @@ describe('Header on mac', () => {
       mock.emitFullScreenChange(true)
     })
 
-    expect(container.querySelector('.z-10')?.className).toContain('ml-4')
+    expect(container.querySelector('.z-10')).toHaveClass('ml-3', 'mr-3')
+    expect(screen.getByRole('button', { name: 'Toggle sidebar' })).toHaveClass(
+      'p-1',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Toggle sidebar' }),
+    ).not.toHaveClass('px-2')
   })
 
   it('unsubscribes from fullscreen changes on unmount', async () => {
